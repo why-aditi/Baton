@@ -1,0 +1,19 @@
+{
+  "name": "baton",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "^2.1.9",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.9"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}
