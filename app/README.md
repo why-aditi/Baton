@@ -34,6 +34,8 @@ npm run typecheck
 | `src/handover/access.ts` | Who sees what: editor (initiator, recipients, Jira admins), subject, or nobody |
 | `src/actions/index.ts` | The five Rovo/MCP actions, with replies kept under 4 KB |
 | `src/index.ts`, `src/forge/` | Forge wiring: KVS store, caller identity, links. Not unit-tested |
+| `src/graph/runner.ts` | `runPaged`: one graph query to the end (cursor paging, null rows, error codes, `QUERY_NOT_FOUND` retry) |
+| `src/graph/merge.ts` | `mergeItems` (one item per ARI, strongest role wins) and `coverageWarnings` (the startup self-check) |
 | `src/graph/queryKeys.ts` | Persisted Teamwork Graph query keys |
 
 ## Resolvers (for the UI)
@@ -84,3 +86,9 @@ route on that path.
 - **Storage** keeps a `handover-member` row per person who can see a handover, so listing by recipient
   works (KVS can't index an array). One handover is one entity, so check the entity size limit
   against the seed data before relying on the 500-item cap.
+
+## Graph normalizers: not written yet
+
+Turning graph nodes into `Item`s needs each node type's field names, and those aren't in anything
+reachable from here. They are guesses until real responses are recorded, so the mapping code waits
+for fixtures. See `test/fixtures/README.md` for how to record them with the spike.
