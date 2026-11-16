@@ -1,6 +1,6 @@
 # Baton dev setup for Keshav
 
-Nov 16, 2026 · from Aditi
+Nov 16, 2026 · from Aditi · updated Nov 16 with the real app in `app/`
 
 All four week-1 spikes pass, so you're setting up on a stack that already works end to end. This gets you your own copy: the Baton Forge app on your own environment and demo site, connected to Rovo, Claude Desktop (MCP) and Groq. Plan on about an hour.
 
@@ -12,15 +12,16 @@ All four week-1 spikes pass, so you're setting up on a stack that already works 
 | MCP from Claude Desktop | Works |
 | Confluence page published from the Jira app | Works, as the signed-in user |
 
-The code is in `spike/`. Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
+The repo has two apps: `spike/` (the week-1 test page, which sections 2–5 below set up) and `app/` (the real Baton, see section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
 
 ## 1. Before you start
 
 **Aditi does these first:**
 
-- [ ] Push the repo to the private GitHub repo and add you. It isn't on GitHub yet.
+- [x] Push the repo to GitHub (`why-aditi/Baton`).
+- [ ] Add you as a collaborator on it.
 - [ ] Add you to the Developer Space that owns the app (developer.atlassian.com/console). Without this, `forge deploy` fails for you.
-- [ ] Send you the Groq API key through a password manager, not chat.
+- [ ] Send you the Groq API key (and the Mistral key, once there is one) through a password manager, not chat.
 
 **You need:**
 
@@ -116,6 +117,51 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 - **Never log a whole action payload.** It contains a signed `contextToken`.
 - **MCP calls carry no `accountId` in the payload**, unlike Rovo agent calls. The real access checks need another way to identify the caller.
 - **Saved graph query keys are tied to the app ID**, so `src/graph/queryKeys.js` works on your site too. Changing a query means registering a new one and getting a new key.
+
+## 7. The real app (`app/`)
+
+`app/` holds the backend: scoring, the LLM calls, storage, the app page's resolvers, and the five Rovo/MCP actions. The UI isn't built yet. `app/README.md` has the details, including the full resolver table.
+
+**Run the tests** (no site or login needed):
+```
+cd app
+npm install
+npm test
+npm run typecheck
+```
+
+**Deploying it.** `app/manifest.yml` uses the same app ID as the spike, because the saved graph query keys belong to the app ID. So **deploying `app/` to an environment replaces the spike there.** Keep the spike in your `keshav` environment until any graph fixtures you're recording are saved, then:
+```
+cd app
+forge variables set --encrypt -e keshav GROQ_API_KEY <key>
+forge variables set --encrypt -e keshav MISTRAL_API_KEY <key>   # optional fallback
+forge deploy -e keshav
+forge install --upgrade -e keshav
+```
+The upgrade asks you to approve new scopes (Jira read/write, user read, app storage) and the new Mistral host.
+
+**What's yours in `app/`:**
+
+- **The Custom UI.** `app/static/ui/index.html` is a placeholder so the app deploys. Build the UI (React + `@atlaskit`) and point `resources` in the manifest at its build output.
+- **Calling the backend.** Use `invoke(name, payload)` from `@forge/bridge`. Every resolver returns `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. A `not_found` code also means "no access", so show the same empty state either way.
+- **Routing.** Links from the Rovo agent go to `<site>/jira/apps/<appId>/<envId>/handover/<id>`. The UI should route on `/handover/<id>`.
+- **Who sees what.** `getHandover` returns `{ role: 'editor', handover }` for the manager, recipients and Jira admins. For the departing person it returns a questions-only view (`role: 'subject'`). Render the knowledge-capture screen for `subject` and the inventory for `editor`.
+- **Reading the graph.** Graph reads happen in the UI as the user. Use `runPaged` from `app/src/graph/runner.ts` for each query, `mergeItems` to combine the results, and `coverageWarnings` for the "check the scopes" banners. Then send the items to `saveInventory`. The step that turns each graph result into an `Item` isn't written yet (see below), so stub it with fake items for now.
+- **The LLM can fail.** `generateQuestions` and `generateSummary` return `llm_unavailable` when both LLM providers fail or the hourly limit (20 calls per site) is hit. Show the error and keep the rest of the screen working. The inventory never depends on the LLM.
+- **Publish and reassign.** These are still yours and aren't in `app/` yet. After the Confluence page is created, call `markPublished({ id, pageId, url })` so the handover moves to Published. Reassign runs as the user, after the confirmation dialog.
+
+**Still open on Aditi's side:**
+
+- The code that turns each graph result into an `Item`. It needs real field names, which are recorded with two new buttons on the spike page: **Inspect types** and **Run raw query** (steps in `app/test/fixtures/README.md`).
+- The `PQ_ITEM_COLLABORATORS` persisted query.
+- Goal and project graph scopes, still a TODO in the manifest.
+- Checking that the Rovo and MCP actions identify the caller correctly on a real site.
+
+**Gotchas, in addition to section 6:**
+
+- **`Item` fields matter to scoring.** Set `statusCategory` (an open PR is `in_progress`), `reviewers` on PRs, `dueDate` / `sprintEndDate` on issues, `inboundLinks` on pages, and `container` (project key, repo or space) on everything. Missing fields just score lower, silently.
+- **People are stored by account ID**, but collaborators and team members are user ARIs (`ari:cloud:identity::user/<accountId>`). Pass display names to `saveInventory` as `people: { accountId: name }`.
+- **LLM results are cached.** Calling a generate resolver again returns the stored result unless the inputs changed. Pass `regenerate: true` for a "Regenerate" button.
 
 ## Open questions
 
