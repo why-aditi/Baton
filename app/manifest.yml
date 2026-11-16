@@ -1,0 +1,193 @@
+# Baton. Same app ID as spike/, because persisted Teamwork Graph query keys belong to the app ID.
+# Deploying this replaces the spike in whichever environment you deploy to.
+modules:
+  jira:globalPage:
+    - key: baton-home
+      resource: main
+      resolver:
+        function: resolver
+      title: Baton
+
+  function:
+    - key: resolver
+      handler: index.handler
+    - key: list-handovers-fn
+      handler: index.listHandovers
+    - key: get-handover-fn
+      handler: index.getHandover
+    - key: find-owner-fn
+      handler: index.findOwner
+    - key: list-at-risk-items-fn
+      handler: index.listAtRiskItems
+    - key: start-handover-fn
+      handler: index.startHandover
+
+  rovo:agent:
+    - key: baton-agent
+      name: Baton
+      description: "Answers questions about team handovers: what someone left unfinished, who owns it now, and what's at risk."
+      prompt: >
+        You are Baton, which helps teams hand over work when someone leaves, goes on leave or changes teams.
+        Always call an action before answering, and answer only from what the actions return.
+        Never invent handovers, items, owners or dates.
+        Cite issue keys and page titles as links using the url fields.
+        If an action says no handover exists for a person, offer to start one with start-handover,
+        and ask for their last day if you don't have it. Dates go to actions as YYYY-MM-DD.
+        If an action returns an error, tell the user plainly.
+      conversationStarters:
+        - What did Meera leave unfinished?
+        - Who owns PAY-142 now?
+        - Start a handover for Arjun, last day Jan 10
+        - What's high-risk in open handovers?
+      actions:
+        - list-handovers
+        - get-handover
+        - find-owner
+        - list-at-risk-items
+        - start-handover
+
+  action:
+    - key: list-handovers
+      name: List handovers
+      function: list-handovers-fn
+      actionVerb: GET
+      description: Lists the handovers the caller can see, with each person, reason, last day, status and link.
+      inputs:
+        status:
+          title: Status
+          type: string
+          required: false
+          description: Optional filter, one of draft, collecting, ready, published.
+    - key: get-handover
+      name: Get handover
+      function: get-handover-fn
+      actionVerb: GET
+      description: Gets one person's handover, with its summary, the 10 riskiest items and their new owners, and the answered questions.
+      inputs:
+        person:
+          title: Person
+          type: string
+          required: true
+          description: The departing person's name or Atlassian account ID.
+    - key: find-owner
+      name: Find owner
+      function: find-owner-fn
+      actionVerb: GET
+      description: Finds who owns an item now that its owner is leaving, or says it is not in a handover.
+      inputs:
+        item:
+          title: Item
+          type: string
+          required: true
+          description: A Jira issue key such as PAY-142, a pull request URL, or a Confluence page title.
+    - key: list-at-risk-items
+      name: List at-risk items
+      function: list-at-risk-items-fn
+      actionVerb: GET
+      description: Lists high knowledge-risk items in open handovers, with the reasons for each score.
+      inputs:
+        person:
+          title: Person
+          type: string
+          required: false
+          description: Optional. Limit to one departing person, by name or account ID.
+        minRisk:
+          title: Minimum risk
+          type: integer
+          required: false
+          description: Optional minimum risk score from 0 to 100. Defaults to 60 (High).
+    - key: start-handover
+      name: Start handover
+      function: start-handover-fn
+      actionVerb: CREATE
+      description: Starts a draft handover for a person and returns a link to finish it in Baton.
+      inputs:
+        person:
+          title: Person
+          type: string
+          required: true
+          description: The departing person's name or Atlassian account ID.
+        reason:
+          title: Reason
+          type: string
+          required: true
+          description: One of leaving, leave or team_change.
+        lastDay:
+          title: Last day
+          type: string
+          required: true
+          description: Their last day, as YYYY-MM-DD.
+
+  rovo:mcp:
+    - key: baton-mcp
+      name: Baton handovers
+      tools:
+        - list-handovers
+        - get-handover
+        - find-owner
+        - list-at-risk-items
+        - start-handover
+
+resources:
+  # Placeholder until the Custom UI build exists; point this at its build output (e.g. static/ui/build).
+  - key: main
+    path: static/ui
+
+permissions:
+  scopes:
+    - read:graph:user:atlassian
+    - read:graph:team:atlassian
+    - read:graph:issue:jira
+    - read:graph:page:confluence
+    - read:graph:pull-request:external
+    # TODO: goal and project graph scopes; confirm exact names on the Scopes page.
+    - read:jira-work
+    - write:jira-work
+    - read:jira-user
+    - read:space:confluence
+    - write:page:confluence
+    - storage:app
+  external:
+    fetch:
+      backend:
+        - address: api.groq.com
+        - address: api.mistral.ai
+
+app:
+  runtime:
+    name: nodejs22.x
+  id: ari:cloud:ecosystem::app/83b0292d-c06a-4bec-9e04-426a67cb0280
+  storage:
+    entities:
+      - name: handover
+        attributes:
+          id: { type: string }
+          subjectAccountId: { type: string }
+          subjectAri: { type: string }
+          subjectName: { type: string }
+          initiatorAccountId: { type: string }
+          recipientAccountIds: { type: any }
+          reason: { type: string }
+          lastDay: { type: string }
+          status: { type: string }
+          items: { type: any }
+          people: { type: any }
+          questions: { type: any }
+          summary: { type: any }
+          inputHash: { type: string }
+          generatedFrom: { type: any }
+          confluencePageId: { type: string }
+          confluencePageUrl: { type: string }
+          createdAt: { type: string }
+          updatedAt: { type: string }
+        indexes:
+          - initiatorAccountId
+          - subjectAccountId
+          - status
+      # One row per person who can see a handover (initiator, recipients, subject).
+      - name: handover-member
+        attributes:
+          handoverId: { type: string }
+          accountId: { type: string }
+        indexes:
+          - accountId
