@@ -20,7 +20,7 @@ The repo has two apps: `spike/` (the week-1 test page, which sections 2–5 belo
 
 - [x] Push the repo to GitHub (`why-aditi/Baton`).
 - [x] Add you as a collaborator on it.
-- [ ] Add you to the Developer Space that owns the app (developer.atlassian.com/console). Without this, `forge deploy` fails for you.
+- [x] Add you to the Developer Space that owns the app (developer.atlassian.com/console). Without this, `forge deploy` fails for you.
 - [ ] Send you the Groq API key (and the Mistral key, once there is one) through a password manager, not chat.
 
 **You need:**
