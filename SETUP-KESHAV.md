@@ -12,7 +12,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Claude Desktop (MCP) | Works, and sees the same handovers as Rovo |
 | Publish to Confluence | Works, as the signed-in user, with @mentions and item links |
 | Reassign Jira issues | Works, as the signed-in user |
-| Bitbucket PRs in the graph | Not checked yet. The IP allowlist is off (Nov 22), so Bitbucket is reachable now (section 3) |
+| Bitbucket PRs in the graph | Pending. Bitbucket is reachable and linked to Jira (Nov 22), and two test PRs exist, but neither the graph nor Jira's Development panel showed them 10 minutes later (section 3) |
 | Custom UI | Not built. Yours (section 7) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
@@ -72,7 +72,7 @@ Use `forge logs -e keshav -f` in a second terminal while testing.
 
 ## 3. Connect Rovo, MCP, Bitbucket
 
-**Rovo agent.** Nothing to set up. On your demo site, click **Ask Rovo** (top right), open the agent picker, search "Baton" and ask "List open handovers". It may show up twice in the picker (open question); either works.
+**Rovo agent.** Nothing to set up. On your demo site, click **Ask Rovo** (top right), open the agent picker, search "Baton" and ask "List open handovers". Baton shows up once; if you see it twice, the app is installed per product (section 6). People in its answers are profile chips linking to `<site>/jira/people/<accountId>`. The first time an account opens a Jira profile, Jira may show a one-time "What kind of work do you do?" screen first.
 
 **MCP for Claude Desktop.**
 
@@ -82,7 +82,12 @@ Use `forge logs -e keshav -f` in a second terminal while testing.
 4. Claude Desktop → Settings → Connectors → **Add custom connector**. Name `Baton`, URL `https://mcp.atlassian.com/forge/83b0292d-c06a-4bec-9e04-426a67cb0280`. Sign in and pick **your** site.
 5. You should see the five Baton tools. Ask "List open handovers". After any install change, **Disconnect** the connector and connect again.
 
-**Bitbucket.** Still unchecked, and PRs are a big part of the demo. Demo orgs already include Bitbucket (on Aditi's, the workspace is `bitbucket.org/one-atlas-ubvd`). If every Bitbucket page shows "You're currently blocked from this page", **IP allowlisting** is on: an org admin turns it off under admin.atlassian.com → Security → IP allowlists (done on Aditi's org, Nov 22). Then create a repo and a PR and check that `atlassianUserPullRequests` returns it (the spike's **Probe Teamwork Graph** shows it under `pullRequests`; new activity takes about 5 minutes to appear). If PRs don't show up in the graph, they come from Bitbucket's REST API instead.
+**Bitbucket.** PRs are a big part of the demo, and whether they reach the graph is still pending. Demo orgs already include a Bitbucket Premium workspace (on Aditi's, `bitbucket.org/one-atlas-ubvd`). Two setup steps, both done on Aditi's site on Nov 22:
+
+1. **Unblock it.** If every Bitbucket page shows "You're currently blocked from this page", the workspace has its own IP allowlist. It isn't in admin.atlassian.com's IP allowlists. On the block page, click **request disabling IP allowlisting**, follow the emailed link, then in Bitbucket → Workspace settings → **Access controls** make sure "Restrict access to certain IP addresses" is unticked.
+2. **Link it to Jira.** Bitbucket → Workspace settings → Atlassian integrations → **Jira** → **Connect** next to your site, then **Grant access** on both prompts (Jira to Bitbucket, then Bitbucket to Jira). Jira → Settings → DVCS accounts should then list the workspace and its repos.
+
+Then create a repo and a PR as a seeded user, and check that `atlassianUserPullRequests` returns it. Put an issue key in the PR title, too: the issue's Development panel shows whether Jira itself sees the PR. On Aditi's site, 10 minutes after linking, the commit showed on the issue but neither PR did, in Jira or the graph. If PRs never show up in the graph, they come from Bitbucket's REST API instead.
 
 ## 4. Seed data (your workstream)
 
@@ -182,12 +187,14 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 **Bitbucket**
 
-- [x] **Turn off the demo org's IP allowlist** (Nov 22), so Bitbucket is reachable.
-- [ ] **Check Bitbucket PRs appear in the graph.** Create a repo and a PR, wait about 5 minutes, then run **Probe Teamwork Graph** in the spike and look under `pullRequests`. If they don't show up, PRs come from Bitbucket's REST API instead. **(affects you)**
+- [x] **Turn off the Bitbucket workspace's IP allowlist** (Nov 22), so Bitbucket is reachable.
+- [x] **Link the Bitbucket workspace to the Jira site** (Nov 22).
+- [x] **Test PRs:** repo `baton-pr-probe` with PR #1 (before linking) and PR #2, "SALES-31 Baton graph probe 2" (after linking).
+- [ ] **Check Bitbucket PRs appear in the graph.** Rechecking about an hour after linking: if Jira's Development panel shows the PRs but the graph doesn't, the graph doesn't index Bitbucket here. If neither does, Bitbucket's sync is still catching up. If they don't show up, PRs come from Bitbucket's REST API instead. **(affects you)**
 
 **Code**
 
-- [x] **Jira fallback.** `saveInventory` asks Jira's search API, as the user, for each issue's updated date and sprint end, so the "stale" and "sprint ends" signals now fire for Jira issues. If the lookup fails, it scores from the graph alone. Not run on a site yet.
+- [x] **Jira fallback.** `saveInventory` asks Jira's search API, as the user, for each issue's updated date and sprint end, so the "stale" and "sprint ends" signals now fire for Jira issues. If the lookup fails, it scores from the graph alone. Verified on the demo site (Nov 22): SALES-24, untouched since March 2025, got its date from Jira and the "Stale" reason.
 - [ ] **Page link counts** for the "widely referenced" signal. Neither the graph nor any Confluence API we know of gives a page's incoming links, so this signal never fires yet. Options: find a graph relationship for page links, or drop the signal.
 - [ ] **Bitbucket fallback,** only if PRs don't show up in the graph (see above).
 
@@ -204,8 +211,8 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 - [ ] **Wrap `get-handover` and `find-owner` as `rovo:skill`s,** which helps with the Best Agents prize.
 - [ ] **Check the agent's four suggested questions** give correct, cited answers in Rovo and in Claude Desktop, before Dec 14.
-- [x] **Fix the agent's people links.** The actions now return `personUrl`, `currentOwnerUrl` and `newOwnerUrl` (`<site>/jira/people/<accountId>`), and the agent prompt says to link people only with those. Check the link opens a profile on your site.
-- [ ] **Decide why Baton shows up twice in the Rovo picker,** and whether that's still true with one installation.
+- [x] **Fix the agent's people links.** The actions now return `personUrl`, `currentOwnerUrl` and `newOwnerUrl` (`<site>/jira/people/<accountId>`), and the agent prompt says to link people only with those. Verified in Rovo (Nov 22): people show as profile chips that open their Jira profile.
+- [x] **Baton showing up twice in the Rovo picker.** That came from per-product installs; with one installation it shows once (Nov 22).
 
 **Loose ends**
 
@@ -218,6 +225,5 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 ## Open questions
 
-- Does Baton still show up twice in the Rovo picker with one installation, and does it matter?
-- Do Bitbucket PRs show up in `atlassianUserPullRequests` now that the IP allowlist is off?
+- Do Bitbucket PRs show up in `atlassianUserPullRequests` once Bitbucket's sync catches up? Recheck pending (section 3).
 - Fix for the teams 403 when the app asks: watch the forum thread.
