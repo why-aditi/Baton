@@ -28,7 +28,8 @@ export const callerFromAction = async (payload: any): Promise<Caller | null> => 
   }
   const source = accountId ? 'myself' : payload?.context?.accountId ? 'payload' : 'none';
   accountId ??= payload?.context?.accountId;
-  console.log('action caller resolved via', source); // no IDs: shows whether MCP calls can identify the user
+  // No IDs. The installation tells Rovo (Jira) and MCP calls apart if storage ever looks split again.
+  console.log('action caller via', source, 'install', String(getAppContext().installationAri).slice(-12));
   if (!accountId) return null;
   return { accountId, isAdmin: await isJiraAdmin().catch(() => false) };
 };

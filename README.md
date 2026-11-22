@@ -41,7 +41,8 @@ Claude Desktop (MCP) ────┘
 | Risk scoring, owner ranking, LLM layer, storage, resolvers, Rovo/MCP actions | Built and unit-tested; deployed to the dev site Nov 22 |
 | Graph paging, merging, scope self-check | Built and unit-tested |
 | Turning graph results into items, building the inventory | Built and tested against responses recorded on the demo site (Nov 22) |
-| Custom UI, Confluence publish, reassign | Not started |
+| Confluence publish and reassign (backend) | Built and unit-tested (Nov 22) |
+| Custom UI | Not started |
 | Seed data (Northwind Pay) | Not started; due Nov 30 |
 
 ## Develop
