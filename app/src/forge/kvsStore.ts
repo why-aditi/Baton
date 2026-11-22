@@ -11,14 +11,19 @@ const STATUSES: Status[] = ['draft', 'collecting', 'ready', 'published'];
 
 const memberKey = (handoverId: string, accountId: string) => `${handoverId}:${accountId}`;
 
+/** KVS entities reject empty-string attributes ("cannot be empty"), e.g. a new draft's inputHash. */
+export const toEntity = (h: Handover) =>
+  Object.fromEntries(Object.entries(h).filter(([, v]) => v !== '')) as Handover;
+export const fromEntity = (h: Handover | undefined) => (h ? { ...h, inputHash: h.inputHash ?? '' } : h);
+
 export class KvsStore implements Store {
   async get(id: string) {
-    return handovers().get(id);
+    return fromEntity(await handovers().get(id));
   }
 
   async put(h: Handover) {
-    const before = await handovers().get(h.id);
-    await handovers().set(h.id, h);
+    const before = await this.get(h.id);
+    await handovers().set(h.id, toEntity(h));
     const now = membersOf(h);
     const gone = before ? membersOf(before).filter((a) => !now.includes(a)) : [];
     await Promise.all([
@@ -49,7 +54,7 @@ export class KvsStore implements Store {
         let q = handovers().query().index('status').where(WhereConditions.equalTo(status)).limit(100);
         if (cursor) q = q.cursor(cursor);
         const page = await q.getMany();
-        out.push(...page.results.map((r) => r.value));
+        out.push(...page.results.map((r) => fromEntity(r.value)!));
         cursor = page.nextCursor;
       } while (cursor);
     }

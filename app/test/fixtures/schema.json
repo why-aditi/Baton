@@ -1,0 +1,2341 @@
+{
+  "Query": {
+    "kind": "OBJECT",
+    "fields": {
+      "atlassianUserAssignedJiraWorkItems": {
+        "type": "AtlassianUserAssignedJiraWorkItemsConnection",
+        "args": {
+          "userId": "NON_NULL<ID>",
+          "first": "Int",
+          "after": "String"
+        }
+      },
+      "atlassianUserPullRequests": {
+        "type": "AtlassianUserPullRequestsConnection",
+        "args": {
+          "userId": "NON_NULL<ID>",
+          "roles": "LIST<NON_NULL<AtlassianUserPullRequestRole>>",
+          "since": "NON_NULL<String>",
+          "first": "Int",
+          "after": "String"
+        }
+      },
+      "atlassianUserGoalsAndProjects": {
+        "type": "AtlassianUserGoalsAndProjectsConnection",
+        "args": {
+          "userId": "NON_NULL<ID>",
+          "roles": "LIST<NON_NULL<AtlassianUserGoalsAndProjectsRole>>",
+          "first": "Int",
+          "after": "String"
+        }
+      },
+      "atlassianUserInTeams": {
+        "type": "AtlassianUserInTeamsConnection",
+        "args": {
+          "userId": "NON_NULL<ID>",
+          "first": "Int",
+          "after": "String"
+        }
+      },
+      "atlassianTeamMembers": {
+        "type": "AtlassianTeamMembersConnection",
+        "args": {
+          "teamAri": "NON_NULL<ID>",
+          "first": "Int",
+          "after": "String"
+        }
+      },
+      "atlassianUserReportedJiraWorkItems": {
+        "type": "AtlassianUserReportedJiraWorkItemsConnection",
+        "args": {
+          "userId": "NON_NULL<ID>",
+          "first": "Int",
+          "after": "String"
+        }
+      },
+      "jiraWorkItemComments": {
+        "type": "JiraWorkItemCommentsConnection",
+        "args": {
+          "id": "NON_NULL<ID>",
+          "since": "NON_NULL<String>",
+          "first": "Int",
+          "after": "String"
+        }
+      },
+      "confluencePageContributors": {
+        "type": "ConfluencePageContributorsConnection",
+        "args": {
+          "id": "NON_NULL<ID>",
+          "first": "Int",
+          "after": "String"
+        }
+      },
+      "customQuery": {
+        "type": "CypherQueryConnection",
+        "args": {
+          "queryKey": "NON_NULL<String>",
+          "queryParams": "CypherRequestParams",
+          "after": "String",
+          "first": "Int"
+        }
+      }
+    }
+  },
+  "AtlassianUserAssignedJiraWorkItemsConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<AtlassianUserAssignedJiraWorkItemsEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "AtlassianUserPullRequestsConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<AtlassianUserPullRequestsEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "AtlassianUserGoalsAndProjectsConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<AtlassianUserGoalsAndProjectsEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "AtlassianUserInTeamsConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<AtlassianUserInTeamsEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "AtlassianTeamMembersConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<AtlassianTeamMembersEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "AtlassianUserReportedJiraWorkItemsConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<AtlassianUserReportedJiraWorkItemsEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "JiraWorkItemCommentsConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<JiraWorkItemCommentsEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "ConfluencePageContributorsConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<ConfluencePageContributorsEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "CypherQueryConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<CypherQueryEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "AtlassianUserAssignedJiraWorkItemsEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<AtlassianUserAssignedJiraWorkItemsResponse>"
+    }
+  },
+  "PageInfo": {
+    "kind": "OBJECT",
+    "fields": {
+      "hasNextPage": "NON_NULL<Boolean>",
+      "hasPreviousPage": "NON_NULL<Boolean>",
+      "startCursor": "String",
+      "endCursor": "String"
+    }
+  },
+  "AtlassianUserPullRequestsEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<AtlassianUserPullRequestsResponse>"
+    }
+  },
+  "AtlassianUserGoalsAndProjectsEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<AtlassianUserGoalsAndProjectsResponse>"
+    }
+  },
+  "AtlassianUserInTeamsEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<AtlassianUserInTeamsResponse>"
+    }
+  },
+  "AtlassianTeamMembersEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<AtlassianTeamMembersResponse>"
+    }
+  },
+  "AtlassianUserReportedJiraWorkItemsEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<AtlassianUserReportedJiraWorkItemsResponse>"
+    }
+  },
+  "JiraWorkItemCommentsEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<JiraWorkItemCommentsResponse>"
+    }
+  },
+  "ConfluencePageContributorsEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<ConfluencePageContributorsResponse>"
+    }
+  },
+  "CypherQueryEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<CypherQueryNode>"
+    }
+  },
+  "AtlassianUserAssignedJiraWorkItemsResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "JiraWorkItem"
+    ],
+    "fields": {}
+  },
+  "AtlassianUserPullRequestsResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "ExternalPullRequest"
+    ],
+    "fields": {}
+  },
+  "AtlassianUserGoalsAndProjectsResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "AtlassianGoal",
+      "AtlassianProject"
+    ],
+    "fields": {}
+  },
+  "AtlassianUserInTeamsResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "AtlassianTeam"
+    ],
+    "fields": {}
+  },
+  "AtlassianTeamMembersResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "AtlassianUser"
+    ],
+    "fields": {}
+  },
+  "AtlassianUserReportedJiraWorkItemsResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "JiraWorkItem"
+    ],
+    "fields": {}
+  },
+  "JiraWorkItemCommentsResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "JiraWorkItemComment"
+    ],
+    "fields": {}
+  },
+  "ConfluencePageContributorsResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "AtlassianUser"
+    ],
+    "fields": {}
+  },
+  "CypherQueryNode": {
+    "kind": "OBJECT",
+    "fields": {
+      "columns": "LIST<CypherQueryColumn>"
+    }
+  },
+  "JiraWorkItem": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "key": "String",
+      "summary": "String",
+      "description": "String",
+      "reporter": "User",
+      "assignee": "User",
+      "createdAt": "DateTime",
+      "issueId": "ID",
+      "webUrl": "URL",
+      "issueType": "JiraWorkItemType",
+      "status": "JiraWorkItemStatus",
+      "startedAt": "DateTime",
+      "dueAt": "DateTime",
+      "resolvedAt": "DateTime"
+    }
+  },
+  "ExternalPullRequest": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "author": "User",
+      "commentCount": "Int",
+      "containerId": "ID",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayId": "ID",
+      "displayName": "String",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "provider": "ExternalProvider",
+      "pullRequestId": "ID",
+      "repositoryId": "ID",
+      "status": "ExternalPullRequestStatus",
+      "supportedActions": "LIST<String>",
+      "tasksCount": "Int",
+      "thirdPartyId": "ID",
+      "title": "String",
+      "url": "URL",
+      "reviewers": "LIST<ExternalReviewer>"
+    }
+  },
+  "AtlassianGoal": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "key": "String",
+      "description": "String",
+      "url": "URL",
+      "createdAt": "DateTime",
+      "startedAt": "DateTime",
+      "dueDateStartedAt": "DateTime",
+      "dueDateEndedAt": "DateTime",
+      "updatedAt": "DateTime",
+      "archived": "Boolean",
+      "watching": "Boolean",
+      "watcherCount": "Int",
+      "owner": "User",
+      "parentGoalId": "ID",
+      "goalType": "AtlassianGoalType"
+    }
+  },
+  "AtlassianProject": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "archived": "Boolean",
+      "name": "String",
+      "key": "String",
+      "createdAt": "DateTime",
+      "startedAt": "DateTime",
+      "dueDateStartedAt": "DateTime",
+      "dueDateEndedAt": "DateTime",
+      "lastUpdatedAt": "DateTime",
+      "url": "URL",
+      "state": "AtlassianProjectState",
+      "watcherCount": "Int",
+      "watching": "Boolean",
+      "privateProject": "Boolean",
+      "descriptionWhat": "String",
+      "descriptionWhy": "String",
+      "descriptionMeasurement": "String",
+      "owner": "User"
+    }
+  },
+  "AtlassianTeam": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "organizationId": "ID",
+      "displayName": "String",
+      "description": "String",
+      "smallHeaderImageUrl": "URL",
+      "largeHeaderImageUrl": "URL",
+      "smallAvatarImageUrl": "URL",
+      "largeAvatarImageUrl": "URL",
+      "profileUrl": "URL"
+    }
+  },
+  "AtlassianUser": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "accountId": "NON_NULL<ID>",
+      "name": "String",
+      "email": "String"
+    }
+  },
+  "JiraWorkItemComment": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "webUrl": "URL",
+      "createdAt": "DateTime",
+      "updatedAt": "DateTime",
+      "deleted": "Boolean",
+      "threadParentId": "ID",
+      "content": "String",
+      "author": "User",
+      "lastEditor": "User"
+    }
+  },
+  "CypherQueryColumn": {
+    "kind": "OBJECT",
+    "fields": {
+      "key": "NON_NULL<String>",
+      "value": "CypherQueryResultRowItemUnion"
+    }
+  },
+  "User": {
+    "kind": "INTERFACE",
+    "possibleTypes": [
+      "AtlassianUser",
+      "ThirdPartyUser"
+    ],
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String"
+    }
+  },
+  "JiraWorkItemType": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "description": "String",
+      "avatar": "JiraAvatar"
+    }
+  },
+  "JiraWorkItemStatus": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "statusId": "ID",
+      "name": "String",
+      "description": "String",
+      "statusCategory": "JiraStatusCategory"
+    }
+  },
+  "ExternalProvider": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "logoUrl": "URL"
+    }
+  },
+  "ExternalPullRequestStatus": {
+    "kind": "ENUM",
+    "enumValues": [
+      "DECLINED",
+      "DRAFT",
+      "MERGED",
+      "OPEN",
+      "UNKNOWN"
+    ],
+    "fields": {}
+  },
+  "ExternalReviewer": {
+    "kind": "OBJECT",
+    "fields": {
+      "approvalStatus": "ExternalApprovalStatus",
+      "user": "User"
+    }
+  },
+  "AtlassianGoalType": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "state": "AtlassianGoalTypeState",
+      "iconKey": "AtlassianGoalIconKey"
+    }
+  },
+  "AtlassianProjectState": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ARCHIVED",
+      "AT_RISK",
+      "CANCELLED",
+      "DONE",
+      "OFF_TRACK",
+      "ON_TRACK",
+      "PAUSED",
+      "PENDING"
+    ],
+    "fields": {}
+  },
+  "CypherQueryResultRowItemUnion": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "CypherQueryResultNode",
+      "CypherQueryResultListNode",
+      "CypherQueryResultTimestampObject",
+      "CypherQueryResultBooleanObject",
+      "CypherQueryResultFloatObject",
+      "CypherQueryResultIntObject",
+      "CypherQueryResultPathObject",
+      "CypherQueryResultStringObject"
+    ],
+    "fields": {}
+  },
+  "ThirdPartyUser": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "email": "String",
+      "externalId": "ID"
+    }
+  },
+  "JiraAvatar": {
+    "kind": "OBJECT",
+    "fields": {
+      "xsmall": "String",
+      "small": "String",
+      "medium": "String",
+      "large": "String"
+    }
+  },
+  "JiraStatusCategory": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "statusCategoryId": "ID",
+      "key": "String",
+      "name": "String",
+      "colorName": "JiraStatusCategoryColor"
+    }
+  },
+  "ExternalApprovalStatus": {
+    "kind": "ENUM",
+    "enumValues": [
+      "APPROVED",
+      "NEEDSWORK",
+      "UNAPPROVED"
+    ],
+    "fields": {}
+  },
+  "AtlassianGoalTypeState": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ENABLED",
+      "DISABLED"
+    ],
+    "fields": {}
+  },
+  "AtlassianGoalIconKey": {
+    "kind": "ENUM",
+    "enumValues": [
+      "GOAL",
+      "OBJECTIVE",
+      "KEY_RESULT"
+    ],
+    "fields": {}
+  },
+  "CypherQueryResultNode": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "data": "CypherQueryResultData"
+    }
+  },
+  "CypherQueryResultListNode": {
+    "kind": "OBJECT",
+    "fields": {
+      "nodes": "NON_NULL<LIST<NON_NULL<CypherQueryResultNode>>>"
+    }
+  },
+  "CypherQueryResultTimestampObject": {
+    "kind": "OBJECT",
+    "fields": {
+      "value": "NON_NULL<Long>"
+    }
+  },
+  "CypherQueryResultBooleanObject": {
+    "kind": "OBJECT",
+    "fields": {
+      "value": "NON_NULL<Boolean>"
+    }
+  },
+  "CypherQueryResultFloatObject": {
+    "kind": "OBJECT",
+    "fields": {
+      "value": "NON_NULL<Float>"
+    }
+  },
+  "CypherQueryResultIntObject": {
+    "kind": "OBJECT",
+    "fields": {
+      "value": "NON_NULL<Int>"
+    }
+  },
+  "CypherQueryResultPathObject": {
+    "kind": "OBJECT",
+    "fields": {
+      "elements": "NON_NULL<LIST<NON_NULL<String>>>"
+    }
+  },
+  "CypherQueryResultStringObject": {
+    "kind": "OBJECT",
+    "fields": {
+      "value": "NON_NULL<String>"
+    }
+  },
+  "JiraStatusCategoryColor": {
+    "kind": "ENUM",
+    "enumValues": [
+      "MEDIUM_GRAY",
+      "GREEN",
+      "YELLOW",
+      "BROWN",
+      "WARM_RED",
+      "BLUE_GRAY"
+    ],
+    "fields": {}
+  },
+  "CypherQueryResultData": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "AssetsObject",
+      "AtlassianHomeComment",
+      "AtlassianGoal",
+      "AtlassianGoalUpdate",
+      "AtlassianGroup",
+      "AtlassianProject",
+      "AtlassianProjectUpdate",
+      "AtlassianHomeTag",
+      "AtlassianTeam",
+      "AtlassianTeamCustomFieldValue",
+      "AtlassianTeamType",
+      "AtlassianUser",
+      "CompassComponent",
+      "CompassComponentLink",
+      "CompassScorecard",
+      "ConfluenceBlogPost",
+      "ConfluenceComment",
+      "ConfluenceDatabase",
+      "ConfluenceEmbed",
+      "ConfluenceFolder",
+      "ConfluencePage",
+      "ConfluenceSpace",
+      "ConfluenceWhiteboard",
+      "ExternalBranch",
+      "ExternalBuild",
+      "ExternalCalendarEvent",
+      "ExternalComment",
+      "ExternalCommit",
+      "ExternalConversation",
+      "ExternalCustomerContact",
+      "ExternalCustomerOrg",
+      "ExternalCustomerOrgCategory",
+      "ExternalDashboard",
+      "ExternalDataTable",
+      "ExternalDeal",
+      "ExternalDeployment",
+      "ExternalDesign",
+      "ExternalDocument",
+      "ExternalFeatureFlag",
+      "ExternalMessage",
+      "ExternalOrganisation",
+      "ExternalPosition",
+      "ExternalProject",
+      "ExternalPullRequest",
+      "ExternalRemoteLink",
+      "ExternalRepository",
+      "ExternalService",
+      "ExternalSpace",
+      "ExternalVideo",
+      "ExternalVulnerability",
+      "ExternalWorkItem",
+      "ExternalWorker",
+      "JiraBoard",
+      "JiraWorkItemComment",
+      "JiraWorkItemStatus",
+      "JiraWorkItemPriority",
+      "JiraSpace",
+      "JiraSprint",
+      "JiraVersion",
+      "JiraWorkItem",
+      "JiraWorkItemRemoteLink",
+      "JiraWorklog",
+      "LoomComment",
+      "LoomMeeting",
+      "LoomMeetingRecurrence",
+      "LoomSpace",
+      "LoomVideo",
+      "OpsgenieTeam",
+      "TalentPosition",
+      "TalentWorker",
+      "FocusChangeProposal",
+      "FocusFocusArea",
+      "FocusFocusAreaStatusUpdate",
+      "InferredProject"
+    ],
+    "fields": {}
+  },
+  "AssetsObject": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "label": "String",
+      "objectKey": "String",
+      "sequentialId": "String",
+      "displayTypename": "String",
+      "createdAt": "DateTime",
+      "updatedAt": "DateTime"
+    }
+  },
+  "AtlassianHomeComment": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "commentText": "String",
+      "createdAt": "DateTime",
+      "creator": "User",
+      "editedAt": "DateTime",
+      "url": "URL"
+    }
+  },
+  "AtlassianGoalUpdate": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "creator": "User",
+      "editedAt": "DateTime",
+      "lastEditor": "User",
+      "missedUpdate": "NON_NULL<Boolean>",
+      "newDueDateStartedAt": "DateTime",
+      "newDueDateEndedAt": "DateTime",
+      "newScore": "NON_NULL<Int>",
+      "newState": "GoalState",
+      "targetDateAt": "DateTime",
+      "summary": "String",
+      "updateType": "UpdateType",
+      "url": "URL"
+    }
+  },
+  "AtlassianGroup": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "description": "String"
+    }
+  },
+  "AtlassianProjectUpdate": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "creator": "User",
+      "editedAt": "DateTime",
+      "lastEditor": "User",
+      "missedUpdate": "NON_NULL<Boolean>",
+      "newDueDateStartedAt": "DateTime",
+      "newDueDateEndedAt": "DateTime",
+      "newPhase": "ProjectPhase",
+      "newState": "ProjectState",
+      "newTargetDateAt": "DateTime",
+      "newTargetDateConfidence": "NON_NULL<Int>",
+      "oldDueDateStartedAt": "DateTime",
+      "oldDueDateEndedAt": "DateTime",
+      "oldPhase": "ProjectPhase",
+      "oldState": "ProjectState",
+      "oldTargetDateAt": "DateTime",
+      "oldTargetDateConfidence": "Int",
+      "summary": "String",
+      "updateType": "UpdateType",
+      "url": "URL"
+    }
+  },
+  "AtlassianHomeTag": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "description": "String",
+      "usageCount": "Int",
+      "url": "URL",
+      "createdAt": "DateTime"
+    }
+  },
+  "AtlassianTeamCustomFieldValue": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "value": "NON_NULL<String>"
+    }
+  },
+  "AtlassianTeamType": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "description": "String",
+      "defaultFor": "TeamTypeDefaultFor",
+      "verified": "Boolean",
+      "state": "TeamTypeState",
+      "currentUserPermissions": "NON_NULL<LIST<NON_NULL<TeamTypeLevelPermission>>>"
+    }
+  },
+  "CompassComponent": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "typeId": "NON_NULL<ID>",
+      "name": "NON_NULL<String>",
+      "url": "URL",
+      "description": "String",
+      "state": "String",
+      "ownerId": "ID"
+    }
+  },
+  "CompassComponentLink": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "type": "CompassLinkType",
+      "url": "URL",
+      "name": "String"
+    }
+  },
+  "CompassScorecard": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "changeMetadata": "NON_NULL<CompassChangeMetadata>",
+      "componentLabels": "LIST<NON_NULL<String>>",
+      "componentTiers": "LIST<NON_NULL<String>>",
+      "componentTypeIds": "NON_NULL<LIST<NON_NULL<ID>>>",
+      "description": "String",
+      "importance": "NON_NULL<CompassScorecardImportance>",
+      "canDeactivate": "NON_NULL<Boolean>",
+      "name": "NON_NULL<String>",
+      "owner": "User",
+      "scoringStrategyType": "String",
+      "state": "String",
+      "statusConfig": "CompassScorecardStatusConfig",
+      "type": "NON_NULL<String>",
+      "url": "URL",
+      "verified": "Boolean"
+    }
+  },
+  "ConfluenceBlogPost": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "title": "String",
+      "content": "ConfluenceBodies",
+      "author": "User",
+      "createdAt": "DateTime",
+      "lastEditor": "User",
+      "lastUpdatedAt": "DateTime",
+      "status": "ConfluenceContentStatus",
+      "space": "ConfluenceSpace",
+      "owner": "User",
+      "authorityCategory": "ConfluenceAuthorityCategory"
+    }
+  },
+  "ConfluenceComment": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "status": "ConfluenceCommentStatus",
+      "author": "User",
+      "lastUpdatedAt": "DateTime",
+      "lastEditor": "User",
+      "bodyStorageValue": "String",
+      "webUrl": "URL"
+    }
+  },
+  "ConfluenceDatabase": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "title": "String",
+      "author": "User",
+      "lastUpdatedAt": "DateTime",
+      "databaseId": "NON_NULL<ID>",
+      "owner": "User",
+      "lastEditor": "User",
+      "status": "ConfluenceContentStatus"
+    }
+  },
+  "ConfluenceEmbed": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "embedId": "NON_NULL<ID>",
+      "title": "String",
+      "status": "ConfluenceContentStatus",
+      "type": "ConfluenceContentType",
+      "lastUpdatedAt": "DateTime",
+      "lastEditor": "User",
+      "author": "User",
+      "commentCountSummary": "Int",
+      "owner": "User",
+      "space": "ConfluenceSpace"
+    }
+  },
+  "ConfluenceFolder": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "folderId": "NON_NULL<ID>",
+      "title": "String",
+      "status": "ConfluenceContentStatus",
+      "type": "ConfluenceContentType",
+      "lastUpdatedAt": "DateTime",
+      "lastEditor": "User",
+      "author": "User",
+      "owner": "User",
+      "space": "ConfluenceSpace",
+      "sourceTemplateEntityId": "ID"
+    }
+  },
+  "ConfluencePage": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "pageId": "ID",
+      "title": "String",
+      "author": "User",
+      "createdAt": "DateTime",
+      "lastEditor": "User",
+      "lastUpdatedAt": "DateTime",
+      "status": "ConfluenceContentStatus",
+      "content": "ConfluenceBodies",
+      "webUrl": "URL",
+      "editUrl": "URL",
+      "space": "ConfluenceSpace",
+      "owner": "User",
+      "authorityCategory": "ConfluenceAuthorityCategory"
+    }
+  },
+  "ConfluenceSpace": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "key": "String",
+      "alias": "String",
+      "name": "String",
+      "description": "String",
+      "status": "ConfluenceSpaceStatus",
+      "type": "ConfluenceSpaceType",
+      "creator": "User",
+      "createdAt": "DateTime",
+      "webUrl": "URL"
+    }
+  },
+  "ConfluenceWhiteboard": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "whiteboardId": "NON_NULL<ID>",
+      "title": "String",
+      "status": "ConfluenceContentStatus",
+      "lastUpdatedAt": "DateTime",
+      "lastEditor": "User",
+      "type": "ConfluenceContentType",
+      "author": "User",
+      "commentCountSummary": "Int",
+      "owner": "User",
+      "bodyRepresentation": "ConfluenceBodyRepresentation",
+      "bodyValue": "String",
+      "space": "ConfluenceSpace"
+    }
+  },
+  "ExternalBranch": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "branchId": "ID",
+      "containerId": "ID",
+      "createPullRequestUrl": "URL",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "displayName": "String",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "name": "String",
+      "provider": "ExternalProvider",
+      "repositoryId": "ID",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalBuild": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "buildNumber": "Int",
+      "containerId": "ID",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "duration": "Int",
+      "externalId": "ID",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "pipelineId": "ID",
+      "provider": "ExternalProvider",
+      "state": "String",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalCalendarEvent": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "attendeeCount": "Int",
+      "createdAt": "DateTime",
+      "creator": "User",
+      "description": "String",
+      "displayName": "String",
+      "completedAt": "DateTime",
+      "startedAt": "DateTime",
+      "eventType": "ExternalEventType",
+      "allDayEvent": "Boolean",
+      "recurringEvent": "Boolean",
+      "lastUpdatedAt": "DateTime",
+      "lastEditor": "User",
+      "provider": "ExternalProvider",
+      "recordingUrl": "URL",
+      "url": "URL",
+      "videoMeetingProvider": "String",
+      "videoMeetingUrl": "URL",
+      "locationAddress": "String",
+      "locationCoordinates": "String",
+      "locationName": "String",
+      "locationUrl": "URL",
+      "exceedsMaxAttendees": "Boolean",
+      "attachments": "LIST<ExternalCalendarEventAttachment>",
+      "attendees": "LIST<ExternalAttendee>"
+    }
+  },
+  "ExternalComment": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "containerId": "ID",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "displayName": "String",
+      "externalId": "ID",
+      "text": "String",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "parentId": "ID"
+    }
+  },
+  "ExternalCommit": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "author": "User",
+      "commitId": "ID",
+      "containerId": "ID",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayId": "ID",
+      "displayName": "String",
+      "hash": "String",
+      "lastUpdatedBy": "User",
+      "message": "String",
+      "provider": "ExternalProvider",
+      "repositoryId": "ID",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalConversation": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "isArchived": "Boolean",
+      "lastActiveAt": "DateTime",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "memberCount": "Int",
+      "membershipType": "String",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "topic": "String",
+      "type": "String",
+      "url": "URL"
+    }
+  },
+  "ExternalCustomerContact": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "accountName": "String",
+      "buyerAttributes": "String",
+      "canAllowPortalSelfReg": "Boolean",
+      "cleanStatus": "String",
+      "contactSource": "String",
+      "contactUser": "User",
+      "containerId": "ID",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "customerType": "String",
+      "description": "String",
+      "displayName": "String",
+      "emailBouncedAt": "DateTime",
+      "emailBouncedReason": "String",
+      "externalId": "ID",
+      "firstCallAt": "DateTime",
+      "firstEmailAt": "DateTime",
+      "hasOptedOutOfEmail": "Boolean",
+      "hasOptedOutOfFax": "Boolean",
+      "isDoNotCall": "Boolean",
+      "isEmailBounced": "Boolean",
+      "isPriorityRecord": "Boolean",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "lastViewedAt": "DateTime",
+      "leadSource": "String",
+      "owners": "LIST<User>",
+      "parentId": "ID",
+      "preferredLanguage": "String",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalCustomerOrg": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "accountType": "String",
+      "country": "String",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "industry": "String",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "parentId": "ID",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalCustomerOrgCategory": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "categoryType": "String",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "parentId": "ID",
+      "containerId": "ID",
+      "key": "String",
+      "owners": "LIST<User>",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalDashboard": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalDataTable": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "type": "String",
+      "url": "URL"
+    }
+  },
+  "ExternalDeal": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "accountName": "String",
+      "contact": "User",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "dealClosedAt": "DateTime",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "isClosed": "Boolean",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "parentId": "ID",
+      "provider": "ExternalProvider",
+      "stage": "String",
+      "status": "String",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalDeployment": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "containerId": "ID",
+      "createdAt": "DateTime",
+      "creator": "User",
+      "deploymentSequenceNumber": "Int",
+      "description": "String",
+      "displayName": "String",
+      "duration": "Int",
+      "environment": "ExternalEnvironment",
+      "externalId": "ID",
+      "label": "String",
+      "lastUpdatedAt": "DateTime",
+      "lastEditor": "User",
+      "owners": "LIST<User>",
+      "pipeline": "ExternalPipeline",
+      "provider": "ExternalProvider",
+      "region": "String",
+      "state": "ExternalDeploymentState",
+      "thirdPartyId": "ID",
+      "author": "User",
+      "url": "URL"
+    }
+  },
+  "ExternalDesign": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "displayName": "String",
+      "description": "String",
+      "externalId": "ID",
+      "provider": "ExternalProvider",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "status": "ExternalDesignStatus",
+      "url": "URL",
+      "type": "ExternalDesignType",
+      "iconUrl": "URL"
+    }
+  },
+  "ExternalDocument": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "title": "String",
+      "author": "User",
+      "createdAt": "DateTime",
+      "lastEditor": "User",
+      "lastUpdatedAt": "DateTime",
+      "displayName": "String",
+      "url": "URL",
+      "externalId": "ID",
+      "thirdPartyId": "ID",
+      "type": "String",
+      "byteSize": "Long",
+      "provider": "ExternalProvider",
+      "content": "ExternalDocumentContent",
+      "collaborators": "LIST<User>",
+      "owners": "LIST<User>"
+    }
+  },
+  "ExternalFeatureFlag": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "displayName": "String",
+      "externalId": "ID",
+      "key": "String",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID"
+    }
+  },
+  "ExternalMessage": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "containerId": "ID",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "hidden": "Boolean",
+      "isPinned": "Boolean",
+      "lastActiveAt": "DateTime",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "parentId": "ID"
+    }
+  },
+  "ExternalOrganisation": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "displayName": "String",
+      "externalId": "ID",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "parentId": "ID",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalPosition": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "displayName": "String",
+      "externalId": "ID",
+      "jobTitle": "String",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "parentId": "ID",
+      "provider": "ExternalProvider",
+      "status": "String",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalProject": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "assignee": "User",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "dueAt": "DateTime",
+      "environment": "String",
+      "externalId": "ID",
+      "key": "String",
+      "labels": "LIST<String>",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "priority": "String",
+      "provider": "ExternalProvider",
+      "resolution": "String",
+      "status": "String",
+      "statusCategory": "String",
+      "thirdPartyId": "ID",
+      "url": "URL",
+      "votesCount": "Int",
+      "watchersCount": "Int"
+    }
+  },
+  "ExternalRemoteLink": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "actionIds": "LIST<String>",
+      "assignee": "User",
+      "author": "User",
+      "category": "String",
+      "createdAt": "DateTime",
+      "creator": "User",
+      "description": "String",
+      "displayName": "String",
+      "updatedAt": "DateTime",
+      "lastEditor": "User",
+      "provider": "ExternalProvider",
+      "remoteLinkId": "String",
+      "status": "String",
+      "type": "String",
+      "url": "URL"
+    }
+  },
+  "ExternalRepository": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "avatarDescription": "String",
+      "avatarUrl": "URL",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "forkOfId": "ID",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "name": "String",
+      "provider": "ExternalProvider",
+      "repositoryId": "ID",
+      "thirdPartyId": "ID",
+      "url": "URL"
+    }
+  },
+  "ExternalService": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "revisionId": "ID",
+      "name": "String",
+      "description": "String"
+    }
+  },
+  "ExternalSpace": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "key": "String",
+      "labels": "LIST<String>",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "provider": "ExternalProvider",
+      "spaceType": "String",
+      "subtype": "ExternalSpaceSubtype",
+      "thirdPartyId": "ID",
+      "updateSequenceNumber": "Long",
+      "url": "URL"
+    }
+  },
+  "ExternalVideo": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "chapters": "LIST<ExternalChapter>",
+      "commentCount": "Int",
+      "contributors": "LIST<ExternalContributor>",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "description": "String",
+      "displayName": "String",
+      "durationInSeconds": "Int",
+      "embedUrl": "URL",
+      "externalId": "ID",
+      "height": "Int",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "owners": "LIST<User>",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "thumbnailUrl": "URL",
+      "url": "URL",
+      "width": "Int"
+    }
+  },
+  "ExternalVulnerability": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "description": "String",
+      "displayName": "String",
+      "externalId": "ID",
+      "introducedAt": "DateTime",
+      "lastUpdatedAt": "DateTime",
+      "provider": "ExternalProvider",
+      "status": "String",
+      "thirdPartyId": "ID",
+      "type": "String",
+      "url": "URL"
+    }
+  },
+  "ExternalWorkItem": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "assignee": "User",
+      "collaborators": "LIST<User>",
+      "createdAt": "DateTime",
+      "creator": "User",
+      "description": "String",
+      "displayName": "String",
+      "dueAt": "DateTime",
+      "exceedsMaxCollaborators": "Boolean",
+      "externalId": "ID",
+      "lastUpdatedAt": "DateTime",
+      "lastEditor": "User",
+      "provider": "ExternalProvider",
+      "status": "String",
+      "subtype": "ExternalWorkItemSubtype",
+      "team": "String",
+      "url": "URL",
+      "workItemProject": "ExternalWorkItemProject"
+    }
+  },
+  "ExternalWorker": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "displayName": "String",
+      "externalId": "ID",
+      "hiredAt": "DateTime",
+      "lastUpdatedAt": "DateTime",
+      "lastUpdatedBy": "User",
+      "provider": "ExternalProvider",
+      "thirdPartyId": "ID",
+      "url": "URL",
+      "workerUser": "User"
+    }
+  },
+  "JiraBoard": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "boardUrl": "URL",
+      "boardFrontendUrl": "URL",
+      "iconUrl": "URL",
+      "boardType": "JiraBoardType",
+      "lastViewedTimestamp": "Long",
+      "canEdit": "Boolean"
+    }
+  },
+  "JiraWorkItemPriority": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "priorityId": "ID",
+      "name": "String",
+      "iconUrl": "URL",
+      "color": "String"
+    }
+  },
+  "JiraSpace": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "key": "NON_NULL<String>",
+      "name": "NON_NULL<String>",
+      "description": "String",
+      "avatar": "JiraAvatar",
+      "lead": "User",
+      "webUrl": "URL"
+    }
+  },
+  "JiraSprint": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "state": "JiraSprintState",
+      "boardName": "String",
+      "startedAt": "DateTime",
+      "endedAt": "DateTime",
+      "completedAt": "DateTime",
+      "goal": "String",
+      "boardId": "Long",
+      "sprintProgress": "JiraSprintProgress"
+    }
+  },
+  "JiraVersion": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "versionId": "ID",
+      "name": "String",
+      "iconUrl": "URL",
+      "status": "JiraVersionStatus",
+      "description": "String",
+      "startedAt": "DateTime",
+      "releasedAt": "DateTime",
+      "overdue": "Boolean"
+    }
+  },
+  "JiraWorkItemRemoteLink": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "relationship": "String",
+      "title": "String",
+      "webUrl": "URL"
+    }
+  },
+  "JiraWorklog": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "worklogId": "ID",
+      "createdAt": "DateTime",
+      "updatedAt": "DateTime",
+      "startedAt": "DateTime",
+      "timeSpentInSeconds": "Long",
+      "author": "User",
+      "lastEditor": "User"
+    }
+  },
+  "LoomComment": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "url": "URL",
+      "timestamp": "Int",
+      "content": "String",
+      "createdAt": "DateTime",
+      "editedAt": "DateTime",
+      "author": "User",
+      "videoId": "ID",
+      "userId": "ID"
+    }
+  },
+  "LoomMeeting": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "endsAt": "DateTime",
+      "external": "Boolean",
+      "externalCalendarEventId": "String",
+      "recorder": "User",
+      "recurring": "Boolean",
+      "source": "LoomMeetingSource",
+      "startsAt": "DateTime",
+      "title": "NON_NULL<String>",
+      "recurrence": "LoomMeetingRecurrence",
+      "video": "LoomVideo"
+    }
+  },
+  "LoomMeetingRecurrence": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "meetings": "LIST<LoomMeeting>"
+    }
+  },
+  "LoomSpace": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "NON_NULL<String>",
+      "url": "NON_NULL<URL>"
+    }
+  },
+  "LoomVideo": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "collaborators": "LIST<NON_NULL<String>>",
+      "commentCount": "Int",
+      "createdAt": "DateTime",
+      "description": "String",
+      "archived": "NON_NULL<Boolean>",
+      "completed": "NON_NULL<Boolean>",
+      "meeting": "Boolean",
+      "name": "NON_NULL<String>",
+      "owner": "User",
+      "playableDuration": "Float",
+      "reactionCount": "Int",
+      "sourceDuration": "Float",
+      "thumbnails": "LoomVideoDefaultThumbnailsSources",
+      "transcript": "LoomTranscript",
+      "transcriptLanguage": "Language",
+      "updatedAt": "DateTime",
+      "url": "NON_NULL<URL>",
+      "viewCounts": "LoomVideoViewCounts"
+    }
+  },
+  "OpsgenieTeam": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "description": "String",
+      "url": "URL",
+      "createdAt": "DateTime",
+      "updatedAt": "DateTime"
+    }
+  },
+  "TalentPosition": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "entityId": "NON_NULL<ID>",
+      "type": "NON_NULL<TalentEntityType>",
+      "role": "TalentPositionRole",
+      "managerId": "ID",
+      "workerId": "ID"
+    }
+  },
+  "TalentWorker": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "type": "NON_NULL<TalentEntityType>",
+      "preferredName": "String",
+      "user": "User"
+    }
+  },
+  "FocusChangeProposal": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "NON_NULL<String>",
+      "description": "String",
+      "owner": "User",
+      "impact": "FocusChangeProposalImpact",
+      "focusArea": "FocusFocusArea",
+      "funding": "FocusChangeProposalFunding",
+      "positionDetails": "FocusChangeProposalPositionDetails",
+      "strategicEventId": "ID",
+      "createdAt": "NON_NULL<DateTime>",
+      "updatedAt": "NON_NULL<DateTime>"
+    }
+  },
+  "FocusFocusArea": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String",
+      "focusAreaType": "String",
+      "owner": "User",
+      "status": "String",
+      "health": "String",
+      "targetDate": "FocusFocusAreaTargetDate",
+      "createdAt": "DateTime",
+      "updatedAt": "DateTime",
+      "archived": "Boolean",
+      "draft": "Boolean",
+      "watching": "Boolean",
+      "aggregatedFocusAreaStatusCount": "FocusFocusAreaStatusCountAggregate",
+      "url": "URL",
+      "parentFocusAreaId": "ID"
+    }
+  },
+  "FocusFocusAreaStatusUpdate": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "uuid": "ID",
+      "focusAreaId": "ID",
+      "summary": "String",
+      "newStatus": "String",
+      "newHealth": "String",
+      "previousStatus": "String",
+      "previousHealth": "String",
+      "newTargetDate": "FocusFocusAreaTargetDate",
+      "previousTargetDate": "FocusFocusAreaTargetDate",
+      "createdAt": "DateTime",
+      "creator": "User",
+      "updatedAt": "DateTime",
+      "lastEditor": "User"
+    }
+  },
+  "InferredProject": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "title": "String",
+      "summary": "String"
+    }
+  },
+  "GoalState": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ARCHIVED",
+      "AT_RISK",
+      "DONE",
+      "OFF_TRACK",
+      "ON_TRACK",
+      "PAUSED",
+      "PENDING",
+      "CANCELLED"
+    ],
+    "fields": {}
+  },
+  "UpdateType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "SYSTEM",
+      "USER"
+    ],
+    "fields": {}
+  },
+  "ProjectPhase": {
+    "kind": "ENUM",
+    "enumValues": [
+      "DONE",
+      "IN_PROGRESS",
+      "PAUSED",
+      "PENDING"
+    ],
+    "fields": {}
+  },
+  "ProjectState": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ARCHIVED",
+      "AT_RISK",
+      "CANCELLED",
+      "DONE",
+      "OFF_TRACK",
+      "ON_TRACK",
+      "PAUSED",
+      "PENDING"
+    ],
+    "fields": {}
+  },
+  "TeamTypeDefaultFor": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ADMIN",
+      "VERIFIED",
+      "USER_MANAGED"
+    ],
+    "fields": {}
+  },
+  "TeamTypeState": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ACTIVE",
+      "DELETE_IN_PROGRESS"
+    ],
+    "fields": {}
+  },
+  "TeamTypeLevelPermission": {
+    "kind": "ENUM",
+    "enumValues": [
+      "CREATE_TEAMS",
+      "MANAGE_TEAMS",
+      "DELETE_TEAMS"
+    ],
+    "fields": {}
+  },
+  "CompassLinkType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "DOCUMENT",
+      "CHAT_CHANNEL",
+      "REPOSITORY",
+      "PROJECT",
+      "DASHBOARD",
+      "ON_CALL",
+      "OTHER_LINK"
+    ],
+    "fields": {}
+  },
+  "CompassChangeMetadata": {
+    "kind": "OBJECT",
+    "fields": {
+      "createdAt": "DateTime",
+      "createdBy": "User",
+      "lastUserModificationAt": "DateTime",
+      "lastUserModificationBy": "User"
+    }
+  },
+  "CompassScorecardImportance": {
+    "kind": "ENUM",
+    "enumValues": [
+      "RECOMMENDED",
+      "REQUIRED",
+      "USER_DEFINED"
+    ],
+    "fields": {}
+  },
+  "CompassScorecardStatusConfig": {
+    "kind": "OBJECT",
+    "fields": {
+      "failing": "NON_NULL<CompassScorecardStatusThreshold>",
+      "needsAttention": "NON_NULL<CompassScorecardStatusThreshold>",
+      "passing": "NON_NULL<CompassScorecardStatusThreshold>"
+    }
+  },
+  "ConfluenceBodies": {
+    "kind": "OBJECT",
+    "fields": {
+      "atlasDocFormat": "ConfluenceBody",
+      "storage": "ConfluenceBody"
+    }
+  },
+  "ConfluenceContentStatus": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ARCHIVED",
+      "CURRENT",
+      "DELETED",
+      "DRAFT",
+      "HISTORICAL",
+      "TRASHED"
+    ],
+    "fields": {}
+  },
+  "ConfluenceAuthorityCategory": {
+    "kind": "ENUM",
+    "enumValues": [
+      "LOW",
+      "MEDIUM",
+      "HIGH",
+      "VERY_HIGH"
+    ],
+    "fields": {}
+  },
+  "ConfluenceCommentStatus": {
+    "kind": "ENUM",
+    "enumValues": [
+      "CURRENT",
+      "DRAFT"
+    ],
+    "fields": {}
+  },
+  "ConfluenceContentType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ATTACHMENT",
+      "BLOG_POST",
+      "COMMENT",
+      "DATABASE",
+      "EMBED",
+      "FOLDER",
+      "PAGE",
+      "WHITEBOARD"
+    ],
+    "fields": {}
+  },
+  "ConfluenceSpaceStatus": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ARCHIVED",
+      "CURRENT"
+    ],
+    "fields": {}
+  },
+  "ConfluenceSpaceType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "GLOBAL",
+      "PERSONAL"
+    ],
+    "fields": {}
+  },
+  "ConfluenceBodyRepresentation": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ANONYMOUS_EXPORT_VIEW",
+      "ATLAS_DOC_FORMAT",
+      "DYNAMIC",
+      "EDITOR",
+      "EDITOR2",
+      "EXPORT_VIEW",
+      "STORAGE",
+      "STYLED_VIEW",
+      "VIEW",
+      "WHITEBOARD_DOC_FORMAT"
+    ],
+    "fields": {}
+  },
+  "ExternalEventType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "APPOINTMENT",
+      "BIRTHDAY",
+      "DEFAULT",
+      "EVENT",
+      "FOCUS_TIME",
+      "OUT_OF_OFFICE",
+      "REMINDER",
+      "TASK",
+      "WORKING_LOCATION"
+    ],
+    "fields": {}
+  },
+  "ExternalCalendarEventAttachment": {
+    "kind": "OBJECT",
+    "fields": {
+      "byteSize": "Long",
+      "mimeType": "String",
+      "thumbnailUrl": "URL",
+      "title": "String",
+      "url": "URL"
+    }
+  },
+  "ExternalAttendee": {
+    "kind": "OBJECT",
+    "fields": {
+      "isOptional": "Boolean",
+      "rsvpStatus": "ExternalAttendeeRsvpStatus",
+      "user": "User"
+    }
+  },
+  "ExternalEnvironment": {
+    "kind": "OBJECT",
+    "fields": {
+      "displayName": "String",
+      "id": "NON_NULL<ID>",
+      "type": "ExternalEnvironmentType"
+    }
+  },
+  "ExternalPipeline": {
+    "kind": "OBJECT",
+    "fields": {
+      "displayName": "String",
+      "id": "NON_NULL<ID>",
+      "url": "URL"
+    }
+  },
+  "ExternalDeploymentState": {
+    "kind": "ENUM",
+    "enumValues": [
+      "CANCELLED",
+      "FAILED",
+      "IN_PROGRESS",
+      "PENDING",
+      "ROLLED_BACK",
+      "SUCCESSFUL",
+      "UNKNOWN"
+    ],
+    "fields": {}
+  },
+  "ExternalDesignStatus": {
+    "kind": "ENUM",
+    "enumValues": [
+      "NONE",
+      "READY_FOR_DEVELOPMENT",
+      "UNKNOWN"
+    ],
+    "fields": {}
+  },
+  "ExternalDesignType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "CANVAS",
+      "FILE",
+      "GROUP",
+      "NODE",
+      "OTHER",
+      "PROTOTYPE"
+    ],
+    "fields": {}
+  },
+  "ExternalDocumentContent": {
+    "kind": "OBJECT",
+    "fields": {
+      "mimeType": "String",
+      "text": "String",
+      "binary": "String"
+    }
+  },
+  "ExternalSpaceSubtype": {
+    "kind": "ENUM",
+    "enumValues": [
+      "BUSINESS",
+      "DRIVE",
+      "PROJECT",
+      "SERVICE_DESK",
+      "SITE",
+      "SOFTWARE",
+      "SPACE"
+    ],
+    "fields": {}
+  },
+  "ExternalChapter": {
+    "kind": "OBJECT",
+    "fields": {
+      "startTimeInSeconds": "Int",
+      "title": "String"
+    }
+  },
+  "ExternalContributor": {
+    "kind": "OBJECT",
+    "fields": {
+      "interactionCount": "Int",
+      "user": "User"
+    }
+  },
+  "ExternalWorkItemSubtype": {
+    "kind": "ENUM",
+    "enumValues": [
+      "APPROVAL",
+      "BUG",
+      "DEFAULT_TASK",
+      "EPIC",
+      "INCIDENT",
+      "ISSUE",
+      "MILESTONE",
+      "OTHER",
+      "PROBLEM",
+      "QUESTION",
+      "SECTION",
+      "STORY",
+      "TASK",
+      "WORK_ITEM"
+    ],
+    "fields": {}
+  },
+  "ExternalWorkItemProject": {
+    "kind": "OBJECT",
+    "fields": {
+      "id": "NON_NULL<ID>",
+      "name": "String"
+    }
+  },
+  "JiraBoardType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "KANBAN",
+      "SCRUM"
+    ],
+    "fields": {}
+  },
+  "JiraSprintState": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ACTIVE",
+      "FUTURE",
+      "CLOSED"
+    ],
+    "fields": {}
+  },
+  "JiraSprintProgress": {
+    "kind": "OBJECT",
+    "fields": {
+      "estimationType": "String"
+    }
+  },
+  "JiraVersionStatus": {
+    "kind": "ENUM",
+    "enumValues": [
+      "RELEASED",
+      "UNRELEASED",
+      "ARCHIVED"
+    ],
+    "fields": {}
+  },
+  "LoomMeetingSource": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ZOOM",
+      "GOOGLE_CALENDAR",
+      "MICROSOFT_OUTLOOK"
+    ],
+    "fields": {}
+  },
+  "LoomVideoDefaultThumbnailsSources": {
+    "kind": "OBJECT",
+    "fields": {
+      "default": "String",
+      "static": "String"
+    }
+  },
+  "LoomTranscript": {
+    "kind": "OBJECT",
+    "fields": {
+      "phrases": "LIST<NON_NULL<LoomPhrase>>"
+    }
+  },
+  "Language": {
+    "kind": "OBJECT",
+    "fields": {
+      "language": "String",
+      "code": "String"
+    }
+  },
+  "LoomVideoViewCounts": {
+    "kind": "OBJECT",
+    "fields": {
+      "distinct": "Int",
+      "total": "Int"
+    }
+  },
+  "TalentEntityType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "FOCUS_AREA",
+      "FOCUS_AREA_TYPE",
+      "POSITION",
+      "PROPOSAL",
+      "PROPOSED_MOVEMENT",
+      "TEAM",
+      "VIEW",
+      "WORKER"
+    ],
+    "fields": {}
+  },
+  "TalentPositionRole": {
+    "kind": "ENUM",
+    "enumValues": [
+      "INDIVIDUAL_CONTRIBUTOR",
+      "MANAGER"
+    ],
+    "fields": {}
+  },
+  "FocusChangeProposalImpact": {
+    "kind": "OBJECT",
+    "fields": {
+      "key": "NON_NULL<String>",
+      "value": "NON_NULL<Int>"
+    }
+  },
+  "FocusChangeProposalFunding": {
+    "kind": "OBJECT",
+    "fields": {
+      "fundsRequested": "String",
+      "targetBenefit": "String",
+      "targetRoi": "String"
+    }
+  },
+  "FocusChangeProposalPositionDetails": {
+    "kind": "OBJECT",
+    "fields": {
+      "positionsRequested": "Int",
+      "positionsMoved": "Int",
+      "positionsImpacted": "Int"
+    }
+  },
+  "FocusFocusAreaTargetDate": {
+    "kind": "OBJECT",
+    "fields": {
+      "targetDate": "DateTime",
+      "targetDateType": "String"
+    }
+  },
+  "FocusFocusAreaStatusCountAggregate": {
+    "kind": "OBJECT",
+    "fields": {
+      "current": "FocusFocusAreaStatusCount",
+      "children": "FocusFocusAreaStatusCount",
+      "subtree": "FocusFocusAreaStatusCount"
+    }
+  },
+  "CompassScorecardStatusThreshold": {
+    "kind": "OBJECT",
+    "fields": {
+      "lowerBound": "NON_NULL<Int>",
+      "upperBound": "NON_NULL<Int>"
+    }
+  },
+  "ConfluenceBody": {
+    "kind": "OBJECT",
+    "fields": {
+      "representation": "String",
+      "value": "String"
+    }
+  },
+  "ExternalAttendeeRsvpStatus": {
+    "kind": "ENUM",
+    "enumValues": [
+      "ACCEPTED",
+      "DECLINED",
+      "NOT_RESPONDED",
+      "OTHER",
+      "TENTATIVELY_ACCEPTED"
+    ],
+    "fields": {}
+  },
+  "ExternalEnvironmentType": {
+    "kind": "ENUM",
+    "enumValues": [
+      "DEVELOPMENT",
+      "PRODUCTION",
+      "STAGING",
+      "TESTING",
+      "UNMAPPED"
+    ],
+    "fields": {}
+  },
+  "LoomPhrase": {
+    "kind": "OBJECT",
+    "fields": {
+      "ts": "NON_NULL<Float>",
+      "speakerName": "String",
+      "value": "NON_NULL<String>"
+    }
+  },
+  "FocusFocusAreaStatusCount": {
+    "kind": "OBJECT",
+    "fields": {
+      "pending": "Int",
+      "paused": "Int",
+      "completed": "Int",
+      "inProgress": "Int",
+      "onTrack": "Int",
+      "atRisk": "Int",
+      "offTrack": "Int",
+      "total": "Int"
+    }
+  },
+  "AtlassianUserPullRequestRole": {
+    "kind": "ENUM",
+    "enumValues": [
+      "CREATED",
+      "REVIEWED"
+    ],
+    "fields": {}
+  },
+  "AtlassianUserGoalsAndProjectsRole": {
+    "kind": "ENUM",
+    "enumValues": [
+      "OWNS",
+      "CONTRIBUTES",
+      "VIEWED",
+      "FAVORITED"
+    ],
+    "fields": {}
+  },
+  "CypherRequestParams": {
+    "kind": "SCALAR",
+    "fields": {}
+  }
+}

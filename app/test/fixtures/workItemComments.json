@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-11-22",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "query": "query baton_workItemComments($id: ID!) { jiraWorkItemComments(id: $id, since: \"P90D\", first: 25) { edges { node { __typename ... on JiraWorkItemComment { id createdAt updatedAt deleted author { id name } } } } pageInfo { hasNextPage endCursor } } }",
+  "variables": {
+    "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400"
+  },
+  "response": {
+    "data": {
+      "jiraWorkItemComments": {
+        "edges": [],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        }
+      }
+    }
+  }
+}

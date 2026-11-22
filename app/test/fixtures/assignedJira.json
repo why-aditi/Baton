@@ -1,0 +1,52 @@
+{
+  "recordedAt": "2026-11-22",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "query": "query baton_assignedWork($userId: ID!) { atlassianUserAssignedJiraWorkItems(userId: $userId, first: 25) { edges { node { __typename ... on JiraWorkItem { id key summary webUrl createdAt startedAt dueAt resolvedAt issueType { name } status { name statusCategory { id key name } } assignee { id name } reporter { id name } } } } pageInfo { hasNextPage endCursor } } }",
+  "variables": {
+    "userId": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01"
+  },
+  "response": {
+    "data": {
+      "atlassianUserAssignedJiraWorkItems": {
+        "edges": [
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400",
+              "key": "SALES-31",
+              "summary": "Baton spike: graph indexing probe",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/SALES-31",
+              "createdAt": "2026-11-16T14:25:05.802Z",
+              "startedAt": null,
+              "dueAt": null,
+              "resolvedAt": null,
+              "issueType": {
+                "name": "Task"
+              },
+              "status": {
+                "name": "To Do",
+                "statusCategory": {
+                  "id": "SmlyYVN0YXR1c0NhdGVnb3J5OjI",
+                  "key": "new",
+                  "name": "To Do"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        }
+      }
+    }
+  }
+}
