@@ -26,7 +26,9 @@ export const callerFromAction = async (payload: any): Promise<Caller | null> => 
   } catch (e) {
     console.warn('myself lookup failed', e instanceof Error ? e.message : e);
   }
+  const source = accountId ? 'myself' : payload?.context?.accountId ? 'payload' : 'none';
   accountId ??= payload?.context?.accountId;
+  console.log('action caller resolved via', source); // no IDs: shows whether MCP calls can identify the user
   if (!accountId) return null;
   return { accountId, isAdmin: await isJiraAdmin().catch(() => false) };
 };
