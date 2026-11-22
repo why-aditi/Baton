@@ -1,0 +1,174 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, test } from 'vitest';
+import { buildInventory } from '../src/graph/inventory';
+import type { GraphRequest, GraphResponse } from '../src/graph/runner';
+
+const fixture = (name: string): GraphResponse =>
+  JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), 'utf8')).response;
+
+const MEERA = 'ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01';
+const ISSUE = 'ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400';
+const PAGE = 'ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/2719746';
+
+const BY_OPERATION: Record<string, string> = {
+  baton_assignedWork: 'assignedJira',
+  baton_reportedWork: 'reportedJira',
+  baton_pullRequests: 'pullRequests',
+  baton_ownedPages: 'ownedPages',
+  baton_goalsAndProjects: 'goalsAndProjects',
+  baton_userTeams: 'userTeams',
+  baton_teamMembers: 'teamMembers',
+  baton_pageContributors: 'pageContributors',
+  baton_workItemComments: 'workItemComments',
+  baton_openAssigned: 'assignedJira',
+};
+
+/** Answers from the fixtures by operation name; later pages come back empty. Overrides win. */
+const fakeGraph = (overrides: Record<string, (vars: Record<string, unknown>) => GraphResponse | Promise<GraphResponse>> = {}) => {
+  const calls: { op: string; vars: Record<string, unknown> }[] = [];
+  const request: GraphRequest = async (query, vars) => {
+    const op = query.match(/query (\w+)/)![1]!;
+    calls.push({ op, vars });
+    if (overrides[op]) return overrides[op]!(vars);
+    const res = fixture(BY_OPERATION[op]!);
+    if (!vars.after) return res;
+    const field = Object.keys(res.data)[0]!;
+    return { data: { [field]: { edges: [], pageInfo: { hasNextPage: false, endCursor: null } } } };
+  };
+  return { request, calls };
+};
+
+const run = (request: GraphRequest, extra = {}) =>
+  buildInventory({ request, subjectAri: MEERA, ownedPagesQueryKey: 'pq-key', sleep: async () => {}, ...extra });
+
+describe('buildInventory', () => {
+  test('merges every source, one item per ARI', async () => {
+    const { request } = fakeGraph();
+    const inv = await run(request);
+    expect(inv.items.filter((i) => i.ari === ISSUE)).toEqual([
+      expect.objectContaining({ key: 'SALES-31', subjectRole: 'assignee' }),
+    ]);
+    expect(inv.items.filter((i) => i.ari === PAGE)).toHaveLength(1);
+    expect(inv.items.filter((i) => i.kind === 'goal' || i.kind === 'project')).toHaveLength(25);
+    expect(inv.items).toHaveLength(27);
+  });
+
+  test('passes the subject, the persisted query key and the PR window', async () => {
+    const { request, calls } = fakeGraph();
+    await run(request);
+    expect(calls.find((c) => c.op === 'baton_ownedPages')?.vars).toEqual({
+      queryKey: 'pq-key',
+      queryParams: { userId: MEERA },
+    });
+    expect(calls.find((c) => c.op === 'baton_assignedWork')?.vars).toEqual({ userId: MEERA });
+  });
+
+  test('loads members for up to 10 teams, as user ARIs', async () => {
+    const { request, calls } = fakeGraph();
+    const inv = await run(request);
+    expect(calls.filter((c) => c.op === 'baton_teamMembers')).toHaveLength(10);
+    expect(inv.teams).toHaveLength(10);
+    expect(inv.teams[0]).toEqual({
+      name: 'Team Pulse',
+      members: [
+        'ari:cloud:identity::user/60ad34a79e21bd0071e6f4db',
+        'ari:cloud:identity::user/60ad301a5c7373006939113f',
+        MEERA,
+      ],
+    });
+  });
+
+  test('collects display names by account ID', async () => {
+    const { request } = fakeGraph();
+    const inv = await run(request);
+    expect(inv.people).toMatchObject({
+      '712020:00000000-0000-4000-8000-00000000me01': 'Meera Iyer',
+      '60ad34a79e21bd0071e6f4db': 'Emma Paris',
+    });
+  });
+
+  test('adds page contributors and issue commenters as collaborators', async () => {
+    const { request } = fakeGraph({
+      baton_pageContributors: () => ({
+        data: {
+          confluencePageContributors: {
+            edges: [{ node: { __typename: 'AtlassianUser', id: 'ari:cloud:identity::user/lin', name: 'Lin' } }],
+            pageInfo: { hasNextPage: false },
+          },
+        },
+      }),
+      baton_workItemComments: () => ({
+        data: {
+          jiraWorkItemComments: {
+            edges: [
+              { node: { __typename: 'JiraWorkItemComment', id: 'c1', deleted: false, author: { id: 'ari:cloud:identity::user/arjun', name: 'Arjun' } } },
+              { node: { __typename: 'JiraWorkItemComment', id: 'c2', deleted: true, author: { id: 'ari:cloud:identity::user/gone', name: 'Gone' } } },
+            ],
+            pageInfo: { hasNextPage: false },
+          },
+        },
+      }),
+    });
+    const inv = await run(request);
+    expect(inv.items.find((i) => i.ari === PAGE)?.collaborators).toEqual([MEERA, 'ari:cloud:identity::user/lin']);
+    expect(inv.items.find((i) => i.ari === ISSUE)?.collaborators).toEqual([MEERA, 'ari:cloud:identity::user/arjun']);
+    expect(inv.people.arjun).toBe('Arjun');
+  });
+
+  test('counts open assigned items for owner candidates, not the subject', async () => {
+    const { request, calls } = fakeGraph();
+    const inv = await run(request);
+    expect(inv.openAssigned).toMatchObject({ 'ari:cloud:identity::user/60ad34a79e21bd0071e6f4db': 1 });
+    expect(inv.openAssigned).not.toHaveProperty(MEERA);
+    const counted = calls.filter((c) => c.op === 'baton_openAssigned').map((c) => c.vars.userId);
+    expect(counted).not.toContain(MEERA);
+    expect(new Set(counted).size).toBe(counted.length);
+  });
+
+  test('caps workload lookups at 25 candidates', async () => {
+    const many = Array.from({ length: 40 }, (_, n) => ({
+      node: { __typename: 'AtlassianUser', id: `ari:cloud:identity::user/u${n}`, name: `U${n}` },
+    }));
+    const { request, calls } = fakeGraph({
+      baton_teamMembers: () => ({ data: { atlassianTeamMembers: { edges: many, pageInfo: { hasNextPage: false } } } }),
+    });
+    await run(request);
+    expect(calls.filter((c) => c.op === 'baton_openAssigned')).toHaveLength(25);
+  });
+
+  test('flags empty sources with the scope to check', async () => {
+    const { request } = fakeGraph();
+    const inv = await run(request);
+    expect(inv.warnings).toContainEqual({
+      source: 'pullRequests',
+      level: 'info',
+      message:
+        'No pull requests found. If you expected some, check that the read:graph:pull-request:external scope is granted.',
+    });
+  });
+
+  test('one failing source does not stop the others', async () => {
+    const { request } = fakeGraph({
+      baton_assignedWork: () => {
+        throw new Error('network down');
+      },
+    });
+    const inv = await run(request);
+    expect(inv.warnings).toContainEqual(expect.objectContaining({ source: 'assignedJira', level: 'error' }));
+    expect(inv.items.find((i) => i.ari === ISSUE)).toMatchObject({ subjectRole: 'reporter' });
+  });
+
+  test('teams that fail as the app (403) give no teams, and a warning', async () => {
+    const { request } = fakeGraph({ baton_userTeams: () => fixture('userTeams.app-403') });
+    const inv = await run(request);
+    expect(inv.teams).toEqual([]);
+    expect(inv.warnings).toContainEqual(expect.objectContaining({ source: 'teams', level: 'error' }));
+  });
+
+  test('reports progress per source', async () => {
+    const { request } = fakeGraph();
+    const seen = new Set<string>();
+    await run(request, { onProgress: (p: { source: string }) => seen.add(p.source) });
+    expect(seen).toEqual(new Set(['assignedJira', 'reportedJira', 'pullRequests', 'pages', 'goalsAndProjects', 'teams', 'details']));
+  });
+});

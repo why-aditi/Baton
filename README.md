@@ -33,15 +33,16 @@ Claude Desktop (MCP) ────┘
 | `Baton — Codegeist 2026 Tech Spec.pdf` | The spec: scope, design, data model, timeline |
 | `SETUP-KESHAV.md` | Dev setup: Forge CLI, your own environment and demo site, Rovo, MCP |
 
-## Status (Nov 16, 2026)
+## Status (Nov 22, 2026)
 
 | Area | State |
 | --- | --- |
 | Week-1 spikes (graph, Groq, Rovo, MCP, Confluence publish) | Pass |
-| Risk scoring, owner ranking, LLM layer, storage, resolvers, Rovo/MCP actions | Built and unit-tested; not yet run on a site |
+| Risk scoring, owner ranking, LLM layer, storage, resolvers, Rovo/MCP actions | Built and unit-tested; deployed to the dev site Nov 22 |
 | Graph paging, merging, scope self-check | Built and unit-tested |
-| Turning graph results into items | Waiting for recorded responses |
-| Custom UI, Confluence publish, reassign | Not started |
+| Turning graph results into items, building the inventory | Built and tested against responses recorded on the demo site (Nov 22) |
+| Confluence publish and reassign (backend) | Built and unit-tested (Nov 22) |
+| Custom UI | Not started |
 | Seed data (Northwind Pay) | Not started; due Nov 30 |
 
 ## Develop
