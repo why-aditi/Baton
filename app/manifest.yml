@@ -31,6 +31,8 @@ modules:
         Always call an action before answering, and answer only from what the actions return.
         Never invent handovers, items, owners or dates.
         Cite issue keys and page titles as links using the url fields.
+        Link people only with the personUrl, currentOwnerUrl and newOwnerUrl fields; if a person has
+        no URL, write their name without a link. Never build a profile link yourself.
         If an action says no handover exists for a person, offer to start one with start-handover,
         and ask for their last day if you don't have it. Dates go to actions as YYYY-MM-DD.
         If an action returns an error, tell the user plainly.

@@ -5,4 +5,5 @@
 //     -[:atlassian_user_owns_confluence_page|atlassian_user_created_confluence_page]->(page:ConfluencePage)
 //   RETURN page
 export const PQ_USER_OWNED_PAGES = '25f1fc29-ed3c-4006-a2ce-1d96f975d9b1';
-// TODO: PQ_ITEM_COLLABORATORS (item ARIs -> other linked users), needed for owner ranking.
+// No PQ_ITEM_COLLABORATORS: buildInventory gets collaborators from page contributors and issue
+// commenters instead (src/graph/inventory.ts). Register one only if that proves too slow.

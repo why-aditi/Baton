@@ -13,6 +13,8 @@ export type ActionDeps = {
   link: (handoverId: string) => Promise<string>;
   /** Jira user search, run as the caller. */
   findPeople: (query: string) => Promise<{ accountId: string; name: string }[]>;
+  /** A person's Jira profile URL. The agent links people only through these, never its own guesses. */
+  profile: (accountId: string) => Promise<string>;
 };
 
 type Input = Record<string, unknown>;
@@ -73,19 +75,20 @@ export class Actions {
 
   private name = (h: Handover, accountId?: string) => (accountId ? (h.people[accountId] ?? accountId) : null);
 
-  private owner(h: Handover, i: ScoredItem) {
-    if (i.acceptedOwnerAccountId) {
-      const s = i.suggestions.find((x) => x.accountId === i.acceptedOwnerAccountId);
-      return {
-        newOwner: this.name(h, i.acceptedOwnerAccountId),
-        ownerStatus: 'accepted' as const,
-        reason: s?.reason ?? 'Chosen by the manager',
-      };
-    }
+  private url = async (accountId?: string | null) => (accountId ? this.deps.profile(accountId) : null);
+
+  private async owner(h: Handover, i: ScoredItem) {
+    const accepted = i.acceptedOwnerAccountId;
     const top = i.suggestions[0];
-    return top
-      ? { newOwner: this.name(h, top.accountId), ownerStatus: 'suggested' as const, reason: top.reason }
-      : { newOwner: null, ownerStatus: 'none' as const, reason: null };
+    const accountId = accepted ?? top?.accountId;
+    return {
+      newOwner: this.name(h, accountId),
+      newOwnerUrl: await this.url(accountId),
+      ownerStatus: accepted ? ('accepted' as const) : top ? ('suggested' as const) : ('none' as const),
+      reason: accepted
+        ? (i.suggestions.find((x) => x.accountId === accepted)?.reason ?? 'Chosen by the manager')
+        : (top?.reason ?? null),
+    };
   }
 
   /** The newest editable handover for a person. */
@@ -105,6 +108,7 @@ export class Actions {
       handovers: await Promise.all(
         editable.map(async (r) => ({
           person: r.subjectName,
+          personUrl: await this.url(r.subjectAccountId),
           reason: r.reason,
           lastDay: r.lastDay,
           status: r.status,
@@ -121,21 +125,18 @@ export class Actions {
     if (!h) return { result: `No handover found for "${person}".` };
     return {
       person: h.subjectName,
+      personUrl: await this.url(h.subjectAccountId),
       reason: h.reason,
       lastDay: h.lastDay,
       status: h.status,
       overview: h.summary?.overview ?? null,
       itemCount: h.items.length,
-      topRisks: h.items.slice(0, 10).map((i) => ({
-        title: i.title,
-        key: i.key,
-        url: i.url,
-        kind: i.kind,
-        risk: i.risk,
-        band: i.band,
-        reasons: i.reasons,
-        newOwner: this.owner(h, i).newOwner,
-      })),
+      topRisks: await Promise.all(
+        h.items.slice(0, 10).map(async (i) => {
+          const { newOwner, newOwnerUrl } = await this.owner(h, i);
+          return { title: i.title, key: i.key, url: i.url, kind: i.kind, risk: i.risk, band: i.band, reasons: i.reasons, newOwner, newOwnerUrl };
+        }),
+      ),
       answeredQuestions: h.questions
         .filter((q) => q.answer?.trim())
         .map((q) => ({ question: q.text, answer: q.answer!.slice(0, 300) })),
@@ -162,7 +163,8 @@ export class Actions {
             item: { title: i.title, key: i.key, url: i.url },
             handoverFor: h.subjectName,
             currentOwner: h.subjectName,
-            ...this.owner(h, i),
+            currentOwnerUrl: await this.url(h.subjectAccountId),
+            ...(await this.owner(h, i)),
             link: await this.deps.link(h.id),
           };
         }
@@ -177,21 +179,28 @@ export class Actions {
     if (!Number.isFinite(minRisk)) return { error: 'minRisk must be a number from 0 to 100' };
     const hs = (await this.svc.listEditable(caller)).filter((h) => !person || matchesPerson(h, person));
     if (person && hs.length === 0) return { result: `No handover found for "${person}".` };
-    const items = hs
-      .flatMap((h) =>
-        h.items
-          .filter((i) => i.risk >= minRisk)
-          .map((i) => ({
-            person: h.subjectName,
-            title: i.title,
-            key: i.key,
-            url: i.url,
-            risk: i.risk,
-            reasons: i.reasons,
-            newOwner: this.owner(h, i).newOwner,
-          })),
+    const items = (
+      await Promise.all(
+        hs.flatMap((h) =>
+          h.items
+            .filter((i) => i.risk >= minRisk)
+            .map(async (i) => {
+              const { newOwner, newOwnerUrl } = await this.owner(h, i);
+              return {
+                person: h.subjectName,
+                personUrl: await this.url(h.subjectAccountId),
+                title: i.title,
+                key: i.key,
+                url: i.url,
+                risk: i.risk,
+                reasons: i.reasons,
+                newOwner,
+                newOwnerUrl,
+              };
+            }),
+        ),
       )
-      .sort((a, b) => b.risk - a.risk);
+    ).sort((a, b) => b.risk - a.risk);
     return { minRisk, items };
   });
 
@@ -212,6 +221,7 @@ export class Actions {
     });
     return {
       result: `Started a draft handover for ${subject.name}. Open Baton to build the inventory.`,
+      personUrl: await this.url(subject.accountId),
       link: await this.deps.link(h.id),
     };
   });

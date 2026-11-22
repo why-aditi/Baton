@@ -6,7 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { Actions } from './actions';
 import { forgeAtlassian } from './forge/atlassian';
 import { KvsStore } from './forge/kvsStore';
-import { callerFromAction, callerFromContext, findPeople, handoverLink } from './forge/platform';
+import { callerFromAction, callerFromContext, findPeople, handoverLink, profileLink } from './forge/platform';
 import { BatonError, HandoverService } from './handover/service';
 import { createClient, type FetchLike } from './llm/client';
 import { providersFromEnv } from './llm/models';
@@ -77,7 +77,7 @@ const action =
     try {
       const caller = await callerFromAction(payload);
       if (!caller) return { error: 'Could not tell who is asking. Open Baton in Jira instead.' };
-      const actions = new Actions(service(), { link: handoverLink, findPeople });
+      const actions = new Actions(service(), { link: handoverLink, findPeople, profile: profileLink });
       return await actions[name](caller, payload ?? {});
     } catch (e) {
       console.error(`${name} failed`, e instanceof Error ? e.message : e);

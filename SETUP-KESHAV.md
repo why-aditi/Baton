@@ -12,7 +12,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Claude Desktop (MCP) | Works, and sees the same handovers as Rovo |
 | Publish to Confluence | Works, as the signed-in user, with @mentions and item links |
 | Reassign Jira issues | Works, as the signed-in user |
-| Bitbucket PRs in the graph | Not checked: the demo org's Bitbucket is behind an IP allowlist (section 3) |
+| Bitbucket PRs in the graph | Not checked yet. The IP allowlist is off (Nov 22), so Bitbucket is reachable now (section 3) |
 | Custom UI | Not built. Yours (section 7) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
@@ -82,7 +82,7 @@ Use `forge logs -e keshav -f` in a second terminal while testing.
 4. Claude Desktop → Settings → Connectors → **Add custom connector**. Name `Baton`, URL `https://mcp.atlassian.com/forge/83b0292d-c06a-4bec-9e04-426a67cb0280`. Sign in and pick **your** site.
 5. You should see the five Baton tools. Ask "List open handovers". After any install change, **Disconnect** the connector and connect again.
 
-**Bitbucket.** Still unchecked, and PRs are a big part of the demo. Demo orgs already include Bitbucket (on Aditi's, the workspace is `bitbucket.org/one-atlas-ubvd`), but every Bitbucket page shows "You're currently blocked from this page" because **IP allowlisting** is on. An org admin can turn it off under admin.atlassian.com → Security → IP allowlists. Then create a repo and a PR and check that `atlassianUserPullRequests` returns it. If PRs don't show up in the graph, they come from Bitbucket's REST API instead.
+**Bitbucket.** Still unchecked, and PRs are a big part of the demo. Demo orgs already include Bitbucket (on Aditi's, the workspace is `bitbucket.org/one-atlas-ubvd`). If every Bitbucket page shows "You're currently blocked from this page", **IP allowlisting** is on: an org admin turns it off under admin.atlassian.com → Security → IP allowlists (done on Aditi's org, Nov 22). Then create a repo and a PR and check that `atlassianUserPullRequests` returns it (the spike's **Probe Teamwork Graph** shows it under `pullRequests`; new activity takes about 5 minutes to appear). If PRs don't show up in the graph, they come from Bitbucket's REST API instead.
 
 ## 4. Seed data (your workstream)
 
@@ -180,13 +180,16 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 - [x] **Workload counts for owner ranking.** `buildInventory` counts open assigned work for up to 25 likely owners.
 - [x] ~~Register `PQ_ITEM_COLLABORATORS`.~~ Not needed for now: `buildInventory` gets collaborators from page contributors and issue commenters instead. Revisit if that's too slow on real data.
 
-**Blocked**
+**Bitbucket**
 
-- [ ] **Check Bitbucket PRs appear in the graph.** Blocked on the demo org's IP allowlist (section 3). If they don't show up, PRs come from Bitbucket's REST API instead. **(affects you)**
+- [x] **Turn off the demo org's IP allowlist** (Nov 22), so Bitbucket is reachable.
+- [ ] **Check Bitbucket PRs appear in the graph.** Create a repo and a PR, wait about 5 minutes, then run **Probe Teamwork Graph** in the spike and look under `pullRequests`. If they don't show up, PRs come from Bitbucket's REST API instead. **(affects you)**
 
 **Code**
 
-- [ ] **Fallbacks** to the Jira, Confluence and Bitbucket APIs for what the graph doesn't return. The graph has no updated date or sprint on Jira issues and no link counts on pages, so the "stale", "sprint ends" and "widely referenced" risk signals never fire for those. Jira's search API (`updated`, sprint) and Confluence's API (incoming links) can fill them in. PRs too, if they don't show up in the graph.
+- [x] **Jira fallback.** `saveInventory` asks Jira's search API, as the user, for each issue's updated date and sprint end, so the "stale" and "sprint ends" signals now fire for Jira issues. If the lookup fails, it scores from the graph alone. Not run on a site yet.
+- [ ] **Page link counts** for the "widely referenced" signal. Neither the graph nor any Confluence API we know of gives a page's incoming links, so this signal never fires yet. Options: find a graph relationship for page links, or drop the signal.
+- [ ] **Bitbucket fallback,** only if PRs don't show up in the graph (see above).
 
 **LLM**
 
@@ -201,7 +204,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 - [ ] **Wrap `get-handover` and `find-owner` as `rovo:skill`s,** which helps with the Best Agents prize.
 - [ ] **Check the agent's four suggested questions** give correct, cited answers in Rovo and in Claude Desktop, before Dec 14.
-- [ ] **Fix the agent's people links.** It writes a broken `/people/<name>` link for the departing person; the action should return a real profile URL.
+- [x] **Fix the agent's people links.** The actions now return `personUrl`, `currentOwnerUrl` and `newOwnerUrl` (`<site>/jira/people/<accountId>`), and the agent prompt says to link people only with those. Check the link opens a profile on your site.
 - [ ] **Decide why Baton shows up twice in the Rovo picker,** and whether that's still true with one installation.
 
 **Loose ends**
@@ -216,5 +219,5 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 ## Open questions
 
 - Does Baton still show up twice in the Rovo picker with one installation, and does it matter?
-- Do Bitbucket PRs show up in `atlassianUserPullRequests` once the IP allowlist is off?
+- Do Bitbucket PRs show up in `atlassianUserPullRequests` now that the IP allowlist is off?
 - Fix for the teams 403 when the app asks: watch the forum thread.

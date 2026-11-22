@@ -3,8 +3,9 @@ import { z } from 'zod';
 import type { Client } from '../llm/client';
 import { generateQuestions, generateSummary, summarizeItems } from '../llm/tasks';
 import { isWebUrl, pageBody, pageTitle } from '../publish/page';
+import { applyIssueDetails, issueIdOf, type IssueDetails } from '../enrich/jira';
 import { scoreInventory } from '../scoring/inventory';
-import type { Caller, Handover, HandoverSummary, Status } from '../types';
+import type { Caller, Handover, HandoverSummary, Item, Status } from '../types';
 import { roleOf, subjectView, type Role } from './access';
 import type { Store } from './store';
 
@@ -23,6 +24,8 @@ export class BatonError extends Error {
 export type AtlassianPort = {
   createPage(spaceKey: string, title: string, storageBody: string): Promise<{ pageId: string; url: string }>;
   assignIssue(issueKey: string, accountId: string): Promise<void>;
+  /** Updated date and sprint end by Jira issue ID, which the graph doesn't return. Optional. */
+  issueDetails?(issueIds: string[]): Promise<Record<string, IssueDetails>>;
 };
 
 export type ServiceDeps = {
@@ -208,9 +211,10 @@ export class HandoverService {
     if (h.status === 'published') throw new BatonError('conflict', 'This handover is already published');
 
     h.people = { ...h.people, ...i.people };
+    const items = await this.withIssueDetails(i.items);
     const accepted = new Map(h.items.map((x) => [x.ari, x.acceptedOwnerAccountId]));
     const oneLines = new Map(h.items.map((x) => [x.ari, x.oneLine]));
-    h.items = scoreInventory(i.items, {
+    h.items = scoreInventory(items, {
       subjectAri: h.subjectAri,
       subjectName: h.subjectName,
       lastDay: h.lastDay,
@@ -224,6 +228,19 @@ export class HandoverService {
     }));
     h.inputHash = sha256(h.items.map((x) => [x.ari, x.title, x.status, x.risk, x.reasons]));
     return this.save(h);
+  }
+
+  /** Fills Jira dates the graph lacks. Never blocks saving: on failure the graph data is used as is. */
+  private async withIssueDetails(items: Item[]): Promise<Item[]> {
+    const lookup = this.deps.atlassian?.issueDetails;
+    const ids = [...new Set(items.filter((x) => x.kind === 'jira_issue').map((x) => issueIdOf(x.ari)).filter((x): x is string => !!x))];
+    if (!lookup || ids.length === 0) return items;
+    try {
+      return applyIssueDetails(items, await lookup.call(this.deps.atlassian, ids));
+    } catch (e) {
+      console.warn('Jira issue details failed; scoring without them', e instanceof Error ? e.message : e);
+      return items;
+    }
   }
 
   async summarizeItems(caller: Caller, id: string): Promise<Handover> {

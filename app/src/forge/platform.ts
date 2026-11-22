@@ -36,15 +36,22 @@ export const callerFromAction = async (payload: any): Promise<Caller | null> => 
 
 let baseUrl: string | undefined;
 
-/** https://<site>/jira/apps/<appId>/<envId>/handover/<id>. The UI routes on the path suffix. */
-export const handoverLink = async (id: string) => {
+const siteUrl = async () => {
   if (!baseUrl) {
     const info = await jsonOrNull(await api.asUser().requestJira(route`/rest/api/3/serverInfo`));
     baseUrl = info?.baseUrl ?? '';
   }
-  const { appAri, environmentAri } = getAppContext();
-  return `${baseUrl}/jira/apps/${appAri.appId}/${environmentAri.environmentId}/handover/${id}`;
+  return baseUrl;
 };
+
+/** https://<site>/jira/apps/<appId>/<envId>/handover/<id>. The UI routes on the path suffix. */
+export const handoverLink = async (id: string) => {
+  const { appAri, environmentAri } = getAppContext();
+  return `${await siteUrl()}/jira/apps/${appAri.appId}/${environmentAri.environmentId}/handover/${id}`;
+};
+
+/** https://<site>/jira/people/<accountId>: the person's profile in Jira. */
+export const profileLink = async (accountId: string) => `${await siteUrl()}/jira/people/${accountId}`;
 
 /** Active human users matching a name, or the exact account ID. */
 export const findPeople = async (query: string) => {
