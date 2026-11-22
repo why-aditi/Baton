@@ -157,6 +157,14 @@ app:
   runtime:
     name: nodejs22.x
   id: ari:cloud:ecosystem::app/83b0292d-c06a-4bec-9e04-426a67cb0280
+  # One installation across Jira and Confluence, so the app page (Jira), Rovo and MCP (which
+  # Forge routes through the Confluence install) share one Forge storage. Without this, each product
+  # install has its own storage and MCP saw no handovers. Confluence must be connected for publish.
+  compatibility:
+    jira:
+      required: true
+    confluence:
+      required: false
   storage:
     entities:
       - name: handover
