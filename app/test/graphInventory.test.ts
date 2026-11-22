@@ -171,4 +171,27 @@ describe('buildInventory', () => {
     await run(request, { onProgress: (p: { source: string }) => seen.add(p.source) });
     expect(seen).toEqual(new Set(['assignedJira', 'reportedJira', 'pullRequests', 'pages', 'goalsAndProjects', 'teams', 'details']));
   });
+
+  test('counts distinct pages linking to each page, from the recorded response', async () => {
+    const recorded = fixture('pageInboundRefs');
+    const edges = (recorded.data as any).customQuery.edges;
+    const self = { node: { columns: [{ key: 'src', value: { id: PAGE } }] } };
+    const { request, calls } = fakeGraph({
+      // The recorded three, one of them twice, plus the page itself: still 3.
+      baton_pageInboundRefs: () => ({ data: { customQuery: { edges: [...edges, edges[0], self], pageInfo: { hasNextPage: false } } } }),
+    });
+    const inv = await run(request, { pageLinksQueryKey: 'links-key' });
+    expect(inv.items.find((i) => i.ari === PAGE)?.inboundLinks).toBe(3);
+    expect(calls.find((c) => c.op === 'baton_pageInboundRefs')?.vars).toEqual({
+      queryKey: 'links-key',
+      queryParams: { pageId: PAGE },
+    });
+  });
+
+  test('without a links query key, pages get no link count', async () => {
+    const { request, calls } = fakeGraph();
+    const inv = await run(request);
+    expect(calls.some((c) => c.op === 'baton_pageInboundRefs')).toBe(false);
+    expect(inv.items.find((i) => i.ari === PAGE)?.inboundLinks).toBeUndefined();
+  });
 });

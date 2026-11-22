@@ -20,12 +20,15 @@ Re-record after Keshav's seed lands.
 | `pageContributors.json` | `confluencePageContributors` | `AtlassianUser` nodes for one page |
 | `workItemComments.json` | `jiraWorkItemComments` | Empty (no comments on the issue) |
 | `ownedPages.json` | `customQuery` with `PQ_USER_OWNED_PAGES` | The same page twice, once per relationship |
+| `pageInboundRefs.json` | `customQuery` with `PQ_PAGE_INBOUND_REFS` | Three pages linking to one: two native page links, one plain URL |
 
 ## What the recording found
 
 - **Don't select `edges.cursor`.** It comes back null and, being non-null, nulls the whole edge.
   Page with `pageInfo.endCursor` only.
-- **`atlassianUserPullRequests` requires `since`** (e.g. `"P90D"`), and `roles` takes `CREATED`, `REVIEWED`.
+- **`atlassianUserPullRequests` requires `since`** (e.g. `"P90D"`). Its `roles` argument is unreliable:
+  `[CREATED]` alone fails with "In evaluation not implemented yet", and `[CREATED, REVIEWED]` worked
+  in the morning and failed by the afternoon (Nov 22). Leave it off and filter by author and reviewers.
 - **`atlassianUserGoalsAndProjects(roles: …)` fails** with "In evaluation not implemented yet" for any
   role. Without `roles` it returns everything linked to the user, which may include goals they only
   viewed or favourited.

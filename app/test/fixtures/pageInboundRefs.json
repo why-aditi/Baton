@@ -1,0 +1,62 @@
+{
+  "recordedAt": "2026-11-22",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "note": "PQ_PAGE_INBOUND_REFS for page 2719746, run as the app. Three test pages link to it: 3375126 and 3276803 with native page links, 3375149 with a plain URL.",
+  "query": "query baton_inbound($queryKey: String!, $queryParams: CypherRequestParams) { customQuery(queryKey: $queryKey, queryParams: $queryParams, first: 25) { edges { node { columns { key value { __typename ... on CypherQueryResultNode { id } } } } } pageInfo { hasNextPage } } }",
+  "variables": {
+    "queryKey": "420a506c-5569-41e7-b623-49870ea92967",
+    "queryParams": {
+      "pageId": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/2719746"
+    }
+  },
+  "response": {
+    "data": {
+      "customQuery": {
+        "edges": [
+          {
+            "node": {
+              "columns": [
+                {
+                  "key": "src",
+                  "value": {
+                    "__typename": "CypherQueryResultNode",
+                    "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/3375126"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": {
+              "columns": [
+                {
+                  "key": "src",
+                  "value": {
+                    "__typename": "CypherQueryResultNode",
+                    "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/3276803"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": {
+              "columns": [
+                {
+                  "key": "src",
+                  "value": {
+                    "__typename": "CypherQueryResultNode",
+                    "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/3375149"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false
+        }
+      }
+    }
+  }
+}

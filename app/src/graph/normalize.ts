@@ -76,6 +76,8 @@ export const pullRequests = (nodes: unknown[], subjectAri: string): Normalized =
   for (const n of nodes) {
     if (!isType(n, 'ExternalPullRequest') || CLOSED_PR.has(n.status)) continue;
     const reviewerRefs: UserRef[] = (n.reviewers ?? []).map((r: any) => r?.user);
+    // The query runs without `roles` (it errors), so keep only PRs the subject wrote or reviews.
+    if (n.author?.id !== subjectAri && !reviewerRefs.some((r) => r?.id === subjectAri)) continue;
     const reviewers = collect(people, ...reviewerRefs);
     items.push(
       clean({
