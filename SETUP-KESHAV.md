@@ -93,12 +93,15 @@ Then create a repo and a PR as a seeded user, and check that `atlassianUserPullR
 
 **The demo site's pre-loaded data doesn't show up in Teamwork Graph.** Alana Grant has 36 open issues in Jira, and the graph returns 0 for her. A new issue created via the API showed up within 5 minutes. So all Northwind Pay data must be created fresh, through the API or UI, by the real users.
 
-- Invite 7 users to your site using email aliases you control (for example `you+meera@...`). Each needs their own API token, so authorship is real.
-- Write `scripts/seed/seed-jira.ts`, `seed-confluence.ts` and `seed-bitbucket.ts` as idempotent scripts, plus `reset.ts`, as in the spec.
-- Meera's hero item: payment-retry runbook page and 2 open PRs that only she has touched, plus 14 assigned issues.
-- **Seed by Nov 30.** Don't reseed the day before recording; indexing can lag.
-- Create the 2 teams (Payments, Platform) in the Teams app. `buildInventory` reads teams as the signed-in user from the app page, which works. Only the backend, asking as the app, gets a 403 (forum thread), and nothing in Baton does that today.
-- Once your seed lands, the graph fixtures need re-recording against seeded users (section 7).
+The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has the full steps. They haven't been run against a site yet. What's left:
+
+- [ ] **Set up the site by hand** (`scripts/README.md` step 1): invite the 7 users with email aliases you control, each with their own API token so authorship is real. Then create the PAY and PLAT projects, the NWP space, the 2 teams, and the goals and project. Add the users to the Bitbucket workspace.
+- [ ] **Run `npm run seed` in `scripts/`.** It creates 59 Jira issues (14 open ones for Meera), 12 Confluence pages (the payment-retry runbook and 3 more only Meera has touched) and 6 Bitbucket PRs (2 by Meera with no other reviewer). It's safe to rerun.
+- [ ] **Seed by Nov 30.** Don't reseed the day before recording; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding.
+- [ ] **Update the agent's suggested question** "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
+- [ ] **Re-record the graph fixtures** against seeded users (section 7).
+- Teams: `buildInventory` reads them as the signed-in user from the app page, which works. Only the backend, asking as the app, gets a 403 (forum thread), and nothing in Baton does that today.
+- Between demo runs: `npm run reset`, then the `deleteAllHandovers` resolver (`scripts/README.md` section 3).
 
 ## 5. Check it works
 

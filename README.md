@@ -29,6 +29,7 @@ Claude Desktop (MCP) ────┘
 | Path | What |
 | --- | --- |
 | `app/` | The Baton app. See [app/README.md](app/README.md) |
+| `scripts/` | Seed scripts for the Northwind Pay demo company, plus reset. See [scripts/README.md](scripts/README.md) |
 | `spike/` | The week-1 test page, now also used to record Teamwork Graph fixtures |
 | `Baton — Codegeist 2026 Tech Spec.pdf` | The spec: scope, design, data model, timeline |
 | `SETUP-KESHAV.md` | Dev setup: Forge CLI, your own environment and demo site, Rovo, MCP |
@@ -43,7 +44,7 @@ Claude Desktop (MCP) ────┘
 | Turning graph results into items, building the inventory | Built and tested against responses recorded on the demo site (Nov 22) |
 | Confluence publish and reassign (backend) | Built and unit-tested (Nov 22) |
 | Custom UI | Not started |
-| Seed data (Northwind Pay) | Not started; due Nov 30 |
+| Seed data (Northwind Pay) | Scripts written and tested against fakes (`scripts/`); not yet run on a site. Due Nov 30 |
 
 ## Develop
 

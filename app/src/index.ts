@@ -48,6 +48,7 @@ const RESOLVERS: Record<string, Handler> = {
   markPublished: (s, c, p) => s.markPublished(c, { id: p?.id, pageId: p?.pageId, url: p?.url }),
   publishHandover: (s, c, p) => s.publish(c, p),
   reassignIssues: (s, c, p) => s.reassign(c, p),
+  deleteAllHandovers: (s, c, p) => s.deleteAllHandovers(c, p),
 };
 
 /** Every resolver returns { ok: true, data } or { ok: false, error: { code, message } }. */
