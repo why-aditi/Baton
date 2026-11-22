@@ -48,6 +48,7 @@ npm run typecheck
 | `src/graph/runner.ts` | `runPaged`: one graph query to the end (cursor paging, null rows, error codes, `QUERY_NOT_FOUND` retry) |
 | `src/graph/merge.ts` | `mergeItems` (one item per ARI, strongest role wins) and `coverageWarnings` (the startup self-check) |
 | `src/graph/queryKeys.ts` | Persisted Teamwork Graph query keys |
+| `src/enrich/jira.ts` | Fills Jira issues' updated date and sprint end, which the graph lacks, from Jira's search API |
 
 ## Resolvers (for the UI)
 
@@ -111,6 +112,7 @@ Filtering, so the inventory is open work only: done or resolved issues, merged o
 archived or deleted pages, and archived, done or cancelled projects are dropped. Goals and projects
 the person doesn't own are dropped too, because the query can't filter by role.
 
-**Gaps in the graph that scoring feels.** Jira issues have no updated date or sprint, and pages have
-no link counts, so the "stale", "sprint ends" and "widely referenced" signals never fire for them yet.
-Those need Jira or Confluence REST fallbacks.
+**Gaps in the graph that scoring feels.** Jira issues have no updated date or sprint in the graph, so
+`saveInventory` fills them in from Jira's search API, as the user (`src/enrich/jira.ts`, called through
+`issueDetails` in `src/forge/atlassian.ts`). If that fails, scoring uses the graph data alone. Pages have
+no link counts anywhere we can reach, so the "widely referenced" signal never fires yet.

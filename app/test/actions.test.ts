@@ -39,6 +39,7 @@ beforeEach(async () => {
   });
   actions = new Actions(svc, {
     link: async (id) => `https://site/jira/apps/app/env?handover=${id}`,
+    profile: async (accountId) => `https://site/jira/people/${accountId}`,
     findPeople: async (query) =>
       people.filter((p) => p.accountId === query || p.name.toLowerCase().includes(query.toLowerCase())),
   });
@@ -66,6 +67,7 @@ describe('list-handovers', () => {
       handovers: [
         {
           person: 'Meera Iyer',
+          personUrl: 'https://site/jira/people/meera',
           reason: 'leaving',
           lastDay: '2026-11-26',
           status: 'draft',
@@ -110,6 +112,27 @@ describe('get-handover', () => {
   });
 });
 
+describe('people links', () => {
+  test('get-handover links the person and each new owner to their Jira profile', async () => {
+    await svc.setOwner(boss, { id: handoverId, itemAri: 'ari:pay142', accountId: 'arjun' });
+    const r = (await actions.getHandover(boss, { person: 'Meera' })) as any;
+    expect(r.personUrl).toBe('https://site/jira/people/meera');
+    expect(r.topRisks.find((i: any) => i.key === 'PAY-142').newOwnerUrl).toBe('https://site/jira/people/arjun');
+  });
+
+  test('items with no owner get no owner link', async () => {
+    const r = (await actions.getHandover(boss, { person: 'Meera' })) as any;
+    expect(r.topRisks.find((i: any) => i.title === 'Payment retry runbook').newOwnerUrl).toBeNull();
+  });
+
+  test('list-at-risk-items and start-handover link people too', async () => {
+    const risky = (await actions.listAtRiskItems(boss, { person: 'Meera' })) as any;
+    expect(risky.items[0].personUrl).toBe('https://site/jira/people/meera');
+    const started = (await actions.startHandover(boss, { person: 'Arjun', reason: 'leave', lastDay: '2027-01-10' })) as any;
+    expect(started.personUrl).toBe('https://site/jira/people/arjun');
+  });
+});
+
 describe('find-owner', () => {
   test.each([
     ['PAY-142', 'Retry backoff'],
@@ -127,7 +150,9 @@ describe('find-owner', () => {
       item: { title: 'Retry backoff', key: 'PAY-142', url: 'https://site/ari:pay142' },
       handoverFor: 'Meera Iyer',
       currentOwner: 'Meera Iyer',
+      currentOwnerUrl: 'https://site/jira/people/meera',
       newOwner: 'Arjun Rao',
+      newOwnerUrl: 'https://site/jira/people/arjun',
       ownerStatus: 'accepted',
       reason: 'Worked on this item',
       link: `https://site/jira/apps/app/env?handover=${handoverId}`,

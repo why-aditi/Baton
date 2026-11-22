@@ -1,6 +1,7 @@
 // Confluence and Jira calls for publish and reassign. Always as the user: as the app, Confluence
 // shows no spaces, and reassignments should be attributed to the manager who approved them.
 import api, { route } from '@forge/api';
+import { issueDetails as parseIssueDetails, sprintFieldId, type IssueDetails } from '../enrich/jira';
 import { BatonError, type AtlassianPort } from '../handover/service';
 
 const errorText = async (res: { status: number; text(): Promise<string> }) => {
@@ -42,5 +43,27 @@ export const forgeAtlassian: AtlassianPort = {
       body: JSON.stringify({ accountId }),
     });
     if (!res.ok) throw new Error(await errorText(res));
+  },
+
+  async issueDetails(issueIds) {
+    const fieldsRes = await api.asUser().requestJira(route`/rest/api/3/field`);
+    const sprintField = fieldsRes.ok ? sprintFieldId(await fieldsRes.json()) : undefined;
+    const out: Record<string, IssueDetails> = {};
+    for (let i = 0; i < issueIds.length; i += 100) {
+      // IDs come from issue ARIs and are all digits (see issueIdOf), so they're safe in JQL.
+      const batch = issueIds.slice(i, i + 100);
+      const res = await api.asUser().requestJira(route`/rest/api/3/search/jql`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          jql: `id in (${batch.join(',')})`,
+          fields: ['updated', ...(sprintField ? [sprintField] : [])],
+          maxResults: 100,
+        }),
+      });
+      if (!res.ok) throw new Error(`Jira search failed: ${await errorText(res)}`);
+      Object.assign(out, parseIssueDetails(await res.json(), sprintField));
+    }
+    return out;
   },
 };
