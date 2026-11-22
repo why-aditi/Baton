@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import type { Client } from '../llm/client';
 import { generateQuestions, generateSummary, summarizeItems } from '../llm/tasks';
-import { pageBody, pageTitle } from '../publish/page';
+import { isWebUrl, pageBody, pageTitle } from '../publish/page';
 import { scoreInventory } from '../scoring/inventory';
 import type { Caller, Handover, HandoverSummary, Status } from '../types';
 import { roleOf, subjectView, type Role } from './access';
@@ -57,7 +57,7 @@ const itemInput = z.object({
   ari: id,
   kind: z.enum(['jira_issue', 'pull_request', 'confluence_page', 'goal', 'project']),
   title: z.string(),
-  url: z.string(),
+  url: z.string().refine(isWebUrl, 'expected an http(s) URL'),
   key: z.string().optional(),
   status: z.string().optional(),
   statusCategory: z.enum(['todo', 'in_progress', 'done']).optional(),

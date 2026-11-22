@@ -22,7 +22,19 @@ const KIND: Record<ScoredItem['kind'], string> = {
   project: 'Project',
 };
 
-const itemLink = (x: ScoredItem) => `<a href="${esc(x.url)}">${esc(x.key ? `${x.key} ${x.title}` : x.title)}</a>`;
+export const isWebUrl = (url: string) => {
+  try {
+    return ['http:', 'https:'].includes(new URL(url).protocol);
+  } catch {
+    return false;
+  }
+};
+
+/** Item URLs come from the UI, so anything but http(s) (e.g. javascript:) is shown as plain text. */
+const itemLink = (x: ScoredItem) => {
+  const label = esc(x.key ? `${x.key} ${x.title}` : x.title);
+  return isWebUrl(x.url) ? `<a href="${esc(x.url)}">${label}</a>` : label;
+};
 
 const paragraphs = (text: string) =>
   text
