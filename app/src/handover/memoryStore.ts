@@ -22,6 +22,10 @@ export class MemoryStore implements Store {
     return [...this.handovers.values()].map((h) => structuredClone(h));
   }
 
+  async delete(id: string) {
+    this.handovers.delete(id);
+  }
+
   async increment(key: string) {
     const n = (this.counters.get(key) ?? 0) + 1;
     this.counters.set(key, n);

@@ -1,0 +1,19 @@
+{
+  "name": "baton-scripts",
+  "private": true,
+  "scripts": {
+    "seed:jira": "tsx seed/seed-jira.ts",
+    "seed:confluence": "tsx seed/seed-confluence.ts",
+    "seed:bitbucket": "tsx seed/seed-bitbucket.ts",
+    "seed": "tsx seed/seed-jira.ts && tsx seed/seed-confluence.ts && tsx seed/seed-bitbucket.ts",
+    "reset": "tsx seed/reset.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.9"
+  }
+}

@@ -9,6 +9,8 @@ export interface Store {
   listForAccount(accountId: string): Promise<Handover[]>;
   /** Every handover on the site, for Jira admins. */
   listAll(): Promise<Handover[]>;
+  /** Removes the handover and its who-can-see-it rows. */
+  delete(id: string): Promise<void>;
   /** Adds one to a counter and returns the new value. Need not be atomic. */
   increment(key: string): Promise<number>;
 }

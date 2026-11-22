@@ -345,6 +345,17 @@ export class HandoverService {
     return this.save(h);
   }
 
+  /** Jira admins only, for resetting a demo site. Returns how many were deleted. */
+  async deleteAllHandovers(caller: Caller, input: unknown): Promise<{ deleted: number }> {
+    if (!caller.isAdmin) throw new BatonError('not_found', 'Handover not found');
+    if ((input as { confirm?: unknown } | null)?.confirm !== 'DELETE') {
+      throw new BatonError('bad_input', 'Pass { "confirm": "DELETE" } to delete every handover on this site');
+    }
+    const all = await this.deps.store.listAll();
+    for (const h of all) await this.deps.store.delete(h.id);
+    return { deleted: all.length };
+  }
+
   private port(): AtlassianPort {
     if (!this.deps.atlassian) throw new Error('Jira/Confluence access is not configured');
     return this.deps.atlassian;

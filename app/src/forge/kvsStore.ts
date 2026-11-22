@@ -61,6 +61,12 @@ export class KvsStore implements Store {
     return out;
   }
 
+  async delete(id: string) {
+    const h = await this.get(id);
+    if (h) await Promise.all(membersOf(h).map((accountId) => members().delete(memberKey(id, accountId))));
+    await handovers().delete(id);
+  }
+
   async increment(key: string) {
     const k = `counter:${key}`;
     const n = ((await kvs.get<number>(k)) ?? 0) + 1;
