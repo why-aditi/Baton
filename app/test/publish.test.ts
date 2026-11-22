@@ -52,6 +52,12 @@ describe('page', () => {
     expect(body).toContain('<td>Unassigned</td>');
   });
 
+  it('never links a non-web URL', () => {
+    const body = pageBody(makeHandover({ items: [scored('x', { title: 'Evil', url: 'javascript:alert(1)' })] }));
+    expect(body).not.toContain('javascript:');
+    expect(body).toContain('<td>Evil</td>');
+  });
+
   it('still builds a page with no summary or answers', () => {
     const body = pageBody(makeHandover());
     expect(body).toContain('Everything in this handover');
@@ -104,6 +110,11 @@ describe('publish and reassign', () => {
       { ari: 'a1', key: 'PAY-142', accountId: 'arjun', ok: true },
       { ari: 'a2', key: 'PAY-7', accountId: 'priya', ok: false, error: 'Issue is closed' },
     ]);
+  });
+
+  it('rejects items whose URL is not http(s)', async () => {
+    const item = { ari: 'z', kind: 'jira_issue', title: 'Z', url: 'javascript:alert(1)', collaborators: [], subjectRole: 'assignee' };
+    await expect(svc.saveInventory(boss, { id: 'h1', items: [item] })).rejects.toMatchObject({ code: 'bad_input' });
   });
 
   it('refuses pages, issues without an owner and unknown items', async () => {
