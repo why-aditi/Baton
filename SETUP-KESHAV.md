@@ -97,7 +97,7 @@ Then create a repo and a PR as a seeded user, and check that `atlassianUserPullR
 - Write `scripts/seed/seed-jira.ts`, `seed-confluence.ts` and `seed-bitbucket.ts` as idempotent scripts, plus `reset.ts`, as in the spec.
 - Meera's hero item: payment-retry runbook page and 2 open PRs that only she has touched, plus 14 assigned issues.
 - **Seed by Nov 30.** Don't reseed the day before recording; indexing can lag.
-- Create the 2 teams (Payments, Platform) in the Teams app. Team lookups resolve for a user but fail with a 403 when the app asks, so the app can't read them until the forum thread is answered.
+- Create the 2 teams (Payments, Platform) in the Teams app. `buildInventory` reads teams as the signed-in user from the app page, which works. Only the backend, asking as the app, gets a 403 (forum thread), and nothing in Baton does that today.
 - Once your seed lands, the graph fixtures need re-recording against seeded users (section 7).
 
 ## 5. Check it works
@@ -165,7 +165,7 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 
 **Gotchas for the UI:**
 
-- **`Item` fields matter to scoring.** Set `statusCategory` (an open PR is `in_progress`), `reviewers` on PRs, `dueDate` / `sprintEndDate` on issues, `inboundLinks` on pages, and `container` (project key, repo or space) on everything. Missing fields just score lower, silently.
+- **Don't build `Item`s by hand.** `buildInventory` sets every field scoring reads (status category, reviewers, due dates, container), and `saveInventory` adds Jira's updated date and sprint end. If you add a source of your own, follow `app/src/graph/normalize.ts`: a missing field doesn't error, the item just scores lower.
 - **Item URLs must be `http` or `https`.** `saveInventory` rejects anything else, so a bad link can't reach the published page.
 - **People are stored by account ID**, but collaborators and team members are user ARIs (`ari:cloud:identity::user/<accountId>`). Pass display names to `saveInventory` as `people: { accountId: name }`.
 - **LLM results are cached.** Calling a generate resolver again returns the stored result unless the inputs changed. Pass `regenerate: true` for a "Regenerate" button.
