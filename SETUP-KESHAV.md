@@ -147,7 +147,7 @@ The upgrade asks you to approve new scopes (Jira read/write, user read, app stor
 - **Calling the backend.** Use `invoke(name, payload)` from `@forge/bridge`. Every resolver returns `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. A `not_found` code also means "no access", so show the same empty state either way.
 - **Routing.** Links from the Rovo agent go to `<site>/jira/apps/<appId>/<envId>/handover/<id>`. The UI should route on `/handover/<id>`.
 - **Who sees what.** `getHandover` returns `{ role: 'editor', handover }` for the manager, recipients and Jira admins. For the departing person it returns a questions-only view (`role: 'subject'`). Render the knowledge-capture screen for `subject` and the inventory for `editor`.
-- **Reading the graph.** Graph reads happen in the UI as the user. Use `runPaged` from `app/src/graph/runner.ts` for each query, `mergeItems` to combine the results, and `coverageWarnings` for the "check the scopes" banners. Then send the items to `saveInventory`. The step that turns each graph result into an `Item` isn't written yet (see below), so stub it with fake items for now.
+- **Reading the graph.** Graph reads happen in the UI, as the user. Call `buildInventory({ request, subjectAri, ownedPagesQueryKey: PQ_USER_OWNED_PAGES, onProgress })` from `app/src/graph/inventory.ts`, with `request = (query, vars) => requestTeamworkGraph(query, vars)` from `@forge/bridge`. It returns `{ items, teams, openAssigned, people, warnings }`: send everything except `warnings` to `saveInventory` with the handover `id`, and show `warnings` as banners. `onProgress` reports each source (`assignedJira`, `reportedJira`, `pullRequests`, `pages`, `goalsAndProjects`, `teams`, then `details`) for the progress bar. It makes a few dozen graph calls, so expect several seconds.
 - **The LLM can fail.** `generateQuestions` and `generateSummary` return `llm_unavailable` when both LLM providers fail or the hourly limit (20 calls per site) is hit. Show the error and keep the rest of the screen working. The inventory never depends on the LLM.
 - **Publish and reassign.** These are still yours and aren't in `app/` yet. After the Confluence page is created, call `markPublished({ id, pageId, url })` so the handover moves to Published. Reassign runs as the user, after the confirmation dialog.
 
@@ -165,17 +165,18 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 **Needs her site first** (this unblocks most of the rest)
 
-- [ ] **Record what the graph returns.** Redeploy the spike, run **Inspect types**, and save one real response per query into `app/test/fixtures/`.
+- [x] **Record what the graph returns.** Done Nov 22: `app/test/fixtures/`, with what the recording found in its README.
 - [ ] **Check Bitbucket PRs appear in the graph.** This was meant to be settled by the Nov 23 go/no-go. If they don't show up, PRs come from Bitbucket's REST API instead. **(affects you)**
-- [ ] **Deploy `app/` and test Rovo and Claude Desktop.** Confirm the actions know who is asking, especially from Claude Desktop; if not, every Rovo and MCP answer comes back empty.
+- [x] **Deploy `app/`.** Done Nov 22, with fixes for the Forge build and for storage rejecting empty strings.
+- [ ] **Confirm Claude Desktop calls know who is asking.** `forge logs` should show `action caller resolved via myself` for an MCP call. If it says `none`, every MCP answer comes back empty.
 
 **Code, once fixtures exist**
 
-- [ ] **Turn graph results into items.** One converter per query (assigned and reported issues, PRs, pages, goals and projects, teams), tested against the fixtures.
-- [ ] **One function that builds the inventory.** It runs every query in parallel with progress, merges the results, attaches the scope warnings and calls `saveInventory`. Your UI calls it instead of the stub. **(affects you)**
-- [ ] **Workload counts for owner ranking.** These push overloaded people down the suggestions, and nothing fetches them yet.
-- [ ] **Register `PQ_ITEM_COLLABORATORS`.** This saved graph query finds who else worked on each item; owner ranking needs it.
-- [ ] **Fallbacks** to the Jira, Confluence and Bitbucket APIs for anything the graph doesn't return.
+- [x] **Turn graph results into items.** `app/src/graph/normalize.ts`, one converter per query, tested against the fixtures. The queries are checked against the recorded schema in a test.
+- [x] **One function that builds the inventory.** `buildInventory` in `app/src/graph/inventory.ts`; see "Reading the graph" in section 7. **(affects you)**
+- [x] **Workload counts for owner ranking.** `buildInventory` counts open assigned work for up to 25 likely owners.
+- [x] ~~Register `PQ_ITEM_COLLABORATORS`.~~ Not needed for now: `buildInventory` gets collaborators from page contributors and issue commenters instead. Revisit if that's too slow on real data.
+- [ ] **Fallbacks** to the Jira, Confluence and Bitbucket APIs for what the graph doesn't return. The graph has no updated date or sprint on Jira issues and no link counts on pages, so the "stale", "sprint ends" and "widely referenced" risk signals never fire for those. Jira's search API (`updated`, sprint) and Confluence's API (incoming links) can fill them in. PRs too, if they don't show up in the graph.
 
 **LLM**
 
