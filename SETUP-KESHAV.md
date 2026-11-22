@@ -151,18 +151,55 @@ The upgrade asks you to approve new scopes (Jira read/write, user read, app stor
 - **The LLM can fail.** `generateQuestions` and `generateSummary` return `llm_unavailable` when both LLM providers fail or the hourly limit (20 calls per site) is hit. Show the error and keep the rest of the screen working. The inventory never depends on the LLM.
 - **Publish and reassign.** These are still yours and aren't in `app/` yet. After the Confluence page is created, call `markPublished({ id, pageId, url })` so the handover moves to Published. Reassign runs as the user, after the confirmation dialog.
 
-**Still open on Aditi's side:**
-
-- The code that turns each graph result into an `Item`. It needs real field names, which are recorded with two new buttons on the spike page: **Inspect types** and **Run raw query** (steps in `app/test/fixtures/README.md`).
-- The `PQ_ITEM_COLLABORATORS` persisted query.
-- Goal and project graph scopes, still a TODO in the manifest.
-- Checking that the Rovo and MCP actions identify the caller correctly on a real site.
+**Still open on Aditi's side:** see section 8.
 
 **Gotchas, in addition to section 6:**
 
 - **`Item` fields matter to scoring.** Set `statusCategory` (an open PR is `in_progress`), `reviewers` on PRs, `dueDate` / `sprintEndDate` on issues, `inboundLinks` on pages, and `container` (project key, repo or space) on everything. Missing fields just score lower, silently.
 - **People are stored by account ID**, but collaborators and team members are user ARIs (`ari:cloud:identity::user/<accountId>`). Pass display names to `saveInventory` as `people: { accountId: name }`.
 - **LLM results are cached.** Calling a generate resolver again returns the stored result unless the inputs changed. Pass `regenerate: true` for a "Regenerate" button.
+
+## 8. Aditi's remaining work
+
+So you know what's coming and what blocks you. Items marked **(affects you)** change what your UI or seed data can rely on.
+
+**Needs her site first** (this unblocks most of the rest)
+
+- [ ] **Record what the graph returns.** Redeploy the spike, run **Inspect types**, and save one real response per query into `app/test/fixtures/`.
+- [ ] **Check Bitbucket PRs appear in the graph.** This was meant to be settled by the Nov 23 go/no-go. If they don't show up, PRs come from Bitbucket's REST API instead. **(affects you)**
+- [ ] **Deploy `app/` and test Rovo and Claude Desktop.** Confirm the actions know who is asking, especially from Claude Desktop; if not, every Rovo and MCP answer comes back empty.
+
+**Code, once fixtures exist**
+
+- [ ] **Turn graph results into items.** One converter per query (assigned and reported issues, PRs, pages, goals and projects, teams), tested against the fixtures.
+- [ ] **One function that builds the inventory.** It runs every query in parallel with progress, merges the results, attaches the scope warnings and calls `saveInventory`. Your UI calls it instead of the stub. **(affects you)**
+- [ ] **Workload counts for owner ranking.** These push overloaded people down the suggestions, and nothing fetches them yet.
+- [ ] **Register `PQ_ITEM_COLLABORATORS`.** This saved graph query finds who else worked on each item; owner ranking needs it.
+- [ ] **Fallbacks** to the Jira, Confluence and Bitbucket APIs for anything the graph doesn't return.
+
+**LLM**
+
+- [ ] **Mistral setup.** Create the account and key, turn on the training opt-out if there is one, send you the key, and pin exact model IDs instead of the "latest" aliases.
+- [ ] **Try the three LLM calls on real seed data.** That's questions, one-liners and the summary: check that Groq's JSON mode works and the questions are concrete. **(needs your seed)**
+
+**Scoring**
+
+- [ ] **Tune the risk weights on seed data.** **(needs your seed, due Nov 30)**
+
+**Agent and MCP**
+
+- [ ] **Check whether `rovo:skill` exists.** If it does, wrap `get-handover` and `find-owner` as skills, which helps with the Best Agents prize.
+- [ ] **Check the agent's four suggested questions** give correct, cited answers in Rovo and in Claude Desktop, before Dec 14.
+- [ ] **Decide why Baton shows up twice in the Rovo picker,** and whether the agent should live in one product only.
+
+**Loose ends**
+
+- [ ] **Add the goal and project graph scopes** to the manifest, with exact names from the Scopes page.
+- [ ] **Run `forge lint` while logged in,** and check the storage size limit against a full handover.
+- [ ] **Decide the category** by Nov 23 (the spec recommends Business Teams), and whether to go for the Marketplace bonus by Dec 7.
+- [ ] **Check her employment contract** for side-project clauses.
+
+**Dates:** go/no-go Nov 23. MVP demo-able on her dev site by Dec 7: start a handover, build the inventory, capture answers. Feature freeze Dec 14.
 
 ## Open questions
 
