@@ -42,6 +42,9 @@ npm run typecheck
 | `src/actions/index.ts` | The five Rovo/MCP actions, with replies kept under 4 KB |
 | `src/publish/page.ts` | `pageTitle`, `pageBody`: the published handover in Confluence storage format, with @mentions and item links |
 | `src/index.ts`, `src/forge/` | Forge wiring: KVS store, caller identity, links, Confluence page create and Jira assign (`atlassian.ts`). Not unit-tested |
+| `src/graph/inventory.ts` | `buildInventory`: runs every query as the user and returns what `saveInventory` takes, plus warnings |
+| `src/graph/queries.ts` | The graph queries, checked against `test/fixtures/schema.json` by a test |
+| `src/graph/normalize.ts` | Graph nodes to `Item`s, one converter per query, tested against the recordings |
 | `src/graph/runner.ts` | `runPaged`: one graph query to the end (cursor paging, null rows, error codes, `QUERY_NOT_FOUND` retry) |
 | `src/graph/merge.ts` | `mergeItems` (one item per ARI, strongest role wins) and `coverageWarnings` (the startup self-check) |
 | `src/graph/queryKeys.ts` | Persisted Teamwork Graph query keys |
@@ -97,8 +100,17 @@ route on that path.
   works (KVS can't index an array). One handover is one entity, so check the entity size limit
   against the seed data before relying on the 500-item cap.
 
-## Graph normalizers: not written yet
+## What the graph gives the inventory
 
-Turning graph nodes into `Item`s needs each node type's field names, and those aren't in anything
-reachable from here. They are guesses until real responses are recorded, so the mapping code waits
-for fixtures. See `test/fixtures/README.md` for how to record them with the spike.
+`buildInventory` reads, for the departing person: assigned and reported Jira work items, PRs they
+created or review (last 90 days), Confluence pages they own or created, goals and projects they own,
+and their teams. It then adds page contributors and issue commenters as collaborators, loads members
+for up to 10 teams, and counts open work for up to 25 likely owners.
+
+Filtering, so the inventory is open work only: done or resolved issues, merged or declined PRs,
+archived or deleted pages, and archived, done or cancelled projects are dropped. Goals and projects
+the person doesn't own are dropped too, because the query can't filter by role.
+
+**Gaps in the graph that scoring feels.** Jira issues have no updated date or sprint, and pages have
+no link counts, so the "stale", "sprint ends" and "widely referenced" signals never fire for them yet.
+Those need Jira or Confluence REST fallbacks.
