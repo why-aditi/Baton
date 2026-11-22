@@ -4,6 +4,7 @@ import * as ResolverModule from '@forge/resolver';
 import { fetch } from '@forge/api';
 import { randomUUID } from 'node:crypto';
 import { Actions } from './actions';
+import { forgeAtlassian } from './forge/atlassian';
 import { KvsStore } from './forge/kvsStore';
 import { callerFromAction, callerFromContext, findPeople, handoverLink } from './forge/platform';
 import { BatonError, HandoverService } from './handover/service';
@@ -24,6 +25,7 @@ const service = () =>
     now: () => new Date().toISOString(),
     newId: randomUUID,
     llmCallsPerHour: LLM_CALLS_PER_HOUR,
+    atlassian: forgeAtlassian,
   });
 
 // ---- resolvers (app page) ----
@@ -44,6 +46,8 @@ const RESOLVERS: Record<string, Handler> = {
   generateSummary: (s, c, p) => s.generateSummary(c, { id: p?.id, regenerate: !!p?.regenerate }),
   updateSummary: (s, c, p) => s.updateSummary(c, p),
   markPublished: (s, c, p) => s.markPublished(c, { id: p?.id, pageId: p?.pageId, url: p?.url }),
+  publishHandover: (s, c, p) => s.publish(c, p),
+  reassignIssues: (s, c, p) => s.reassign(c, p),
 };
 
 /** Every resolver returns { ok: true, data } or { ok: false, error: { code, message } }. */

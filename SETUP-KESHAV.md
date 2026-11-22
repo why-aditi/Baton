@@ -53,7 +53,7 @@ The repo has two apps: `spike/` (the week-1 test page, which sections 2–5 belo
     ```
     forge variables set --encrypt -e keshav GROQ_API_KEY <key>
     ```
-7. Deploy and install on both products:
+7. Deploy, install in Jira, then connect Confluence. `app/manifest.yml` declares Jira as the required product and Confluence as optional, so both commands add to **one** installation. `forge install list` shows it as `Jira (required)` plus `Confluence`.
     ```
     forge deploy -e keshav
     forge install -e keshav -p Jira -s <your-site>.atlassian.net --confirm-scopes
@@ -67,14 +67,13 @@ Use `forge logs -e keshav -f` in a second terminal while testing.
 
 **Rovo agent.** Nothing to set up. On your demo site, click **Ask Rovo** (top right), open the agent picker, search "Baton" and ask "List open handovers". Two Baton entries show up, probably one per product install; either works.
 
-**MCP for Claude Desktop.** Do this on **both** installs; tools stay hidden until both are on:
+**MCP for Claude Desktop.**
 
 1. admin.atlassian.com → your org → Apps → Sites → your site → **Connected apps**.
-2. Search "Baton", expand it, and open **View app details** for the Jira install.
+2. Search "Baton" and open **View app details**. It should say "Connected to Jira (Required), Confluence". If you see two separate Baton entries, the app was installed per product: see section 6.
 3. Under **Tools → Expose tools to MCP-compatible apps**, click **Enable tools**, then **Enable**.
-4. Repeat for the Confluence install.
-5. Claude Desktop → Settings → Connectors → **Add custom connector**. Name `Baton`, URL `https://mcp.atlassian.com/forge/83b0292d-c06a-4bec-9e04-426a67cb0280`. Sign in and pick **your** site.
-6. You should see **List handovers (development)**. Ask "List open handovers".
+4. Claude Desktop → Settings → Connectors → **Add custom connector**. Name `Baton`, URL `https://mcp.atlassian.com/forge/83b0292d-c06a-4bec-9e04-426a67cb0280`. Sign in and pick **your** site.
+5. You should see the five Baton tools. Ask "List open handovers". After any install change, **Disconnect** the connector and connect again.
 
 **Bitbucket.** Not done yet, and PRs are a big part of the demo. Add Bitbucket to your org (admin.atlassian.com → Add app), create a workspace and one repo, then check that PRs appear in the probe. Untested: we don't know yet whether the graph needs anything more.
 
@@ -116,7 +115,9 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 - **No `"type": "module"` in `package.json`.** It breaks the bundle.
 - **Groq models:** the account has no Llama models. Use `openai/gpt-oss-20b` (fast) or `openai/gpt-oss-120b` / `qwen/qwen3.8-27b` (large).
 - **Never log a whole action payload.** It contains a signed `contextToken`.
-- **MCP calls carry no `accountId` in the payload**, unlike Rovo agent calls. The real access checks need another way to identify the caller.
+- **MCP calls carry no `accountId` in the payload**, unlike Rovo agent calls. The actions ask Jira's `/myself` instead, which works from both.
+- **The app must be one installation across Jira and Confluence** (the `compatibility` block in `app/manifest.yml`). Installed separately per product, each install has its own storage, and Forge runs Claude Desktop (MCP) calls through the Confluence one, so MCP saw no handovers. A Jira-only install doesn't work either: Confluence calls fail with `403 The app is not installed on this instance`. If you ever see two Baton entries under Connected apps, uninstall the Confluence one (`forge install list`, then `forge uninstall -i <id>`) and run the Confluence install again.
+- **Multi-product apps can't have a free Marketplace listing.** It must be paid, which matters for the Marketplace bonus decision.
 - **Saved graph query keys are tied to the app ID**, so `src/graph/queryKeys.js` works on your site too. Changing a query means registering a new one and getting a new key.
 
 ## 7. The real app (`app/`)
@@ -149,7 +150,10 @@ The upgrade asks you to approve new scopes (Jira read/write, user read, app stor
 - **Who sees what.** `getHandover` returns `{ role: 'editor', handover }` for the manager, recipients and Jira admins. For the departing person it returns a questions-only view (`role: 'subject'`). Render the knowledge-capture screen for `subject` and the inventory for `editor`.
 - **Reading the graph.** Graph reads happen in the UI as the user. Use `runPaged` from `app/src/graph/runner.ts` for each query, `mergeItems` to combine the results, and `coverageWarnings` for the "check the scopes" banners. Then send the items to `saveInventory`. The step that turns each graph result into an `Item` isn't written yet (see below), so stub it with fake items for now.
 - **The LLM can fail.** `generateQuestions` and `generateSummary` return `llm_unavailable` when both LLM providers fail or the hourly limit (20 calls per site) is hit. Show the error and keep the rest of the screen working. The inventory never depends on the LLM.
-- **Publish and reassign.** These are still yours and aren't in `app/` yet. After the Confluence page is created, call `markPublished({ id, pageId, url })` so the handover moves to Published. Reassign runs as the user, after the confirmation dialog.
+- **Publish and reassign: the backend is done**, so the UI only calls it.
+  - `publishHandover({ id, spaceKey })` needs a summary, creates the Confluence page as the user, and moves the handover to Published. It returns the handover with `confluencePageUrl`. A missing space or a duplicate title come back as `bad_input` / `conflict` with a message you can show.
+  - `reassignIssues({ id, itemAris })` assigns each Jira issue to its accepted owner, as the user, and returns `{ results: [{ ari, key, accountId, ok, error? }] }`. One failure doesn't stop the rest. Show the confirmation dialog listing every change **before** calling it, then show any failed rows.
+- **Dev harness.** `app/static/ui/` currently has a small page that calls any resolver by name with a JSON payload (`dev.js`). Delete both files when your UI build replaces the placeholder.
 
 **Still open on Aditi's side:** see section 8.
 
@@ -165,9 +169,10 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 **Needs her site first** (this unblocks most of the rest)
 
-- [ ] **Record what the graph returns.** Redeploy the spike, run **Inspect types**, and save one real response per query into `app/test/fixtures/`.
-- [ ] **Check Bitbucket PRs appear in the graph.** This was meant to be settled by the Nov 23 go/no-go. If they don't show up, PRs come from Bitbucket's REST API instead. **(affects you)**
-- [ ] **Deploy `app/` and test Rovo and Claude Desktop.** Confirm the actions know who is asking, especially from Claude Desktop; if not, every Rovo and MCP answer comes back empty.
+- [x] **Record what the graph returns.** Done Nov 22: `app/test/fixtures/`, with findings in its README. Re-record once your seed lands.
+- [ ] **Check Bitbucket PRs appear in the graph.** **Blocked:** the demo org's Bitbucket workspace is behind an IP allowlist, and turning that off is an admin security change. If they don't show up, PRs come from Bitbucket's REST API instead. **(affects you)**
+- [x] **Deploy `app/` and test Rovo and Claude Desktop.** Done Nov 22: both identify the caller, and both see the same handovers now that the app is one installation (section 6).
+- [x] **Publish and reassign backend.** Done Nov 22 (section 7). **(affects you)**
 
 **Code, once fixtures exist**
 

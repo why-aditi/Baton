@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import type { Client } from '../llm/client';
 import { generateQuestions, generateSummary, summarizeItems } from '../llm/tasks';
+import { pageBody, pageTitle } from '../publish/page';
 import { scoreInventory } from '../scoring/inventory';
 import type { Caller, Handover, HandoverSummary, Status } from '../types';
 import { roleOf, subjectView, type Role } from './access';
@@ -18,13 +19,23 @@ export class BatonError extends Error {
   }
 }
 
+/** Jira and Confluence calls made as the user. Kept behind a port so the service stays testable. */
+export type AtlassianPort = {
+  createPage(spaceKey: string, title: string, storageBody: string): Promise<{ pageId: string; url: string }>;
+  assignIssue(issueKey: string, accountId: string): Promise<void>;
+};
+
 export type ServiceDeps = {
   store: Store;
   llm: Client;
   now: () => string;
   newId: () => string;
   llmCallsPerHour: number;
+  /** Only publish and reassign need it. */
+  atlassian?: AtlassianPort;
 };
+
+export type ReassignResult = { ari: string; key: string; accountId: string; ok: boolean; error?: string };
 
 const MAX_ANSWER = 5000;
 const MAX_ITEMS = 500;
@@ -315,5 +326,47 @@ export class HandoverService {
     h.confluencePageId = input.pageId;
     h.confluencePageUrl = input.url;
     return this.save(h);
+  }
+
+  private port(): AtlassianPort {
+    if (!this.deps.atlassian) throw new Error('Jira/Confluence access is not configured');
+    return this.deps.atlassian;
+  }
+
+  /** Creates the Confluence page as the user, then marks the handover published. */
+  async publish(caller: Caller, input: unknown): Promise<Handover> {
+    const i = parse(z.object({ id, spaceKey: z.string().trim().regex(/^[A-Za-z0-9~]+$/, 'expected a space key') }), input);
+    const { h } = await this.load(caller, i.id);
+    if (h.status === 'published') throw new BatonError('conflict', 'This handover is already published');
+    if (!h.summary) throw new BatonError('conflict', 'Generate the handover summary before publishing');
+    const page = await this.port().createPage(i.spaceKey, pageTitle(h), pageBody(h));
+    h.status = 'published';
+    h.confluencePageId = page.pageId;
+    h.confluencePageUrl = page.url;
+    return this.save(h);
+  }
+
+  /**
+   * Assigns the chosen Jira issues to their accepted owners, as the user. The UI shows a confirmation
+   * dialog listing every change first. One failure doesn't stop the rest; each result says what happened.
+   */
+  async reassign(caller: Caller, input: unknown): Promise<{ results: ReassignResult[] }> {
+    const i = parse(z.object({ id, itemAris: z.array(id).min(1).max(MAX_ITEMS) }), input);
+    const { h } = await this.load(caller, i.id);
+    const byAri = new Map(h.items.map((x) => [x.ari, x]));
+    const results: ReassignResult[] = [];
+    for (const ari of i.itemAris) {
+      const x = byAri.get(ari);
+      if (!x) throw new BatonError('bad_input', `No such item in this handover: ${ari}`);
+      if (x.kind !== 'jira_issue' || !x.key) throw new BatonError('bad_input', `Only Jira issues can be reassigned: ${x.title}`);
+      if (!x.acceptedOwnerAccountId) throw new BatonError('bad_input', `Pick a new owner first: ${x.key}`);
+      try {
+        await this.port().assignIssue(x.key, x.acceptedOwnerAccountId);
+        results.push({ ari, key: x.key, accountId: x.acceptedOwnerAccountId, ok: true });
+      } catch (e) {
+        results.push({ ari, key: x.key, accountId: x.acceptedOwnerAccountId, ok: false, error: e instanceof Error ? e.message : String(e) });
+      }
+    }
+    return { results };
   }
 }
