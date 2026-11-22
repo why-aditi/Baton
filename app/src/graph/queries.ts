@@ -17,9 +17,11 @@ export const Q = {
     atlassianUserReportedJiraWorkItems(userId: $userId, first: 25, after: $after) {
       edges { node { __typename ${JIRA_ITEM} } } ${PAGE_INFO} } }`,
 
-  // `since` is required; roles takes CREATED and REVIEWED.
+  // `since` is required. `roles` is unreliable: [CREATED] alone errors ("In evaluation not implemented
+  // yet") and [CREATED, REVIEWED] started erroring too (Nov 22), so it's left off and normalize keeps
+  // only PRs the subject wrote or reviews.
   pullRequests: `query baton_pullRequests($userId: ID!, $after: String) {
-    atlassianUserPullRequests(userId: $userId, roles: [CREATED, REVIEWED], since: "P90D", first: 25, after: $after) {
+    atlassianUserPullRequests(userId: $userId, since: "P90D", first: 25, after: $after) {
       edges { node { __typename ... on ExternalPullRequest { id displayId title url status lastUpdatedAt repositoryId
         author ${USER} reviewers { approvalStatus user ${USER} } } } } ${PAGE_INFO} } }`,
 
@@ -42,6 +44,11 @@ export const Q = {
   userTeams: `query baton_userTeams($userId: ID!, $after: String) {
     atlassianUserInTeams(userId: $userId, first: 25, after: $after) {
       edges { node { __typename ... on AtlassianTeam { id displayName } } } ${PAGE_INFO} } }`,
+
+  // Runs the persisted PQ_PAGE_INBOUND_REFS query: pages that link to one page (for "widely referenced").
+  pageInboundRefs: `query baton_pageInboundRefs($queryKey: String!, $queryParams: CypherRequestParams, $after: String) {
+    customQuery(queryKey: $queryKey, queryParams: $queryParams, first: 25, after: $after) {
+      edges { node { columns { key value { __typename ... on CypherQueryResultNode { id } } } } } ${PAGE_INFO} } }`,
 
   teamMembers: `query baton_teamMembers($teamAri: ID!, $after: String) {
     atlassianTeamMembers(teamAri: $teamAri, first: 25, after: $after) {

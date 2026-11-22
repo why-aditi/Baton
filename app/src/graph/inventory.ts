@@ -54,6 +54,8 @@ export const buildInventory = async (opts: {
   subjectAri: string;
   /** PQ_USER_OWNED_PAGES from queryKeys.ts. */
   ownedPagesQueryKey: string;
+  /** PQ_PAGE_INBOUND_REFS from queryKeys.ts. Without it, pages get no link counts. */
+  pageLinksQueryKey?: string;
   onProgress?: (p: Progress) => void;
   sleep?: (ms: number) => Promise<void>;
 }): Promise<Inventory> => {
@@ -100,11 +102,26 @@ export const buildInventory = async (opts: {
   const pageItems = items.filter((i) => i.kind === 'confluence_page').slice(0, MAX_PAGES_FOR_CONTRIBUTORS);
   const issueItems = items.filter((i) => i.kind === 'jira_issue').slice(0, MAX_ISSUES_FOR_COMMENTS);
 
-  const [memberRuns, contributorRuns, commentRuns] = await Promise.all([
+  const [memberRuns, contributorRuns, commentRuns, linkRuns] = await Promise.all([
     mapLimit(teamList, CONCURRENCY, (t) => quiet(Q.teamMembers, { teamAri: t.ari })),
     mapLimit(pageItems, CONCURRENCY, (p) => quiet(Q.pageContributors, { id: p.ari })),
     mapLimit(issueItems, CONCURRENCY, (i) => quiet(Q.workItemComments, { id: i.ari })),
+    opts.pageLinksQueryKey
+      ? mapLimit(pageItems, CONCURRENCY, (p) =>
+          quiet(Q.pageInboundRefs, { queryKey: opts.pageLinksQueryKey, queryParams: { pageId: p.ari } }),
+        )
+      : Promise.resolve([]),
   ]);
+
+  // "Widely referenced": how many distinct other pages link to each page.
+  pageItems.forEach((p, n) => {
+    const run = linkRuns[n];
+    if (!run) return;
+    const sources = new Set(
+      (run.nodes as any[]).map((row) => row?.columns?.[0]?.value?.id).filter((id) => typeof id === 'string' && id !== p.ari),
+    );
+    p.inboundLinks = sources.size;
+  });
 
   const teams: Team[] = teamList.map((t, n) => {
     const u = users(memberRuns[n]!.nodes);

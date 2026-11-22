@@ -118,6 +118,10 @@ describe('pullRequests', () => {
     expect(item).toMatchObject({ subjectRole: 'reviewer', reviewers: [MEERA] });
   });
 
+  test('a PR the subject neither wrote nor reviews is skipped (the query runs without roles)', () => {
+    expect(pullRequests([pr({ author: { id: OTHER, name: 'Arjun Rao' }, reviewers: [] })], MEERA).items).toEqual([]);
+  });
+
   test('drafts are mid-flight too', () => {
     expect(pullRequests([pr({ status: 'DRAFT' })], MEERA).items[0]?.statusCategory).toBe('in_progress');
   });

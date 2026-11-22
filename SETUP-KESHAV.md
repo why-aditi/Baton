@@ -137,7 +137,7 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 - **Don't select `edges.cursor`.** It comes back null and wipes out the whole edge. Paginate with `pageInfo.endCursor`; `first` is capped at 25.
 - **Graph edges can be `null`** (rows the caller can't read). Skip them, don't crash.
 - **`atlassianUserPullRequests` requires `since`** (e.g. `"P90D"`).
-- **`atlassianUserGoalsAndProjects` breaks with any `roles` value.** Leave `roles` out.
+- **`roles` is unreliable on graph queries.** `atlassianUserGoalsAndProjects` breaks with any value, and `atlassianUserPullRequests` breaks too (Nov 22). Leave `roles` out and filter afterwards.
 - **`JiraWorkItem` has no `title` field**; it's `summary`.
 - **The saved pages query returns each page twice** (owns + created). Deduplicate by ARI.
 - **Saved graph query keys are tied to the app ID**, so `src/graph/queryKeys.ts` works on your site too. Changing a query means registering a new one and getting a new key.
@@ -161,7 +161,7 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 - **Calling the backend.** Use `invoke(name, payload)` from `@forge/bridge`. Every resolver returns `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. A `not_found` code also means "no access", so show the same empty state either way.
 - **Routing.** Links from the Rovo agent go to `<site>/jira/apps/<appId>/<envId>/handover/<id>`. The UI should route on `/handover/<id>`.
 - **Who sees what.** `getHandover` returns `{ role: 'editor', handover }` for the manager, recipients and Jira admins. For the departing person it returns a questions-only view (`role: 'subject'`). Render the knowledge-capture screen for `subject` and the inventory for `editor`.
-- **Reading the graph.** Graph reads happen in the UI, as the user. Call `buildInventory({ request, subjectAri, ownedPagesQueryKey: PQ_USER_OWNED_PAGES, onProgress })` from `app/src/graph/inventory.ts`, with `request = (query, vars) => requestTeamworkGraph(query, vars)` from `@forge/bridge`. It returns `{ items, teams, openAssigned, people, warnings }`: send everything except `warnings` to `saveInventory` with the handover `id`, and show `warnings` as banners. `onProgress` reports each source (`assignedJira`, `reportedJira`, `pullRequests`, `pages`, `goalsAndProjects`, `teams`, then `details`) for the progress bar. It makes a few dozen graph calls, so expect several seconds.
+- **Reading the graph.** Graph reads happen in the UI, as the user. Call `buildInventory({ request, subjectAri, ownedPagesQueryKey: PQ_USER_OWNED_PAGES, pageLinksQueryKey: PQ_PAGE_INBOUND_REFS, onProgress })` from `app/src/graph/inventory.ts` (both keys are in `app/src/graph/queryKeys.ts`), with `request = (query, vars) => requestTeamworkGraph(query, vars)` from `@forge/bridge`. It returns `{ items, teams, openAssigned, people, warnings }`: send everything except `warnings` to `saveInventory` with the handover `id`, and show `warnings` as banners. `onProgress` reports each source (`assignedJira`, `reportedJira`, `pullRequests`, `pages`, `goalsAndProjects`, `teams`, then `details`) for the progress bar. It makes a few dozen graph calls, so expect several seconds.
 - **The LLM can fail.** `generateQuestions` and `generateSummary` return `llm_unavailable` when both LLM providers fail or the hourly limit (20 calls per site) is hit. Show the error and keep the rest of the screen working. The inventory never depends on the LLM.
 - **Publish.** `publishHandover({ id, spaceKey })` needs a summary, creates the Confluence page as the user, and moves the handover to Published. It returns the handover with `confluencePageUrl`. A missing space or a duplicate title come back as `bad_input` / `conflict` with a message you can show.
 - **Reassign.** `reassignIssues({ id, itemAris })` assigns each Jira issue to its accepted owner, as the user, and returns `{ results: [{ ari, key, accountId, ok, error? }] }`. One failure doesn't stop the rest. Show the confirmation dialog listing every change **before** calling it, then show any failed rows.
@@ -198,7 +198,8 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 **Code**
 
 - [x] **Jira fallback.** `saveInventory` asks Jira's search API, as the user, for each issue's updated date and sprint end, so the "stale" and "sprint ends" signals now fire for Jira issues. If the lookup fails, it scores from the graph alone. Verified on the demo site (Nov 22): SALES-24, untouched since March 2025, got its date from Jira and the "Stale" reason.
-- [ ] **Page link counts** for the "widely referenced" signal. Neither the graph nor any Confluence API we know of gives a page's incoming links, so this signal never fires yet. Options: find a graph relationship for page links, or drop the signal.
+- [x] **Page link counts** for the "widely referenced" signal (Nov 22). The graph's `content_entity_links_entity` relationship gives a page's incoming links: tested with three pages linking to one, two with native page links and one with a plain URL, and all three showed up within about 4 minutes. `buildInventory` runs the saved query `PQ_PAGE_INBOUND_REFS` per page and sets `inboundLinks`. (`entity_links_entity` returned nothing.)
+- [x] **Pull request query without `roles`** (Nov 22). `roles` started failing even as `[CREATED, REVIEWED]`, so the query leaves it off and the converter keeps only PRs the person wrote or reviews.
 - [ ] **Bitbucket fallback,** only if PRs don't show up in the graph (see above).
 
 **LLM**
@@ -221,7 +222,9 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 - [ ] **Add the goal and project graph scopes** to the manifest, with exact names from the Scopes page.
 - [ ] **Check the storage size limit** against a full handover.
-- [ ] **Decide the category** by Nov 23 (the spec recommends Business Teams), and whether to go for the Marketplace bonus by Dec 7 (paid listing, see section 6).
+- [ ] **Remove the dev-only pieces before submission:** the `devGraphQuery` resolver in `app/src/index.ts` (runs any graph query as the caller, used to test saved queries) and `app/static/ui/dev.js`.
+- [x] **Category: Apps for Software Teams** (decided Nov 22). The spec recommended Business Teams, but the demo story (Northwind Pay engineers, PRs, Jira) is a software team's. Frame the video and Devpost text for dev teams: unreviewed PRs, the knowledge only one engineer has. **(affects you)**
+- [ ] **Marketplace bonus: decide on Dec 7**, once the MVP is demo-able. If there's slack then, submit a paid listing for review (a review ticket is enough for the prize; see section 6).
 - [ ] **Check her employment contract** for side-project clauses.
 
 **Dates:** go/no-go Nov 23. MVP demo-able on her dev site by Dec 7: start a handover, build the inventory, capture answers. Feature freeze Dec 14.

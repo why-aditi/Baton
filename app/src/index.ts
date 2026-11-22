@@ -1,7 +1,7 @@
 // Forge entry points: the app page's resolvers and the five Rovo/MCP actions.
 // The logic lives in src/handover/service.ts and src/actions; this file only wires Forge in.
 import * as ResolverModule from '@forge/resolver';
-import { fetch } from '@forge/api';
+import api, { fetch, getAppContext } from '@forge/api';
 import { randomUUID } from 'node:crypto';
 import { Actions } from './actions';
 import { forgeAtlassian } from './forge/atlassian';
@@ -66,6 +66,15 @@ for (const [name, fn] of Object.entries(RESOLVERS)) {
     }
   });
 }
+// DEV ONLY, remove before submission: runs a Teamwork Graph query as the calling user, so saved
+// (app-owned) queries can be tried from the dev page. Grants nothing beyond the user's own access.
+// Refuses outside development environments, so it can't ship by accident.
+resolver.define('devGraphQuery', async ({ payload }: { payload: any }) => {
+  if (getAppContext().environmentType !== 'DEVELOPMENT') return { ok: false, error: 'devGraphQuery is development-only' };
+  const res = await api.asUser().requestTeamworkGraph(String(payload?.query ?? ''), payload?.variables ?? {});
+  return { ok: res.ok, status: res.status, body: await res.json().catch(() => null) };
+});
+
 export const handler = resolver.getDefinitions();
 
 // ---- actions (Rovo agent and MCP tools) ----
