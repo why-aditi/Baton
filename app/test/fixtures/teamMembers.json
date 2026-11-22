@@ -1,0 +1,44 @@
+{
+  "recordedAt": "2026-11-22",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "query": "query baton_teamMembers($teamAri: ID!) { atlassianTeamMembers(teamAri: $teamAri, first: 25) { edges { node { __typename ... on AtlassianUser { id accountId name } } } pageInfo { hasNextPage endCursor } } }",
+  "variables": {
+    "teamAri": "ari:cloud:identity::team/7644ded0-55cf-436e-86df-6d7872f92738"
+  },
+  "response": {
+    "data": {
+      "atlassianTeamMembers": {
+        "edges": [
+          {
+            "node": {
+              "__typename": "AtlassianUser",
+              "id": "ari:cloud:identity::user/60ad34a79e21bd0071e6f4db",
+              "accountId": "60ad34a79e21bd0071e6f4db",
+              "name": "Emma Paris"
+            }
+          },
+          {
+            "node": {
+              "__typename": "AtlassianUser",
+              "id": "ari:cloud:identity::user/60ad301a5c7373006939113f",
+              "accountId": "60ad301a5c7373006939113f",
+              "name": "Jennifer Evans"
+            }
+          },
+          {
+            "node": {
+              "__typename": "AtlassianUser",
+              "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+              "accountId": "712020:00000000-0000-4000-8000-00000000me01",
+              "name": "Meera Iyer"
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        }
+      }
+    }
+  }
+}

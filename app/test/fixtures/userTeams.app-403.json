@@ -1,0 +1,116 @@
+{
+  "recordedAt": "2026-11-22",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "note": "Same query as userTeams.json, but run through the app (requestTeamworkGraph). As the app, every team node fails with teamsV2 403; called directly as the user, the same teams resolve.",
+  "query": "query baton_userTeams($userId: ID!) { atlassianUserInTeams(userId: $userId, first: 3) { edges { node { __typename ... on AtlassianTeam { id displayName } } } pageInfo { hasNextPage endCursor } } }",
+  "variables": {
+    "userId": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01"
+  },
+  "response": {
+    "data": {
+      "atlassianUserInTeams": {
+        "edges": [
+          null,
+          null,
+          null
+        ],
+        "pageInfo": {
+          "hasNextPage": true,
+          "endCursor": "IAM="
+        }
+      }
+    },
+    "errors": [
+      {
+        "message": "The underlying service call failed. The underlying service teamsV2 status code is: 403",
+        "locations": [],
+        "path": [
+          "team",
+          "teamV2"
+        ],
+        "extensions": {
+          "service": "teamsV2",
+          "errorSource": "UNDERLYING_SERVICE",
+          "statusCode": 403,
+          "agg": {
+            "severity": "NORMAL",
+            "ugcPiiSafe": true
+          },
+          "classification": "underlyingServiceCode_403"
+        }
+      },
+      {
+        "message": "The field at path '/atlassianUserInTeams/edges[1]/node' was declared as a non null type, but the code involved in retrieving data has wrongly returned a null value. The graphql specification requires that the parent field be set to null, or if that is non nullable that it bubble up null to its parent and so on. The non-nullable type is 'AtlassianUserInTeamsResponse' within parent type 'AtlassianUserInTeamsEdge'",
+        "path": [
+          "atlassianUserInTeams",
+          "edges",
+          1,
+          "node"
+        ],
+        "extensions": {
+          "classification": "NullValueInNonNullableField"
+        }
+      },
+      {
+        "message": "The underlying service call failed. The underlying service teamsV2 status code is: 403",
+        "locations": [],
+        "path": [
+          "team",
+          "teamV2"
+        ],
+        "extensions": {
+          "service": "teamsV2",
+          "errorSource": "UNDERLYING_SERVICE",
+          "statusCode": 403,
+          "agg": {
+            "severity": "NORMAL",
+            "ugcPiiSafe": true
+          },
+          "classification": "underlyingServiceCode_403"
+        }
+      },
+      {
+        "message": "The field at path '/atlassianUserInTeams/edges[0]/node' was declared as a non null type, but the code involved in retrieving data has wrongly returned a null value. The graphql specification requires that the parent field be set to null, or if that is non nullable that it bubble up null to its parent and so on. The non-nullable type is 'AtlassianUserInTeamsResponse' within parent type 'AtlassianUserInTeamsEdge'",
+        "path": [
+          "atlassianUserInTeams",
+          "edges",
+          0,
+          "node"
+        ],
+        "extensions": {
+          "classification": "NullValueInNonNullableField"
+        }
+      },
+      {
+        "message": "The underlying service call failed. The underlying service teamsV2 status code is: 403",
+        "locations": [],
+        "path": [
+          "team",
+          "teamV2"
+        ],
+        "extensions": {
+          "service": "teamsV2",
+          "errorSource": "UNDERLYING_SERVICE",
+          "statusCode": 403,
+          "agg": {
+            "severity": "NORMAL",
+            "ugcPiiSafe": true
+          },
+          "classification": "underlyingServiceCode_403"
+        }
+      },
+      {
+        "message": "The field at path '/atlassianUserInTeams/edges[2]/node' was declared as a non null type, but the code involved in retrieving data has wrongly returned a null value. The graphql specification requires that the parent field be set to null, or if that is non nullable that it bubble up null to its parent and so on. The non-nullable type is 'AtlassianUserInTeamsResponse' within parent type 'AtlassianUserInTeamsEdge'",
+        "path": [
+          "atlassianUserInTeams",
+          "edges",
+          2,
+          "node"
+        ],
+        "extensions": {
+          "classification": "NullValueInNonNullableField"
+        }
+      }
+    ]
+  }
+}

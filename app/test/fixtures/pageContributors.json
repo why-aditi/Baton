@@ -1,0 +1,28 @@
+{
+  "recordedAt": "2026-11-22",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "query": "query baton_pageContributors($id: ID!) { confluencePageContributors(id: $id, first: 25) { edges { node { __typename ... on AtlassianUser { id accountId name } } } pageInfo { hasNextPage endCursor } } }",
+  "variables": {
+    "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/2719746"
+  },
+  "response": {
+    "data": {
+      "confluencePageContributors": {
+        "edges": [
+          {
+            "node": {
+              "__typename": "AtlassianUser",
+              "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+              "accountId": "712020:00000000-0000-4000-8000-00000000me01",
+              "name": "Meera Iyer"
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        }
+      }
+    }
+  }
+}

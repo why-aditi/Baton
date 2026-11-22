@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-11-22",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "query": "query baton_pullRequests($userId: ID!) { atlassianUserPullRequests(userId: $userId, roles: [CREATED, REVIEWED], since: \"P90D\", first: 25) { edges { node { __typename ... on ExternalPullRequest { id displayId title url status createdAt lastUpdatedAt repositoryId commentCount author { id name } reviewers { approvalStatus user { id name } } } } } pageInfo { hasNextPage endCursor } } }",
+  "variables": {
+    "userId": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01"
+  },
+  "response": {
+    "data": {
+      "atlassianUserPullRequests": {
+        "edges": [],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        }
+      }
+    }
+  }
+}

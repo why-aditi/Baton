@@ -1,0 +1,104 @@
+{
+  "recordedAt": "2026-11-22",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "note": "Run through the spike app (customQuery only runs as the owning app). Same page twice: once per relationship (owns, created).",
+  "query": "query baton_ownedPages($queryKey: String!, $queryParams: CypherRequestParams) { customQuery(queryKey: $queryKey, queryParams: $queryParams, first: 25) { edges { node { columns { key value { __typename ... on CypherQueryResultNode { id data { __typename ... on ConfluencePage { id pageId title webUrl status lastUpdatedAt createdAt owner { id name } author { id name } lastEditor { id name } space { id key name } } } } } } } } pageInfo { hasNextPage endCursor } } }",
+  "variables": {
+    "queryKey": "25f1fc29-ed3c-4006-a2ce-1d96f975d9b1",
+    "queryParams": {
+      "userId": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01"
+    }
+  },
+  "response": {
+    "data": {
+      "customQuery": {
+        "edges": [
+          {
+            "node": {
+              "columns": [
+                {
+                  "key": "page",
+                  "value": {
+                    "__typename": "CypherQueryResultNode",
+                    "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/2719746",
+                    "data": {
+                      "__typename": "ConfluencePage",
+                      "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/2719746",
+                      "pageId": "2719746",
+                      "title": "Baton spike: graph pages probe",
+                      "webUrl": "https://one-atlas-ubvd.atlassian.net/wiki/spaces/EO/pages/2719746/Baton+spike+graph+pages+probe",
+                      "status": "CURRENT",
+                      "lastUpdatedAt": "2026-11-16T14:28:52.775Z",
+                      "createdAt": "2026-11-16T14:28:52.775Z",
+                      "owner": {
+                        "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                        "name": "Meera Iyer"
+                      },
+                      "author": {
+                        "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                        "name": "Meera Iyer"
+                      },
+                      "lastEditor": {
+                        "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                        "name": "Meera Iyer"
+                      },
+                      "space": {
+                        "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:space/327681",
+                        "key": "EO",
+                        "name": "Employee Onboarding"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": {
+              "columns": [
+                {
+                  "key": "page",
+                  "value": {
+                    "__typename": "CypherQueryResultNode",
+                    "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/2719746",
+                    "data": {
+                      "__typename": "ConfluencePage",
+                      "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/2719746",
+                      "pageId": "2719746",
+                      "title": "Baton spike: graph pages probe",
+                      "webUrl": "https://one-atlas-ubvd.atlassian.net/wiki/spaces/EO/pages/2719746/Baton+spike+graph+pages+probe",
+                      "status": "CURRENT",
+                      "lastUpdatedAt": "2026-11-16T14:28:52.775Z",
+                      "createdAt": "2026-11-16T14:28:52.775Z",
+                      "owner": {
+                        "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                        "name": "Meera Iyer"
+                      },
+                      "author": {
+                        "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                        "name": "Meera Iyer"
+                      },
+                      "lastEditor": {
+                        "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                        "name": "Meera Iyer"
+                      },
+                      "space": {
+                        "id": "ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:space/327681",
+                        "key": "EO",
+                        "name": "Employee Onboarding"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        }
+      }
+    }
+  }
+}
