@@ -7,6 +7,13 @@ yet; `static/ui/index.html` is a placeholder so the app deploys.
 It uses the spike's app ID, because saved graph query keys belong to the app ID. **Deploying `app/`
 replaces the spike** in that environment.
 
+**One installation across Jira and Confluence.** The manifest's `compatibility` block makes Jira the
+required product and Confluence optional, so `forge install -p Jira` then `forge install -p Confluence`
+add to one installation with one Forge storage. Separate per-product installs each get their own
+storage, and Forge runs MCP calls through the Confluence one, so Claude Desktop saw no handovers.
+Confluence must be connected: publishing fails with `403 The app is not installed on this instance`
+without it.
+
 ```sh
 forge variables set --encrypt GROQ_API_KEY <key>
 forge variables set --encrypt MISTRAL_API_KEY <key>    # optional fallback
@@ -33,7 +40,8 @@ npm run typecheck
 | `src/handover/service.ts` | Every resolver's logic: access checks, state changes, LLM caching, the 20-calls-an-hour limit |
 | `src/handover/access.ts` | Who sees what: editor (initiator, recipients, Jira admins), subject, or nobody |
 | `src/actions/index.ts` | The five Rovo/MCP actions, with replies kept under 4 KB |
-| `src/index.ts`, `src/forge/` | Forge wiring: KVS store, caller identity, links. Not unit-tested |
+| `src/publish/page.ts` | `pageTitle`, `pageBody`: the published handover in Confluence storage format, with @mentions and item links |
+| `src/index.ts`, `src/forge/` | Forge wiring: KVS store, caller identity, links, Confluence page create and Jira assign (`atlassian.ts`). Not unit-tested |
 | `src/graph/runner.ts` | `runPaged`: one graph query to the end (cursor paging, null rows, error codes, `QUERY_NOT_FOUND` retry) |
 | `src/graph/merge.ts` | `mergeItems` (one item per ARI, strongest role wins) and `coverageWarnings` (the startup self-check) |
 | `src/graph/queryKeys.ts` | Persisted Teamwork Graph query keys |
@@ -58,7 +66,9 @@ access), `bad_input`, `conflict`, `llm_unavailable` and `internal`.
 | `setOwner` | `{ id, itemAri, accountId \| null }` | editor | `Handover` |
 | `generateSummary` | `{ id, regenerate? }` | editor | `Handover` with `summary` |
 | `updateSummary` | `{ id, summary }` | editor | `Handover` |
-| `markPublished` | `{ id, pageId, url }` | editor | `Handover`, moved to published. Call it after publishing creates the page |
+| `markPublished` | `{ id, pageId, url }` | editor | `Handover`, moved to published. `publishHandover` already does this |
+| `publishHandover` | `{ id, spaceKey }` | editor | Creates the Confluence page as the user (needs a summary), then `Handover`, moved to published, with `confluencePageUrl` |
+| `reassignIssues` | `{ id, itemAris }` | editor | `{ results: { ari, key, accountId, ok, error? }[] }`. Jira issues with an accepted owner only. Show the confirmation dialog first |
 
 `teams` is `{ name, members: userAri[] }[]`, `openAssigned` maps a user ARI to their count of open
 assigned items, and `people` maps an account ID to a display name. LLM output is cached: calling
@@ -82,7 +92,7 @@ route on that path.
 - **Actions** show only handovers the caller can edit. The subject and strangers get the same "No
   handover found" answer, so nobody learns that a handover exists.
 - **Caller identity in actions** comes from Jira's `/myself` called as the user, because MCP calls carry
-  no account ID. Untested on a site.
+  no account ID. Tested on the demo site from Rovo and Claude Desktop (Nov 22).
 - **Storage** keeps a `handover-member` row per person who can see a handover, so listing by recipient
   works (KVS can't index an array). One handover is one entity, so check the entity size limit
   against the seed data before relying on the 500-item cap.
