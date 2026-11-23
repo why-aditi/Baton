@@ -6,7 +6,7 @@ export type OwnerContext = {
   subjectAri: string;
   /** The whole inventory, used for same-project co-contribution. */
   items: Item[];
-  /** Teams the subject belongs to. Empty while Teamwork Graph team lookups return 403. */
+  /** Teams the subject belongs to. Empty if team lookups fail (they 403 through the browser bridge). */
   teams: Team[];
   /** Open assigned item count per candidate ARI. Missing means 0. */
   openAssigned: Record<string, number>;
