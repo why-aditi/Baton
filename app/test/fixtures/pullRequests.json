@@ -1,7 +1,7 @@
 {
-  "recordedAt": "2026-11-22",
-  "site": "Codegeist demo site (one-atlas-ubvd)",
-  "query": "query baton_pullRequests($userId: ID!) { atlassianUserPullRequests(userId: $userId, roles: [CREATED, REVIEWED], since: \"P90D\", first: 25) { edges { node { __typename ... on ExternalPullRequest { id displayId title url status createdAt lastUpdatedAt repositoryId commentCount author { id name } reviewers { approvalStatus user { id name } } } } } pageInfo { hasNextPage endCursor } } }",
+  "recordedAt": "2026-11-23",
+  "site": "one-atlas-ubvd.atlassian.net",
+  "query": "query baton_pullRequests($userId: ID!, $after: String) { atlassianUserPullRequests(userId: $userId, since: \"P90D\", first: 25, after: $after) { edges { node { __typename ... on ExternalPullRequest { id displayId title url status lastUpdatedAt repositoryId author { id name } reviewers { approvalStatus user { id name } } } } } pageInfo { hasNextPage endCursor } } }",
   "variables": {
     "userId": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01"
   },
@@ -14,6 +14,10 @@
           "endCursor": null
         }
       }
+    },
+    "extensions": {
+      "request_id": "c6a9202e-0991-46b3-8e46-9872844817b0",
+      "tId": "c6a9202e099146b38e469872844817b0"
     }
   }
 }

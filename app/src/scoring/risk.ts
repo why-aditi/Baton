@@ -26,7 +26,9 @@ const POINTS = {
   midFlight: 20,
   noOtherReviewer: 15,
   stale: 10,
-  widelyReferenced: 15,
+  // 20, not 15 (tuned on the seed, Nov 23): pages can't be mid-flight or due soon, so at 15 a page only
+  // the subject knows that others depend on (40 + 15) stayed Medium. At 20 it reaches High (60).
+  widelyReferenced: 20,
   dueSoon: 15,
 } as const;
 

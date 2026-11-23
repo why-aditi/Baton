@@ -18,26 +18,26 @@ const nodesOf = (name: string): unknown[] =>
 
 const MEERA = 'ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01';
 const OTHER = 'ari:cloud:identity::user/other';
-const ISSUE = 'ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400';
 
 describe('jiraWorkItems', () => {
-  test('maps the recorded assigned issue', () => {
+  test("maps the recorded assigned issues (the seed's 14 open ones for Meera)", () => {
     const { items, people } = jiraWorkItems(nodesOf('assignedJira'), MEERA, 'assignee');
-    expect(items).toEqual([
-      {
-        ari: ISSUE,
-        kind: 'jira_issue',
-        title: 'Baton spike: graph indexing probe',
-        url: 'https://one-atlas-ubvd.atlassian.net/browse/SALES-31',
-        key: 'SALES-31',
-        status: 'To Do',
-        statusCategory: 'todo',
-        collaborators: [MEERA],
-        subjectRole: 'assignee',
-        container: 'SALES',
-      },
-    ]);
-    expect(people).toEqual({ '712020:00000000-0000-4000-8000-00000000me01': 'Meera Iyer' });
+    expect(items).toHaveLength(14);
+    expect(items[0]).toEqual({
+      ari: 'ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66433',
+      kind: 'jira_issue',
+      title: 'Payment retry: exponential backoff for card declines',
+      url: 'https://one-atlas-ubvd.atlassian.net/browse/PAY-1',
+      key: 'PAY-1',
+      status: 'In Progress',
+      statusCategory: 'in_progress',
+      dueDate: '2027-01-02',
+      collaborators: [MEERA],
+      subjectRole: 'assignee',
+      container: 'PAY',
+    });
+    expect(people['712020:00000000-0000-4000-8000-00000000me01']).toBe('Meera Iyer');
+    expect(people['712020:956daaf1-70f4-44ef-92b1-92169450c4da']).toBe('Arjun Rao');
   });
 
   const issue = (over: Record<string, unknown> = {}) => ({
@@ -191,29 +191,18 @@ describe('ownedPages', () => {
 });
 
 describe('goalsAndProjects', () => {
-  test('maps the recorded goals and projects the subject owns', () => {
-    const { items } = goalsAndProjects(nodesOf('goalsAndProjects'), MEERA);
-    expect(items.filter((i) => i.kind === 'goal')).toHaveLength(17);
-    expect(items.filter((i) => i.kind === 'project')).toHaveLength(8);
-    expect(items[0]).toEqual({
-      ari: 'ari:cloud:townsquare:7251940d-1e14-4314-b9e9-647e62148c96:goal/f87ee4f3-cb16-4504-a558-ec62ee9f36fd',
-      kind: 'goal',
-      title: 'Mobile experience usage boost to 50% of global MAU',
-      url: 'https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/s/7251940d-1e14-4314-b9e9-647e62148c96/goal/GGTRTEJK-17',
-      key: 'GGTRTEJK-17',
-      updatedAt: '2026-11-12T11:06:13.118Z',
-      dueDate: '2026-12-23',
-      collaborators: [MEERA],
-      subjectRole: 'owner',
-    });
-  });
-
-  test('maps project states onto status categories', () => {
-    const { items } = goalsAndProjects(nodesOf('goalsAndProjects'), MEERA);
-    const projects = items.filter((i) => i.kind === 'project');
-    expect(new Set(projects.map((p) => `${p.status}:${p.statusCategory}`))).toEqual(
-      new Set(['PENDING:todo', 'ON_TRACK:in_progress']),
-    );
+  test('maps the recorded goal the subject owns', () => {
+    expect(goalsAndProjects(nodesOf('goalsAndProjects'), MEERA).items).toEqual([
+      {
+        ari: 'ari:cloud:townsquare:7251940d-1e14-4314-b9e9-647e62148c96:goal/aec60246-0ea4-4374-8efc-e58943b3e508',
+        kind: 'goal',
+        title: 'Reduce failed payment retries by 30%',
+        url: 'https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/s/7251940d-1e14-4314-b9e9-647e62148c96/goal/GGTRTEJK-34',
+        key: 'GGTRTEJK-34',
+        collaborators: [MEERA],
+        subjectRole: 'owner',
+      },
+    ]);
   });
 
   const project = (over: Record<string, unknown> = {}) => ({
@@ -241,6 +230,14 @@ describe('goalsAndProjects', () => {
     expect(goalsAndProjects(nodes, MEERA).items).toEqual([]);
   });
 
+  test('maps project states onto status categories', () => {
+    const nodes = [project({ id: 'a', state: 'PENDING' }), project({ id: 'b', state: 'ON_TRACK' })];
+    expect(goalsAndProjects(nodes, MEERA).items.map((p) => `${p.status}:${p.statusCategory}`)).toEqual([
+      'PENDING:todo',
+      'ON_TRACK:in_progress',
+    ]);
+  });
+
   test('paused projects count as to do', () => {
     expect(goalsAndProjects([project({ state: 'PAUSED' })], MEERA).items[0]?.statusCategory).toBe('todo');
   });
@@ -249,8 +246,10 @@ describe('goalsAndProjects', () => {
 describe('teams and users', () => {
   test('maps the recorded teams', () => {
     const t = teams(nodesOf('userTeams'));
-    expect(t).toHaveLength(20);
-    expect(t[0]).toEqual({ ari: 'ari:cloud:identity::team/7644ded0-55cf-436e-86df-6d7872f92738', name: 'Team Pulse' });
+    expect(t).toEqual([
+      { ari: 'ari:cloud:identity::team/1bd3d0ef-b454-4fd7-80c9-19c245a26c60', name: 'Platform' },
+      { ari: 'ari:cloud:identity::team/49999cf4-063e-4f30-b8b0-a0702098af66', name: 'Payments' },
+    ]);
   });
 
   test('the app-403 recording has no usable teams', () => {
@@ -259,9 +258,9 @@ describe('teams and users', () => {
 
   test('maps the recorded team members to ARIs and names', () => {
     const u = users(nodesOf('teamMembers'));
-    expect(u.aris).toHaveLength(3);
+    expect(u.aris).toHaveLength(5);
     expect(u.aris).toContain(MEERA);
-    expect(u.people['60ad34a79e21bd0071e6f4db']).toBe('Emma Paris');
+    expect(u.people['712020:c29f7e54-6c0b-4b0a-8fb4-fde14d848855']).toBe('Priya Nair');
   });
 
   test('maps the recorded page contributors', () => {
@@ -270,20 +269,21 @@ describe('teams and users', () => {
 });
 
 describe('issuePullRequests', () => {
-  test('maps the recorded Bitbucket PR linked to SALES-31; the subject wrote it', () => {
+  test("maps the recorded Bitbucket PR linked to PAY-7: Arjun's, Meera reviews; names are null", () => {
     const { items } = issuePullRequests(nodesOf('issuePullRequests'), 'Meera Iyer');
     expect(items).toEqual([
       {
-        ari: 'ari:cloud:graph::pull-request/activation/e941c6bc-98af-41fd-8215-b554bb5d7196/c5d248a3-976c-4b54-ab5d-209efb1f29a8',
+        ari: 'ari:cloud:graph::pull-request/activation/e941c6bc-98af-41fd-8215-b554bb5d7196/759140ab-71b1-45f5-9588-5fd1cdb960af',
         kind: 'pull_request',
-        title: 'SALES-31 Baton graph probe 2',
-        url: 'https://bitbucket.org/{4ccb998a-926d-4549-be3f-9d6169d0e399}/{04d0e079-212a-4e68-ab1c-e939dfc24a0e}/pull-requests/2',
+        title: 'PAY-7 Idempotency keys for settlement captures',
+        url: 'https://bitbucket.org/{4ccb998a-926d-4549-be3f-9d6169d0e399}/{863d4db4-20e1-47e0-9281-74f290122838}/pull-requests/3',
         status: 'OPEN',
         statusCategory: 'in_progress',
-        updatedAt: '2026-11-22T10:35:13.843Z',
+        updatedAt: '2026-11-23T05:39:03.840Z',
         collaborators: [],
-        subjectRole: 'author',
-        container: '7b30346430653037392d323132612d346536382d616231632d6539333964666332346130657d',
+        // A first guess from the (null) author name; applyPullRequestDetails settles it by ID.
+        subjectRole: 'reviewer',
+        container: '7b38363364346462342d323065312d343765302d393238312d3734663239303132323833387d',
       },
     ]);
   });

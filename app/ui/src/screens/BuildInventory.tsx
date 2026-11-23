@@ -55,7 +55,9 @@ export const BuildInventory = ({
         onProgress: (p) => setProgress((prev) => ({ ...prev, [p.source]: p })),
       });
       const { warnings: w, ...rest } = inv;
-      const next = await api.saveInventory({ id: handover.id, ...rest });
+      const stored = await api.saveInventory({ id: handover.id, ...rest });
+      // One-line summaries for High and Medium items. Nice to have: if the LLM is down, the list has none.
+      const next = await api.summarizeItems(handover.id).catch(() => stored);
       setWarnings(w);
       // Warnings are worth reading before the list replaces this panel.
       if (w.length) setSaved(next);

@@ -97,7 +97,7 @@ describe('get-handover', () => {
   test('returns the riskiest items first, with owners by name', async () => {
     await svc.setOwner(boss, { id: handoverId, itemAri: 'ari:pay142', accountId: 'arjun' });
     const r = (await actions.getHandover(boss, { person: 'Meera' })) as any;
-    expect(r.topRisks[0]).toMatchObject({ title: 'Payment retry runbook', risk: 65, band: 'high' });
+    expect(r.topRisks[0]).toMatchObject({ title: 'Payment retry runbook', risk: 70, band: 'high' });
     expect(r.topRisks.find((i: any) => i.key === 'PAY-142')).toMatchObject({ newOwner: 'Arjun Rao' });
   });
 

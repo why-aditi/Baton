@@ -48,6 +48,7 @@ const api = {
   createHandover: async () => h,
   setOwner: async () => h,
   saveInventory: async () => h,
+  summarizeItems: async () => h,
   updateSummary: async () => h,
   generateSummary: async () => h,
   publishHandover: async () => h,

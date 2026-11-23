@@ -1,7 +1,7 @@
 {
-  "recordedAt": "2026-11-22",
-  "site": "Codegeist demo site (one-atlas-ubvd)",
-  "query": "query baton_assignedWork($userId: ID!) { atlassianUserAssignedJiraWorkItems(userId: $userId, first: 25) { edges { node { __typename ... on JiraWorkItem { id key summary webUrl createdAt startedAt dueAt resolvedAt issueType { name } status { name statusCategory { id key name } } assignee { id name } reporter { id name } } } } pageInfo { hasNextPage endCursor } } }",
+  "recordedAt": "2026-11-23",
+  "site": "one-atlas-ubvd.atlassian.net",
+  "query": "query baton_assignedWork($userId: ID!, $after: String) { atlassianUserAssignedJiraWorkItems(userId: $userId, first: 25, after: $after) { edges { node { __typename ... on JiraWorkItem { id key summary webUrl dueAt resolvedAt status { name statusCategory { key } } assignee { id name } reporter { id name } } } } pageInfo { hasNextPage endCursor } } }",
   "variables": {
     "userId": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01"
   },
@@ -12,23 +12,16 @@
           {
             "node": {
               "__typename": "JiraWorkItem",
-              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400",
-              "key": "SALES-31",
-              "summary": "Baton spike: graph indexing probe",
-              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/SALES-31",
-              "createdAt": "2026-11-16T14:25:05.802Z",
-              "startedAt": null,
-              "dueAt": null,
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66433",
+              "key": "PAY-1",
+              "summary": "Payment retry: exponential backoff for card declines",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-1",
+              "dueAt": "2027-01-02T00:00:00.000Z",
               "resolvedAt": null,
-              "issueType": {
-                "name": "Task"
-              },
               "status": {
-                "name": "To Do",
+                "name": "In Progress",
                 "statusCategory": {
-                  "id": "SmlyYVN0YXR1c0NhdGVnb3J5OjI",
-                  "key": "new",
-                  "name": "To Do"
+                  "key": "indeterminate"
                 }
               },
               "assignee": {
@@ -40,6 +33,331 @@
                 "name": "Meera Iyer"
               }
             }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66434",
+              "key": "PAY-2",
+              "summary": "Retry worker drops jobs during Redis failover",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-2",
+              "dueAt": "2026-12-28T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:77a82e4f-8196-498b-8b33-ef1e56f993ab",
+                "name": "Dana Weiss"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66435",
+              "key": "PAY-3",
+              "summary": "Rotate the retry service's PSP API keys before year end",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-3",
+              "dueAt": "2027-01-04T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66436",
+              "key": "PAY-4",
+              "summary": "Dead-letter queue replay tool for failed retries",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-4",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66437",
+              "key": "PAY-5",
+              "summary": "Document which decline codes we retry, for support",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-5",
+              "dueAt": "2027-01-09T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:d7aaccd3-98e7-421d-88c9-cd825b4f401e",
+                "name": "Omar Haddad"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66438",
+              "key": "PAY-6",
+              "summary": "Retry dashboard: split soft and hard declines",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-6",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66439",
+              "key": "PAY-7",
+              "summary": "Idempotency keys for retried captures",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-7",
+              "dueAt": "2027-01-05T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:956daaf1-70f4-44ef-92b1-92169450c4da",
+                "name": "Arjun Rao"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66440",
+              "key": "PAY-8",
+              "summary": "Upgrade the card network SDK to v5",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-8",
+              "dueAt": "2027-01-19T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66441",
+              "key": "PAY-9",
+              "summary": "Flaky test: RetrySchedulerTest handles clock skew",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-9",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:a10e3c31-4987-49d7-96fb-4373f17fb161",
+                "name": "Lin Chen"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66442",
+              "key": "PAY-10",
+              "summary": "Backfill missing retry attempts for October",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-10",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66443",
+              "key": "NWPLAT-1",
+              "summary": "Retry service: move cron jobs to the platform scheduler",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/NWPLAT-1",
+              "dueAt": "2027-01-03T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:6d20f1da-0e8d-4d04-926a-547aaf31db1a",
+                "name": "Sam Okafor"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66444",
+              "key": "NWPLAT-2",
+              "summary": "Retry alerts link to the old wiki runbook",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/NWPLAT-2",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:77a82e4f-8196-498b-8b33-ef1e56f993ab",
+                "name": "Dana Weiss"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66445",
+              "key": "NWPLAT-3",
+              "summary": "Tune memory limits for the retry service",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/NWPLAT-3",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66446",
+              "key": "PAY-11",
+              "summary": "Partner bank retry window changes from January 15",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-11",
+              "dueAt": "2027-01-06T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:d7aaccd3-98e7-421d-88c9-cd825b4f401e",
+                "name": "Omar Haddad"
+              }
+            }
           }
         ],
         "pageInfo": {
@@ -47,6 +365,10 @@
           "endCursor": null
         }
       }
+    },
+    "extensions": {
+      "request_id": "36007815-6e1f-4d69-8b12-475fdf88fd5c",
+      "tId": "360078156e1f4d698b12475fdf88fd5c"
     }
   }
 }

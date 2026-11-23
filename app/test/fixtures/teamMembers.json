@@ -1,9 +1,9 @@
 {
-  "recordedAt": "2026-11-22",
-  "site": "Codegeist demo site (one-atlas-ubvd)",
-  "query": "query baton_teamMembers($teamAri: ID!) { atlassianTeamMembers(teamAri: $teamAri, first: 25) { edges { node { __typename ... on AtlassianUser { id accountId name } } } pageInfo { hasNextPage endCursor } } }",
+  "recordedAt": "2026-11-23",
+  "site": "one-atlas-ubvd.atlassian.net",
+  "query": "query baton_teamMembers($teamAri: ID!, $after: String) { atlassianTeamMembers(teamAri: $teamAri, first: 25, after: $after) { edges { node { __typename ... on AtlassianUser { id name } } } pageInfo { hasNextPage endCursor } } }",
   "variables": {
-    "teamAri": "ari:cloud:identity::team/7644ded0-55cf-436e-86df-6d7872f92738"
+    "teamAri": "ari:cloud:identity::team/49999cf4-063e-4f30-b8b0-a0702098af66"
   },
   "response": {
     "data": {
@@ -12,25 +12,36 @@
           {
             "node": {
               "__typename": "AtlassianUser",
-              "id": "ari:cloud:identity::user/60ad34a79e21bd0071e6f4db",
-              "accountId": "60ad34a79e21bd0071e6f4db",
-              "name": "Emma Paris"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianUser",
-              "id": "ari:cloud:identity::user/60ad301a5c7373006939113f",
-              "accountId": "60ad301a5c7373006939113f",
-              "name": "Jennifer Evans"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianUser",
               "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
-              "accountId": "712020:00000000-0000-4000-8000-00000000me01",
               "name": "Meera Iyer"
+            }
+          },
+          {
+            "node": {
+              "__typename": "AtlassianUser",
+              "id": "ari:cloud:identity::user/712020:a10e3c31-4987-49d7-96fb-4373f17fb161",
+              "name": "Lin Chen"
+            }
+          },
+          {
+            "node": {
+              "__typename": "AtlassianUser",
+              "id": "ari:cloud:identity::user/712020:c29f7e54-6c0b-4b0a-8fb4-fde14d848855",
+              "name": "Priya Nair"
+            }
+          },
+          {
+            "node": {
+              "__typename": "AtlassianUser",
+              "id": "ari:cloud:identity::user/712020:956daaf1-70f4-44ef-92b1-92169450c4da",
+              "name": "Arjun Rao"
+            }
+          },
+          {
+            "node": {
+              "__typename": "AtlassianUser",
+              "id": "ari:cloud:identity::user/712020:d7aaccd3-98e7-421d-88c9-cd825b4f401e",
+              "name": "Omar Haddad"
             }
           }
         ],
@@ -39,6 +50,10 @@
           "endCursor": null
         }
       }
+    },
+    "extensions": {
+      "request_id": "ec757c7a-6851-4ad9-8aed-cd4011bb35e2",
+      "tId": "ec757c7a68514ad98aedcd4011bb35e2"
     }
   }
 }

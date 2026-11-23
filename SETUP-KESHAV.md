@@ -114,7 +114,7 @@ The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has
 - [ ] **The 2 goals and the project in Atlassian Home** (no API): "Reduce failed payment retries by 30%" (owner Meera), "Close the books in 2 days" (owner Priya) and the project "Retry service v2" (owner Priya). Claude does these in Chrome.
 - [ ] **PR authors have no names yet.** On the seeded PRs the graph returns author and reviewer IDs with `name: null` (checked ~20 min after seeding). Baton matches PR people by name, so until names appear Meera's PRs are dropped. Recheck; if they stay empty, Baton needs another way to match.
 - [ ] **Don't reseed the day before recording**; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding (Dec 23).
-- [ ] **Update the agent's suggested question** "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
+- [x] **Update the agent's suggested question** (Nov 23, PR #20) "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
 - [ ] **Re-record the graph fixtures** against seeded users (section 7).
 - Teams: solved (Nov 23). From the app page, `@forge/bridge`'s `requestTeamworkGraph` gets a 403 on every team (the recorded `userTeams.app-403.json`). From the backend, `api.asUser().requestTeamworkGraph` returns them, which a forum reply suggested and the demo site confirmed. So the UI sends graph reads through the `graphQuery` resolver (section 7), and teams show up.
 - Between demo runs: `npm run reset`, then the `deleteAllHandovers` resolver (`scripts/README.md` section 3).

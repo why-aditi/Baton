@@ -1,7 +1,7 @@
 {
-  "recordedAt": "2026-11-22",
-  "site": "Codegeist demo site (one-atlas-ubvd)",
-  "query": "query baton_reportedWork($userId: ID!) { atlassianUserReportedJiraWorkItems(userId: $userId, first: 25) { edges { node { __typename ... on JiraWorkItem { id key summary webUrl createdAt dueAt resolvedAt issueType { name } status { name statusCategory { id key name } } assignee { id name } reporter { id name } } } } pageInfo { hasNextPage endCursor } } }",
+  "recordedAt": "2026-11-23",
+  "site": "one-atlas-ubvd.atlassian.net",
+  "query": "query baton_reportedWork($userId: ID!, $after: String) { atlassianUserReportedJiraWorkItems(userId: $userId, first: 25, after: $after) { edges { node { __typename ... on JiraWorkItem { id key summary webUrl dueAt resolvedAt status { name statusCategory { key } } assignee { id name } reporter { id name } } } } pageInfo { hasNextPage endCursor } } }",
   "variables": {
     "userId": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01"
   },
@@ -12,27 +12,196 @@
           {
             "node": {
               "__typename": "JiraWorkItem",
-              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400",
-              "key": "SALES-31",
-              "summary": "Baton spike: graph indexing probe",
-              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/SALES-31",
-              "createdAt": "2026-11-16T14:25:05.802Z",
-              "dueAt": null,
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66433",
+              "key": "PAY-1",
+              "summary": "Payment retry: exponential backoff for card declines",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-1",
+              "dueAt": "2027-01-02T00:00:00.000Z",
               "resolvedAt": null,
-              "issueType": {
-                "name": "Task"
-              },
               "status": {
-                "name": "To Do",
+                "name": "In Progress",
                 "statusCategory": {
-                  "id": "SmlyYVN0YXR1c0NhdGVnb3J5OjI",
-                  "key": "new",
-                  "name": "To Do"
+                  "key": "indeterminate"
                 }
               },
               "assignee": {
                 "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
                 "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66435",
+              "key": "PAY-3",
+              "summary": "Rotate the retry service's PSP API keys before year end",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-3",
+              "dueAt": "2027-01-04T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66436",
+              "key": "PAY-4",
+              "summary": "Dead-letter queue replay tool for failed retries",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-4",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66438",
+              "key": "PAY-6",
+              "summary": "Retry dashboard: split soft and hard declines",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-6",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66440",
+              "key": "PAY-8",
+              "summary": "Upgrade the card network SDK to v5",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-8",
+              "dueAt": "2027-01-19T00:00:00.000Z",
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66442",
+              "key": "PAY-10",
+              "summary": "Backfill missing retry attempts for October",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-10",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "Backlog",
+                "statusCategory": {
+                  "key": "new"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66445",
+              "key": "NWPLAT-3",
+              "summary": "Tune memory limits for the retry service",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/NWPLAT-3",
+              "dueAt": null,
+              "resolvedAt": null,
+              "status": {
+                "name": "In Progress",
+                "statusCategory": {
+                  "key": "indeterminate"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              },
+              "reporter": {
+                "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          },
+          {
+            "node": {
+              "__typename": "JiraWorkItem",
+              "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66457",
+              "key": "PAY-22",
+              "summary": "Raise PSP client timeouts to match their SLA",
+              "webUrl": "https://one-atlas-ubvd.atlassian.net/browse/PAY-22",
+              "dueAt": null,
+              "resolvedAt": "2026-11-23T05:27:42.050Z",
+              "status": {
+                "name": "Done",
+                "statusCategory": {
+                  "key": "done"
+                }
+              },
+              "assignee": {
+                "id": "ari:cloud:identity::user/712020:956daaf1-70f4-44ef-92b1-92169450c4da",
+                "name": "Arjun Rao"
               },
               "reporter": {
                 "id": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01",
@@ -46,6 +215,10 @@
           "endCursor": null
         }
       }
+    },
+    "extensions": {
+      "request_id": "32b8d4e9-51c9-4275-a2f9-4737b8b4dd74",
+      "tId": "32b8d4e951c94275a2f94737b8b4dd74"
     }
   }
 }
