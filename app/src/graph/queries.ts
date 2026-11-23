@@ -40,7 +40,8 @@ export const Q = {
         ... on AtlassianProject { id key name url archived state dueDateEndedAt lastUpdatedAt owner ${USER} } } }
       ${PAGE_INFO} } }`,
 
-  // 403s when the app asks; works as the user, which is how the app page calls it.
+  // Team nodes come back null with teamsV2 403 whenever the app asks, including from the app page
+  // (see test/fixtures/userTeams.app-403.json); only a direct browser call as the user resolved them.
   userTeams: `query baton_userTeams($userId: ID!, $after: String) {
     atlassianUserInTeams(userId: $userId, first: 25, after: $after) {
       edges { node { __typename ... on AtlassianTeam { id displayName } } } ${PAGE_INFO} } }`,

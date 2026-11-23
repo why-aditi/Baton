@@ -87,7 +87,9 @@ Use `forge logs -e keshav -f` in a second terminal while testing.
 1. **Unblock it.** If every Bitbucket page shows "You're currently blocked from this page", the workspace has its own IP allowlist. It isn't in admin.atlassian.com's IP allowlists. On the block page, click **request disabling IP allowlisting**, follow the emailed link, then in Bitbucket → Workspace settings → **Access controls** make sure "Restrict access to certain IP addresses" is unticked.
 2. **Link it to Jira.** Bitbucket → Workspace settings → Atlassian integrations → **Jira** → **Connect** next to your site, then **Grant access** on both prompts (Jira to Bitbucket, then Bitbucket to Jira). Jira → Settings → DVCS accounts should then list the workspace and its repos.
 
-Then create a repo and a PR as a seeded user, and check that `atlassianUserPullRequests` returns it. Put an issue key in the PR title, too: the issue's Development panel shows whether Jira itself sees the PR. On Aditi's site, 10 minutes after linking, the commit showed on the issue but neither PR did, in Jira or the graph. If PRs never show up in the graph, they come from Bitbucket's REST API instead.
+Then create a PR as a seeded user **with a Jira key in its title**. Baton finds PRs through the issues they mention, not through the person: the graph files Bitbucket people under third-party IDs, so `atlassianUserPullRequests` returns nothing for Bitbucket (section 8). The issue's Development panel shows the PR once Jira has it; on Aditi's site that took up to an hour after linking.
+
+**The IP allowlist can come back.** It was off on Nov 22 and back on by the next morning. If Bitbucket shows the block page again, untick "Restrict access to certain IP addresses" under Workspace settings → Access controls before running the seed.
 
 ## 4. Seed data (your workstream)
 
@@ -96,12 +98,15 @@ Then create a repo and a PR as a seeded user, and check that `atlassianUserPullR
 The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has the full steps. They haven't been run against a site yet. What's left:
 
 - [x] **Write the seed scripts** (Nov 22, on `main`). `npm test` in `scripts/` passes against in-memory fakes of Jira, Confluence and Bitbucket.
-- [ ] **Set up the site by hand** (`scripts/README.md` step 1): invite the 7 users with email aliases you control, each with their own API token so authorship is real. Then create the PAY and PLAT projects, the NWP space, the 2 teams, and the goals and project. Add the users to the Bitbucket workspace.
+- [x] **Jira projects and Confluence space** (Nov 23, on Aditi's demo site): `PAY` (Payments) and `NWPLAT` (Platform), both company-managed with a Task issue type that has Due date on its create screen, and the `NWP` space. The site already has a `PLAT` ("Platform Development"), so the seed maps the story's PLAT to `NWPLAT`: set `SEED_PLAT_KEY=NWPLAT` in `scripts/.env.seed`.
+- [ ] **Invite the 7 users** (Meera, Arjun, Lin, Priya, Sam, Dana, Omar) with email aliases you control and Jira, Confluence and Bitbucket access. Sign in as each and create an API token. Only a person can do this.
+- [ ] **Then, with the users in place:** create the 2 teams (Payments, Platform), add the users to the Bitbucket workspace, and create the goals and project in Atlassian Home (no API). Claude can do these in Chrome once the users exist.
+- [ ] **Turn Bitbucket's IP allowlist off** if it's back on (section 3).
 - [ ] **Run `npm run seed` in `scripts/`.** It creates 59 Jira issues (14 open ones for Meera), 12 Confluence pages (the payment-retry runbook and 3 more only Meera has touched) and 6 Bitbucket PRs (2 by Meera with no other reviewer). It's safe to rerun.
 - [ ] **Seed by Nov 30.** Don't reseed the day before recording; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding.
 - [ ] **Update the agent's suggested question** "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
 - [ ] **Re-record the graph fixtures** against seeded users (section 7).
-- Teams: `buildInventory` reads them as the signed-in user from the app page, which works. Only the backend, asking as the app, gets a 403 (forum thread), and nothing in Baton does that today.
+- Teams: any team lookup that goes through the app gets a 403, including `requestTeamworkGraph` from the app page (the recorded `userTeams.app-403.json` came from the spike's page). Only a direct call from the browser as the user worked. So expect no teams in the inventory until the forum thread is answered; owner ranking still works from co-contribution.
 - Between demo runs: `npm run reset`, then the `deleteAllHandovers` resolver (`scripts/README.md` section 3).
 
 ## 5. Check it works
