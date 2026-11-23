@@ -21,6 +21,7 @@ const BY_OPERATION: Record<string, string> = {
   baton_pageContributors: 'pageContributors',
   baton_workItemComments: 'workItemComments',
   baton_openAssigned: 'assignedJira',
+  baton_issuePullRequests: 'issuePullRequests',
 };
 
 /** Answers from the fixtures by operation name; later pages come back empty. Overrides win. */
@@ -193,5 +194,23 @@ describe('buildInventory', () => {
     const inv = await run(request);
     expect(calls.some((c) => c.op === 'baton_pageInboundRefs')).toBe(false);
     expect(inv.items.find((i) => i.ari === PAGE)?.inboundLinks).toBeUndefined();
+  });
+
+  test("finds Bitbucket PRs through the subject's Jira issues when given their name", async () => {
+    const { request, calls } = fakeGraph();
+    const inv = await run(request, { subjectName: 'Meera Iyer' });
+    expect(calls.filter((c) => c.op === 'baton_issuePullRequests').map((c) => c.vars.id)).toContain(ISSUE);
+    expect(inv.items.filter((i) => i.kind === 'pull_request')).toEqual([
+      expect.objectContaining({ title: 'SALES-31 Baton graph probe 2', subjectRole: 'author' }),
+    ]);
+    // The person-level PR query found nothing, but this route did: no "no pull requests" warning.
+    expect(inv.warnings.some((w) => w.source === 'pullRequests')).toBe(false);
+  });
+
+  test("without the subject's name, PRs aren't looked up per issue", async () => {
+    const { request, calls } = fakeGraph();
+    const inv = await run(request);
+    expect(calls.some((c) => c.op === 'baton_issuePullRequests')).toBe(false);
+    expect(inv.items.some((i) => i.kind === 'pull_request')).toBe(false);
   });
 });

@@ -1,0 +1,37 @@
+{
+  "recordedAt": "2026-11-23",
+  "site": "Codegeist demo site (one-atlas-ubvd)",
+  "note": "Bitbucket PR #2 linked to SALES-31 by the key in its title. The author is a third-party ID, not an Atlassian user ARI, which is why atlassianUserPullRequests returns nothing for Bitbucket PRs. No reviewers on this route.",
+  "query": "Q.issuePullRequests (src/graph/queries.ts)",
+  "variables": {
+    "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400"
+  },
+  "response": {
+    "data": {
+      "jiraWorkItemLinkedExternalPullRequests": {
+        "edges": [
+          {
+            "node": {
+              "__typename": "ExternalPullRequest",
+              "id": "ari:cloud:graph::pull-request/activation/e941c6bc-98af-41fd-8215-b554bb5d7196/c5d248a3-976c-4b54-ab5d-209efb1f29a8",
+              "displayId": "2",
+              "title": "SALES-31 Baton graph probe 2",
+              "url": "https://bitbucket.org/{4ccb998a-926d-4549-be3f-9d6169d0e399}/{04d0e079-212a-4e68-ab1c-e939dfc24a0e}/pull-requests/2",
+              "status": "OPEN",
+              "lastUpdatedAt": "2026-11-22T10:35:13.843Z",
+              "repositoryId": "7b30346430653037392d323132612d346536382d616231632d6539333964666332346130657d",
+              "author": {
+                "id": "ari:cloud:identity::third-party-user/d1aeca97-d9e2-43a0-9ad9-0eccc5acb65a/tp:00000000-0000-4000-8000-00000000me01",
+                "name": "Meera Iyer"
+              }
+            }
+          }
+        ],
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        }
+      }
+    }
+  }
+}

@@ -45,6 +45,14 @@ export const Q = {
     atlassianUserInTeams(userId: $userId, first: 25, after: $after) {
       edges { node { __typename ... on AtlassianTeam { id displayName } } } ${PAGE_INFO} } }`,
 
+  // Bitbucket PRs linked to one Jira issue (by a key in the title, branch or commits). The graph files
+  // Bitbucket authors and reviewers under third-party IDs, so atlassianUserPullRequests misses them;
+  // this route finds them, and buildInventory matches people by name.
+  issuePullRequests: `query baton_issuePullRequests($id: ID!, $after: String) {
+    jiraWorkItemLinkedExternalPullRequests(id: $id, first: 25, after: $after) {
+      edges { node { __typename ... on ExternalPullRequest { id displayId title url status lastUpdatedAt repositoryId
+        author ${USER} reviewers { approvalStatus user ${USER} } } } } ${PAGE_INFO} } }`,
+
   // Runs the persisted PQ_PAGE_INBOUND_REFS query: pages that link to one page (for "widely referenced").
   pageInboundRefs: `query baton_pageInboundRefs($queryKey: String!, $queryParams: CypherRequestParams, $after: String) {
     customQuery(queryKey: $queryKey, queryParams: $queryParams, first: 25, after: $after) {

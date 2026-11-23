@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 import {
   goalsAndProjects,
+  issuePullRequests,
   jiraWorkItems,
   ownedPages,
   pullRequests,
@@ -265,5 +266,31 @@ describe('teams and users', () => {
 
   test('maps the recorded page contributors', () => {
     expect(users(nodesOf('pageContributors')).aris).toEqual([MEERA]);
+  });
+});
+
+describe('issuePullRequests', () => {
+  test('maps the recorded Bitbucket PR linked to SALES-31; the subject wrote it', () => {
+    const { items } = issuePullRequests(nodesOf('issuePullRequests'), 'Meera Iyer');
+    expect(items).toEqual([
+      {
+        ari: 'ari:cloud:graph::pull-request/activation/e941c6bc-98af-41fd-8215-b554bb5d7196/c5d248a3-976c-4b54-ab5d-209efb1f29a8',
+        kind: 'pull_request',
+        title: 'SALES-31 Baton graph probe 2',
+        url: 'https://bitbucket.org/{4ccb998a-926d-4549-be3f-9d6169d0e399}/{04d0e079-212a-4e68-ab1c-e939dfc24a0e}/pull-requests/2',
+        status: 'OPEN',
+        statusCategory: 'in_progress',
+        updatedAt: '2026-11-22T10:35:13.843Z',
+        collaborators: [],
+        subjectRole: 'author',
+        container: '7b30346430653037392d323132612d346536382d616231632d6539333964666332346130657d',
+      },
+    ]);
+  });
+
+  test("someone else's PR is a first guess at 'reviewer' (the backend checks), and closed PRs are dropped", () => {
+    const [node] = nodesOf('issuePullRequests') as any[];
+    expect(issuePullRequests([{ ...node, author: { name: 'Arjun Rao' } }], 'Meera Iyer').items[0]?.subjectRole).toBe('reviewer');
+    expect(issuePullRequests([{ ...node, status: 'MERGED' }], 'Meera Iyer').items).toEqual([]);
   });
 });
