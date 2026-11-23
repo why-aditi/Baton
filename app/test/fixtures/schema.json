@@ -78,6 +78,14 @@
           "after": "String",
           "first": "Int"
         }
+      },
+      "jiraWorkItemLinkedExternalPullRequests": {
+        "type": "JiraWorkItemLinkedExternalPullRequestsConnection",
+        "args": {
+          "id": "NON_NULL<ID>",
+          "first": "Int",
+          "after": "String"
+        }
       }
     }
   },
@@ -2336,6 +2344,27 @@
   },
   "CypherRequestParams": {
     "kind": "SCALAR",
+    "fields": {}
+  },
+  "JiraWorkItemLinkedExternalPullRequestsConnection": {
+    "kind": "OBJECT",
+    "fields": {
+      "edges": "LIST<JiraWorkItemLinkedExternalPullRequestsEdge>",
+      "pageInfo": "NON_NULL<PageInfo>"
+    }
+  },
+  "JiraWorkItemLinkedExternalPullRequestsEdge": {
+    "kind": "OBJECT",
+    "fields": {
+      "cursor": "NON_NULL<String>",
+      "node": "NON_NULL<JiraWorkItemLinkedExternalPullRequestsResponse>"
+    }
+  },
+  "JiraWorkItemLinkedExternalPullRequestsResponse": {
+    "kind": "UNION",
+    "possibleTypes": [
+      "ExternalPullRequest"
+    ],
     "fields": {}
   }
 }

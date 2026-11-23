@@ -20,6 +20,7 @@ Re-record after Keshav's seed lands.
 | `pageContributors.json` | `confluencePageContributors` | `AtlassianUser` nodes for one page |
 | `workItemComments.json` | `jiraWorkItemComments` | Empty (no comments on the issue) |
 | `ownedPages.json` | `customQuery` with `PQ_USER_OWNED_PAGES` | The same page twice, once per relationship |
+| `issuePullRequests.json` | `jiraWorkItemLinkedExternalPullRequests` | The Bitbucket PR linked to SALES-31; its author is a third-party ID, not an Atlassian user |
 | `pageInboundRefs.json` | `customQuery` with `PQ_PAGE_INBOUND_REFS` | Three pages linking to one: two native page links, one plain URL |
 
 ## What the recording found
