@@ -52,6 +52,7 @@ const setup = (createHandover = vi.fn().mockResolvedValue(handover()), initial?:
   const platform: Platform = {
     api: { createHandover } as unknown as Api,
     invokeRaw: vi.fn(),
+    listSpaces: vi.fn().mockResolvedValue([]),
     searchPeople: vi.fn().mockResolvedValue([meera, arjun]),
     graph: vi.fn(),
     navigate: vi.fn(),

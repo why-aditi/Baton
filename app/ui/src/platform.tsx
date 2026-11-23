@@ -12,6 +12,8 @@ export type Platform = {
   graph: GraphRequest;
   /** Active Atlassian accounts matching a name, from Jira's user search, as the signed-in user. */
   searchPeople: (query: string) => Promise<{ accountId: string; name: string }[]>;
+  /** Confluence spaces the signed-in user can see, for choosing where to publish. */
+  listSpaces: () => Promise<{ key: string; name: string }[]>;
   navigate: (route: Route) => void;
   /** Opens an item's URL in a new tab, outside the app's iframe. */
   openUrl: (url: string) => void;

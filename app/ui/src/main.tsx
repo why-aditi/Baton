@@ -1,5 +1,5 @@
 import '@atlaskit/css-reset';
-import { invoke, requestJira, router, view } from '@forge/bridge';
+import { invoke, requestConfluence, requestJira, router, view } from '@forge/bridge';
 import { backendGraphRequest } from '../../src/graph/proxy';
 import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
 import { createRoot } from 'react-dom/client';
@@ -25,6 +25,15 @@ const start = async () => {
       const users = (await res.json()) as { accountId: string; displayName: string; active: boolean; accountType: string }[];
       // Apps and customer accounts can't own work, so only active Atlassian accounts are offered.
       return users.filter((u) => u.active && u.accountType === 'atlassian').map((u) => ({ accountId: u.accountId, name: u.displayName }));
+    },
+    listSpaces: async () => {
+      const res = await requestConfluence('/wiki/api/v2/spaces?limit=100&status=current&sort=name');
+      if (!res.ok) throw new Error(`Couldn’t load Confluence spaces: HTTP ${res.status}`);
+      const body = (await res.json()) as { results: { key: string; name: string; type: string }[] };
+      // Team spaces first; personal spaces are rarely where a handover belongs.
+      return body.results
+        .sort((a, b) => Number(a.type === 'personal') - Number(b.type === 'personal'))
+        .map((s) => ({ key: s.key, name: s.name }));
     },
     navigate: (route) => history.push(pathFor(route)),
     openUrl: (url) => void router.open(url),

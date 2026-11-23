@@ -10,8 +10,9 @@ import { answered } from '../questions';
 import { firstName, shortDate, statsFor } from '../view';
 import { Inventory } from './Inventory';
 import { QuestionsEditor } from './QuestionsEditor';
+import { ReviewPublish } from './ReviewPublish';
 
-export type Tab = 'inventory' | 'questions';
+export type Tab = 'inventory' | 'questions' | 'review';
 
 const STATUS = {
   draft: { text: 'Draft', appearance: 'default' },
@@ -33,6 +34,7 @@ export const EditorHandover = ({ initial, autoBuild = false, initialTab = 'inven
   const tabs: { id: Tab; label: string }[] = [
     { id: 'inventory', label: `Inventory (${h.items.length})` },
     { id: 'questions', label: h.questions.length ? `Questions (${answered(h.questions)} of ${h.questions.length} answered)` : 'Questions' },
+    { id: 'review', label: h.status === 'published' ? 'Published' : 'Review and publish' },
   ];
 
   return (
@@ -65,6 +67,11 @@ export const EditorHandover = ({ initial, autoBuild = false, initialTab = 'inven
           {tab === 'inventory' && h.items.length > 0 && h.status !== 'published' && (
             <Button appearance="primary" onClick={() => setTab('questions')}>
               {h.questions.length ? `See ${name}’s answers` : `Ask ${name}`}
+            </Button>
+          )}
+          {tab === 'questions' && h.questions.length > 0 && h.status !== 'published' && (
+            <Button appearance={h.status === 'ready' ? 'primary' : 'default'} onClick={() => setTab('review')}>
+              Review and publish
             </Button>
           )}
         </div>
@@ -101,6 +108,9 @@ export const EditorHandover = ({ initial, autoBuild = false, initialTab = 'inven
       </div>
       <div role="tabpanel" id="panel-questions" aria-labelledby="tab-questions" hidden={tab !== 'questions'}>
         <QuestionsEditor handover={h} onChange={setH} onShowInventory={() => setTab('inventory')} />
+      </div>
+      <div role="tabpanel" id="panel-review" aria-labelledby="tab-review" hidden={tab !== 'review'}>
+        <ReviewPublish handover={h} onChange={setH} onShowTab={setTab} />
       </div>
     </div>
   );

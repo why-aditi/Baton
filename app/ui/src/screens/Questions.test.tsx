@@ -16,6 +16,7 @@ afterEach(() => {
 const platformWith = (api: Partial<Api>): Platform => ({
   api: api as Api,
   invokeRaw: vi.fn(),
+  listSpaces: vi.fn().mockResolvedValue([]),
   searchPeople: vi.fn(),
   graph: vi.fn(),
   navigate: vi.fn(),
