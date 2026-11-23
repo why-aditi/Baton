@@ -1,3 +1,4 @@
+import Button from '@atlaskit/button/new';
 import Lozenge from '@atlaskit/lozenge';
 import { token } from '@atlaskit/tokens';
 import { useCallback, useEffect, useState } from 'react';
@@ -32,13 +33,16 @@ export const HandoverList = () => {
 
   return (
     <main style={{ maxWidth: 1120, margin: '0 auto', padding: '24px 24px 48px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <h1 style={{ margin: 0, font: token('font.heading.large', '600 24px/28px sans-serif') }}>Handovers</h1>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 style={{ margin: 0, font: token('font.heading.large', '600 24px/28px sans-serif') }}>Handovers</h1>
+        <Button appearance="primary" onClick={() => navigate({ name: 'new' })}>New handover</Button>
+      </div>
       {error ? (
         <ErrorBanner error={error} onRetry={load} />
       ) : !rows ? (
         <Loading label="Loading handovers" />
       ) : rows.length === 0 ? (
-        <EmptyState title="No handovers yet">
+        <EmptyState title="No handovers yet" action={<Button onClick={() => navigate({ name: 'new' })}>Start a handover</Button>}>
           When someone leaves, goes on leave or changes teams, start a handover here, or ask the Baton agent in Rovo to start one.
         </EmptyState>
       ) : (

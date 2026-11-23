@@ -55,12 +55,15 @@ describe('routes', () => {
     ['/handover/abc-123', { name: 'handover', id: 'abc-123' }],
     ['/handover/abc-123/', { name: 'handover', id: 'abc-123' }],
     ['/dev', { name: 'dev' }],
+    ['/new', { name: 'new' }],
     ['/something/else', { name: 'list' }],
   ])('%s', (path, route) => {
     expect(parseRoute(path)).toEqual(route);
   });
 
-  test('pathFor round-trips', () => {
+  test('pathFor round-trips, including the build flag', () => {
     expect(parseRoute(pathFor({ name: 'handover', id: 'a b' }))).toEqual({ name: 'handover', id: 'a b' });
+    const [path, search] = pathFor({ name: 'handover', id: 'h1', build: true }).split('?');
+    expect(parseRoute(path!, `?${search}`)).toEqual({ name: 'handover', id: 'h1', build: true });
   });
 });

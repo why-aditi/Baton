@@ -2,7 +2,7 @@
 import Button from '@atlaskit/button/new';
 import SectionMessage from '@atlaskit/section-message';
 import { token } from '@atlaskit/tokens';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { buildInventory, type Progress } from '../../../src/graph/inventory';
 import type { Warning } from '../../../src/graph/merge';
 import { PQ_PAGE_INBOUND_REFS, PQ_USER_OWNED_PAGES } from '../../../src/graph/queryKeys';
@@ -23,10 +23,13 @@ const STEP_LABEL: Record<(typeof STEPS)[number], string> = {
 
 export const BuildInventory = ({
   handover,
+  autoStart = false,
   onDone,
   onCancel,
 }: {
   handover: Handover;
+  /** Start reading as soon as the panel opens, as it does right after New handover. */
+  autoStart?: boolean;
   onDone: (h: Handover) => void;
   onCancel?: () => void;
 }) => {
@@ -63,6 +66,16 @@ export const BuildInventory = ({
       setRunning(false);
     }
   };
+
+  const started = useRef(false);
+  useEffect(() => {
+    if (autoStart && !started.current) {
+      started.current = true;
+      void run();
+    }
+    // run is recreated each render; starting once is all that matters here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart]);
 
   const done = STEPS.filter((s) => progress[s]?.done).length;
 

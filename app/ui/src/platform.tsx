@@ -10,6 +10,8 @@ export type Platform = {
   invokeRaw: (name: string, payload: Record<string, unknown>) => Promise<unknown>;
   /** Teamwork Graph, as the signed-in user (through the graphQuery resolver). */
   graph: GraphRequest;
+  /** Active Atlassian accounts matching a name, from Jira's user search, as the signed-in user. */
+  searchPeople: (query: string) => Promise<{ accountId: string; name: string }[]>;
   navigate: (route: Route) => void;
   /** Opens an item's URL in a new tab, outside the app's iframe. */
   openUrl: (url: string) => void;

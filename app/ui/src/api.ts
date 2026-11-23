@@ -56,6 +56,13 @@ export const makeApi = (invoke: Invoke) => {
   return {
     listHandovers: () => call<HandoverRow[]>('listHandovers'),
     getHandover: (id: string) => call<HandoverView>('getHandover', { id }),
+    createHandover: (input: {
+      subjectAccountId: string;
+      subjectName: string;
+      reason: Reason;
+      lastDay: string;
+      recipientAccountIds: string[];
+    }) => call<Handover>('createHandover', input),
     saveInventory: (input: InventoryInput) => call<Handover>('saveInventory', input),
     setOwner: (id: string, itemAri: string, accountId: string | null) =>
       call<Handover>('setOwner', { id, itemAri, accountId }),

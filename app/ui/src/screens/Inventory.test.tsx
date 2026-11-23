@@ -8,18 +8,19 @@ import { Inventory } from './Inventory';
 
 afterEach(cleanup);
 
-const setup = (api: Partial<Api> = {}) => {
+const setup = (api: Partial<Api> = {}, initial = handover(), autoBuild = false, graph = vi.fn()) => {
   const platform: Platform = {
     api: { listHandovers: vi.fn(), getHandover: vi.fn(), saveInventory: vi.fn(), setOwner: vi.fn(), ...api } as Api,
     invokeRaw: vi.fn(),
-    graph: vi.fn(),
+    searchPeople: vi.fn(),
+    graph,
     navigate: vi.fn(),
     openUrl: vi.fn(),
     now: () => new Date('2026-11-23T00:00:00Z'),
   };
   render(
     <PlatformProvider value={platform}>
-      <Inventory initial={handover()} />
+      <Inventory initial={initial} autoBuild={autoBuild} />
     </PlatformProvider>,
   );
   return platform;
@@ -67,5 +68,20 @@ describe('Inventory', () => {
     const p = setup();
     fireEvent.click(screen.getByRole('link', { name: 'Payment retry: exponential backoff for card declines' }));
     expect(p.openUrl).toHaveBeenCalledWith('https://northwind.atlassian.net/browse/PAY-1');
+  });
+
+  test('right after New handover, an empty handover starts reading the graph by itself', async () => {
+    const graph = vi.fn().mockResolvedValue({ data: null });
+    const saveInventory = vi.fn().mockResolvedValue(handover());
+    setup({ saveInventory }, handover({ items: [] }), true, graph);
+    await waitFor(() => expect(saveInventory).toHaveBeenCalledWith(expect.objectContaining({ id: 'h1', items: [] })));
+    expect(graph).toHaveBeenCalled();
+  });
+
+  test('an empty handover opened later waits for the button', () => {
+    const graph = vi.fn();
+    setup({}, handover({ items: [] }), false, graph);
+    expect(screen.getByRole('button', { name: 'Build inventory' })).toBeTruthy();
+    expect(graph).not.toHaveBeenCalled();
   });
 });

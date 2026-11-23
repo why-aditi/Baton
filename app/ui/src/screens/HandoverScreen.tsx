@@ -6,7 +6,7 @@ import { usePlatform } from '../platform';
 import { Inventory } from './Inventory';
 
 /** Loads one handover and picks the screen for the caller's role. */
-export const HandoverScreen = ({ id }: { id: string }) => {
+export const HandoverScreen = ({ id, build = false }: { id: string; build?: boolean }) => {
   const { api } = usePlatform();
   const [view, setView] = useState<HandoverView | null>(null);
   const [error, setError] = useState<unknown>(null);
@@ -20,7 +20,7 @@ export const HandoverScreen = ({ id }: { id: string }) => {
 
   if (error) return <div style={{ padding: 24 }}><ErrorBanner error={error} onRetry={load} /></div>;
   if (!view) return <Loading label="Loading handover" />;
-  if (view.role === 'editor') return <Inventory initial={view.handover} />;
+  if (view.role === 'editor') return <Inventory initial={view.handover} autoBuild={build} />;
   // The departing person's knowledge-capture screen comes next; until then, say what's waiting.
   return (
     <div style={{ padding: 24 }}>
