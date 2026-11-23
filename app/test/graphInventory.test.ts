@@ -159,10 +159,24 @@ describe('buildInventory', () => {
     expect(inv.items.find((i) => i.ari === ISSUE)).toMatchObject({ subjectRole: 'reporter' });
   });
 
-  test('teams that fail as the app (403) give no teams, and a warning', async () => {
+  test('the known teams 403 gives no teams and one plain note, not an error', async () => {
     const { request } = fakeGraph({ baton_userTeams: () => fixture('userTeams.app-403') });
     const inv = await run(request);
     expect(inv.teams).toEqual([]);
+    expect(inv.warnings.filter((w) => w.source === 'teams')).toEqual([
+      {
+        source: 'teams',
+        level: 'info',
+        message: "Teams aren't available yet because of a known Atlassian issue, so owner suggestions are based on who worked on each item.",
+      },
+    ]);
+  });
+
+  test('other team errors are still reported as errors', async () => {
+    const { request } = fakeGraph({
+      baton_userTeams: () => ({ data: null, errors: [{ message: 'nope', extensions: { code: 'FORBIDDEN' } }] }),
+    });
+    const inv = await run(request);
     expect(inv.warnings).toContainEqual(expect.objectContaining({ source: 'teams', level: 'error' }));
   });
 
