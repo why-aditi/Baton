@@ -1,5 +1,5 @@
 // Local preview with test data, outside Forge: npm run dev, then open /preview.html.
-// ?screen=list|new|handover (default handover), ?theme=dark. Navigation works between screens.
+// ?screen=list|new|handover|answer (default handover; answer is the departing person's view), ?theme=dark. Navigation works between screens.
 import '@atlaskit/css-reset';
 import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
 import { createRoot } from 'react-dom/client';
@@ -10,7 +10,8 @@ import type { Platform } from './platform';
 import type { Route } from './route';
 
 const params = new URLSearchParams(location.search);
-const h = handover();
+const h = handover({ status: 'collecting' });
+h.questions.push({ id: 'q2', text: 'What’s left on the dead-letter replay tool?', itemAris: [], answer: 'Single-job replay works. Batch replay needs a rate limit.' });
 const PEOPLE = [
   { accountId: 'arjun', name: 'Arjun Rao' },
   { accountId: 'lin', name: 'Lin Chen' },
@@ -24,7 +25,17 @@ const row: HandoverRow = {
 
 const api = {
   listHandovers: async () => [row],
-  getHandover: async () => ({ role: 'editor', handover: h }),
+  getHandover: async () =>
+    params.get('screen') === 'answer'
+      ? {
+          id: h.id, role: 'subject', subjectName: h.subjectName, lastDay: h.lastDay, status: h.status,
+          questions: h.questions.map((q) => ({ id: q.id, text: q.text, answer: q.answer, items: h.items.filter((i) => q.itemAris.includes(i.ari)).map((i) => ({ ari: i.ari, title: i.title, url: i.url })) })),
+        }
+      : { role: 'editor', handover: h },
+  answerQuestion: async () => ({}),
+  finishAnswers: async () => ({}),
+  saveQuestions: async () => h,
+  generateQuestions: async () => h,
   createHandover: async () => h,
   setOwner: async () => h,
   saveInventory: async () => h,
