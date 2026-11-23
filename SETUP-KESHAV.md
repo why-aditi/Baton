@@ -242,5 +242,4 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 ## Open questions
 
-- Do Bitbucket PRs show up in `atlassianUserPullRequests` once Bitbucket's sync catches up? Recheck pending (section 3).
 - Fix for the teams 403 when the app asks: watch the forum thread.
