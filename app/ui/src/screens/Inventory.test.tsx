@@ -4,7 +4,15 @@ import type { Api } from '../api';
 import { ApiError } from '../api';
 import { handover } from '../fixtures';
 import { PlatformProvider, type Platform } from '../platform';
+import { useState } from 'react';
+import type { Handover } from '../../../src/types';
 import { Inventory } from './Inventory';
+
+// Inventory is controlled; this holds the handover the way EditorHandover does.
+const Harness = ({ initial, autoBuild }: { initial: Handover; autoBuild: boolean }) => {
+  const [h, setH] = useState(initial);
+  return <Inventory handover={h} onChange={setH} autoBuild={autoBuild} />;
+};
 
 afterEach(cleanup);
 
@@ -20,16 +28,15 @@ const setup = (api: Partial<Api> = {}, initial = handover(), autoBuild = false, 
   };
   render(
     <PlatformProvider value={platform}>
-      <Inventory initial={initial} autoBuild={autoBuild} />
+      <Harness initial={initial} autoBuild={autoBuild} />
     </PlatformProvider>,
   );
   return platform;
 };
 
 describe('Inventory', () => {
-  test('shows the stat line and the riskiest item’s breakdown first', () => {
+  test('shows the riskiest item’s breakdown first', () => {
     setup();
-    expect(screen.getByText('2 items · 1 high · 1 without an owner · 27 days left')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Why it scores 75' })).toBeTruthy();
     expect(screen.getByText('+40')).toBeTruthy();
     expect(screen.getByText('“Which decline codes does the backoff skip?”')).toBeTruthy();

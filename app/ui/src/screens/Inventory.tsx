@@ -16,9 +16,7 @@ import {
   personName,
   pickablePeople,
   questionsFor,
-  shortDate,
   sourceLine,
-  statsFor,
   statusLine,
 } from '../view';
 import { BuildInventory } from './BuildInventory';
@@ -28,50 +26,58 @@ const border = `1px solid ${token('color.border', '#091E4224')}`;
 const bandColor = (band: ScoredItem['band']) =>
   band === 'high' ? token('color.text.danger', '#AE2E24') : band === 'medium' ? token('color.text.warning', '#A54800') : subtle;
 
-export const Inventory = ({ initial, autoBuild = false }: { initial: Handover; autoBuild?: boolean }) => {
-  const { now } = usePlatform();
-  const [h, setH] = useState(initial);
+export const Inventory = ({
+  handover: h,
+  onChange,
+  autoBuild = false,
+}: {
+  handover: Handover;
+  onChange: (h: Handover) => void;
+  autoBuild?: boolean;
+}) => {
   const [rebuilding, setRebuilding] = useState(false);
-  const [selectedAri, setSelectedAri] = useState(initial.items[0]?.ari);
-  const stats = statsFor(h, now());
+  const [selectedAri, setSelectedAri] = useState(h.items[0]?.ari);
   const selected = h.items.find((i) => i.ari === selectedAri) ?? h.items[0];
 
   const onBuilt = (next: Handover) => {
-    setH(next);
+    onChange(next);
     setRebuilding(false);
     setSelectedAri(next.items[0]?.ari);
   };
 
   const building = rebuilding || (h.items.length === 0 && h.status === 'draft');
 
+  if (building) {
+    return (
+      <BuildInventory
+        handover={h}
+        autoStart={autoBuild && h.items.length === 0}
+        onDone={onBuilt}
+        onCancel={h.items.length ? () => setRebuilding(false) : undefined}
+      />
+    );
+  }
+  if (h.items.length === 0) {
+    return (
+      <EmptyState title="No open work found" action={h.status !== 'published' && <Button onClick={() => setRebuilding(true)}>Rebuild inventory</Button>}>
+        Baton found nothing open for {h.subjectName}. If that seems wrong, check that Baton’s Teamwork Graph scopes are granted, and that
+        you can see their projects.
+      </EmptyState>
+    );
+  }
   return (
-    <div>
-      <header style={{ padding: '20px 24px', borderBottom: border, display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <h1 style={{ margin: 0, font: token('font.heading.medium', '600 20px/24px sans-serif') }}>
-            {h.subjectName} · last day {shortDate(h.lastDay)}
-          </h1>
-          <span style={{ color: subtle, fontVariantNumeric: 'tabular-nums' }}>
-            {stats.items} items · {stats.high} high · {stats.withoutOwner} without an owner · {stats.daysLeft} days left
-          </span>
-        </div>
-        {h.status !== 'published' && !building && (
-          <Button onClick={() => setRebuilding(true)}>Rebuild inventory</Button>
+    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+      <div style={{ flex: '1 1 340px', maxWidth: 460, borderRight: border, display: 'flex', flexDirection: 'column' }}>
+        <ItemList items={h.items} handover={h} selected={selected?.ari} onSelect={setSelectedAri} />
+        {h.status !== 'published' && (
+          <div style={{ padding: '8px 12px 16px' }}>
+            <Button appearance="subtle" onClick={() => setRebuilding(true)}>
+              Rebuild inventory
+            </Button>
+          </div>
         )}
-      </header>
-      {building ? (
-        <BuildInventory handover={h} autoStart={autoBuild && h.items.length === 0} onDone={onBuilt} onCancel={h.items.length ? () => setRebuilding(false) : undefined} />
-      ) : h.items.length === 0 ? (
-        <EmptyState title="No open work found">
-          Baton found nothing open for {h.subjectName}. If that seems wrong, check that Baton’s Teamwork Graph scopes are granted, and
-          that you can see their projects.
-        </EmptyState>
-      ) : (
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          <ItemList items={h.items} handover={h} selected={selected?.ari} onSelect={setSelectedAri} />
-          {selected && <ItemDetail key={selected.ari} item={selected} handover={h} onChange={setH} />}
-        </div>
-      )}
+      </div>
+      {selected && <ItemDetail key={selected.ari} item={selected} handover={h} onChange={onChange} />}
     </div>
   );
 };
@@ -100,7 +106,7 @@ const ItemList = ({
     }
   };
   return (
-    <nav aria-label="Items" onKeyDown={onKeyDown} style={{ flex: '1 1 340px', maxWidth: 460, borderRight: border, padding: '8px 0' }}>
+    <nav aria-label="Items" onKeyDown={onKeyDown} style={{ padding: '8px 0' }}>
       {items.map((it, i) => {
         const owner = ownerOf(it);
         const isSel = it.ari === selected;

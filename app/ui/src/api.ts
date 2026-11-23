@@ -33,6 +33,7 @@ export type HandoverRow = {
 };
 
 export type HandoverView = { role: 'editor'; handover: Handover } | SubjectView;
+export type { SubjectView };
 
 export type InventoryInput = {
   id: string;
@@ -66,6 +67,12 @@ export const makeApi = (invoke: Invoke) => {
     saveInventory: (input: InventoryInput) => call<Handover>('saveInventory', input),
     setOwner: (id: string, itemAri: string, accountId: string | null) =>
       call<Handover>('setOwner', { id, itemAri, accountId }),
+    generateQuestions: (id: string, regenerate = false) => call<Handover>('generateQuestions', { id, regenerate }),
+    saveQuestions: (id: string, questions: { id?: string; text: string; itemAris: string[] }[]) =>
+      call<Handover>('saveQuestions', { id, questions }),
+    answerQuestion: (id: string, questionId: string, answer: string) =>
+      call<SubjectView>('answerQuestion', { id, questionId, answer }),
+    finishAnswers: (id: string) => call<SubjectView>('finishAnswers', { id }),
   };
 };
 
