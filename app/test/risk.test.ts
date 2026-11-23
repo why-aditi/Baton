@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { scoreRisk, type RiskContext } from '../src/scoring/risk';
+import { reasonPoints, scoreRisk, type RiskContext } from '../src/scoring/risk';
 import type { Item } from '../src/types';
 
 const MEERA = 'ari:cloud:identity::user/meera';
@@ -143,5 +143,24 @@ describe('scoreRisk', () => {
   test('the hero item: Meera-only, mid-flight runbook work is high risk', () => {
     const r = scoreRisk(item({ collaborators: [], statusCategory: 'in_progress' }), ctx);
     expect(r).toMatchObject({ risk: 60, band: 'high' });
+  });
+});
+
+describe('reasonPoints', () => {
+  // Each combination fires different signals; the breakdown must add up to the score every time.
+  const cases: Partial<Item>[] = [
+    { collaborators: [MEERA], statusCategory: 'in_progress', dueDate: '2026-11-28' },
+    { collaborators: [ARJUN], updatedAt: '2026-09-01T00:00:00Z' },
+    { kind: 'pull_request', statusCategory: 'in_progress', collaborators: [ARJUN, LIN], reviewers: [MEERA] },
+    { kind: 'confluence_page', collaborators: [MEERA], inboundLinks: 4 },
+  ];
+  test.each(cases)('reasons add up to the score: %o', (over) => {
+    const r = scoreRisk(item(over), ctx);
+    expect(r.reasons.length).toBeGreaterThan(0);
+    expect(r.reasons.reduce((n, x) => n + reasonPoints(x), 0)).toBe(r.risk);
+  });
+
+  test('an unknown reason is worth 0', () => {
+    expect(reasonPoints('Something else')).toBe(0);
   });
 });
