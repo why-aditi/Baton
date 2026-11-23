@@ -15,7 +15,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Publish to Confluence | Works, as the signed-in user, with @mentions and item links |
 | Reassign Jira issues | Works, as the signed-in user |
 | Bitbucket PRs in the graph | Work through the person's Jira issues, not the person (Nov 23): the graph files Bitbucket people under third-party IDs. A PR needs a Jira key to be found (section 8) |
-| Custom UI | Not built. Yours (section 7) |
+| Custom UI | All five screens built in `app/ui/` (Nov 23): handover list, New handover, Inventory, Questions with the answer screen, and Review and publish. Tested with fakes, not yet deployed to a site (section 7) |
 | Seed data | Scripts ready; site setup half done (projects and space exist). Waiting on the 7 users and their tokens (section 4) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
@@ -61,7 +61,11 @@ The repo has two apps. `app/` is the real Baton and is what you set up. `spike/`
     forge variables set --encrypt -e keshav GROQ_API_KEY <key>
     forge variables set --encrypt -e keshav MISTRAL_API_KEY <key>   # optional fallback, once it exists
     ```
-7. Deploy, install in Jira, then connect Confluence. The manifest declares Jira as the required product and Confluence as optional, so both commands add to **one** installation (see section 6 for why that matters).
+7. Build the UI, then deploy, install in Jira and connect Confluence. `forge deploy` uploads `app/ui/build`, so build it first, every time the UI changes:
+    ```
+    cd ui && npm install && npm run build && cd ..
+    ```
+    The manifest declares Jira as the required product and Confluence as optional, so both install commands add to **one** installation (see section 6 for why that matters). Then:
     ```
     forge deploy -e keshav
     forge install -e keshav -p Jira -s <your-site>.atlassian.net --confirm-scopes
@@ -69,7 +73,7 @@ The repo has two apps. `app/` is the real Baton and is what you set up. `spike/`
     forge install list
     ```
     `forge install list` should show one row: `Jira (required)` plus `Confluence`. If a deploy stops with "approval requested", rerun it with `--approve MAJOR_VERSION_RULE`; adding hosts or scopes counts as a major version.
-8. Open Jira → Apps → **Baton**. Until your UI exists it shows a dev page that calls any resolver by name with a JSON payload.
+8. Open Jira → Apps → **Baton**. It opens on the handover list. The old resolver test page is now at the `/dev` route (`<site>/jira/apps/<appId>/<envId>/dev`): it calls any resolver by name with a JSON payload.
 
 Use `forge logs -e keshav -f` in a second terminal while testing.
 
@@ -116,7 +120,7 @@ The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has
 
 ## 5. Check it works
 
-All on your site, from Jira → Apps → **Baton** (the dev page) unless it says otherwise:
+All on your site, from Jira → Apps → **Baton** → `/dev` (the resolver test page) unless it says otherwise:
 
 - [ ] The Baton page loads
 - [ ] `listHandovers` with payload `{}` returns `{ "ok": true, "data": [] }`
@@ -168,7 +172,7 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 
 **What's yours in `app/`:**
 
-- **The Custom UI.** `app/static/ui/` holds a placeholder and a dev page (`dev.js`) for calling resolvers. Build the UI (React + `@atlaskit`), point `resources` in the manifest at its build output, and delete both files.
+- **The Custom UI.** Started Nov 23 in `app/ui/` (React 18, Vite, `@atlaskit`), and the manifest's `resources` now points at `app/ui/build`. Built so far: the handover list, New handover (person search through Jira's user search as the user, reason, last day, an optional person to share with; creating it opens the handover and starts reading the graph), the handover page with Inventory and Questions tabs, and the departing person's answer screen. The Inventory tab is the split layout (risk-sorted list on the left; the selected item's score breakdown, owner choice and linked questions on the right), with the build-inventory progress panel, which reads the graph through `graphQuery`. The Questions tab drafts questions with Baton (or by hand), links each to items, saves them, and shows answers as they come in; when the LLM is down it says so and writing your own still works. The departing person sees only their questions, answers save a second after they stop typing (and when they leave the box), and "I'm done answering" moves the handover to Ready. The Review and publish tab has a checklist (confirmed owners, answers, summary, and a warning for high-risk items without an owner), the summary editor (generate with Baton, or write it yourself when the LLM is down), publishing to a Confluence space chosen from the user's spaces (unsaved summary edits are saved first, and a dialog confirms), and reassigning Jira issues with confirmed owners after a dialog that lists every change, with failed rows shown afterwards. Next: deploy to a site and run the flow end to end on seed data. `npm test` and `npm run build` in `app/ui/`. Designs picked on Nov 23: [UI directions](https://claude.ai/artifact/UazZ5o76sLqBHFL3smFZGy) (split detail) and [marketing pages](https://claude.ai/artifact/WYzrLVa7dcu8xntdvEUqHj) (developer dark).
 - **Calling the backend.** Use `invoke(name, payload)` from `@forge/bridge`. Every resolver returns `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. A `not_found` code also means "no access", so show the same empty state either way.
 - **Routing.** Links from the Rovo agent go to `<site>/jira/apps/<appId>/<envId>/handover/<id>`. The UI should route on `/handover/<id>`.
 - **Who sees what.** `getHandover` returns `{ role: 'editor', handover }` for the manager, recipients and Jira admins. For the departing person it returns a questions-only view (`role: 'subject'`). Render the knowledge-capture screen for `subject` and the inventory for `editor`.
@@ -238,7 +242,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 - [ ] **Add the goal and project graph scopes** to the manifest, with exact names from the Scopes page.
 - [ ] **Check the storage size limit** against a full handover.
-- [ ] **Remove the dev-only page before submission:** `app/static/ui/dev.js`. (The `devGraphQuery` resolver is gone: `graphQuery` replaced it and only runs Baton's own queries.)
+- [ ] **Remove the dev-only page before submission:** the `/dev` route, `app/ui/src/screens/DevPage.tsx`. (The `devGraphQuery` resolver is gone: `graphQuery` replaced it and only runs Baton's own queries.)
 - [x] **Category: Apps for Software Teams** (decided Nov 22). The spec recommended Business Teams, but the demo story (Northwind Pay engineers, PRs, Jira) is a software team's. Frame the video and Devpost text for dev teams: unreviewed PRs, the knowledge only one engineer has. **(affects you)**
 - [ ] **Marketplace bonus: decide on Dec 7**, once the MVP is demo-able. If there's slack then, submit a paid listing for review (a review ticket is enough for the prize; see section 6).
 - [ ] **Check her employment contract** for side-project clauses.

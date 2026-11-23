@@ -1,8 +1,9 @@
 # Baton app
 
 The real Baton app (the week-1 throwaway is in `../spike`). It has the backend: scoring, the LLM
-layer, storage, the app page's resolvers and the five Rovo/MCP actions. The Custom UI isn't built
-yet; `static/ui/index.html` is a placeholder so the app deploys.
+layer, storage, the app page's resolvers and the five Rovo/MCP actions. The Custom UI is in `ui/`
+(React, Vite, Atlaskit); build it with `npm run build` there before `forge deploy`, which uploads
+`ui/build`.
 
 It uses the spike's app ID, because saved graph query keys belong to the app ID. **Deploying `app/`
 replaces the spike** in that environment.
@@ -117,4 +118,5 @@ the person doesn't own are dropped too, because the query can't filter by role.
 **Gaps in the graph that scoring feels.** Jira issues have no updated date or sprint in the graph, so
 `saveInventory` fills them in from Jira's search API, as the user (`src/enrich/jira.ts`, called through
 `issueDetails` in `src/forge/atlassian.ts`). If that fails, scoring uses the graph data alone. Pages have
-no link counts anywhere we can reach, so the "widely referenced" signal never fires yet.
+link counts from the persisted query `PQ_PAGE_INBOUND_REFS` (incoming page links), so the
+"widely referenced" signal fires for pages linked from 3 or more others.
