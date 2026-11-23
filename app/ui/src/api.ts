@@ -1,7 +1,7 @@
 // Typed wrapper over the app page's resolvers. Every resolver returns { ok: true, data } or
 // { ok: false, error: { code, message } }; this turns the second into a thrown ApiError.
 import type { SubjectView } from '../../src/handover/access';
-import type { Handover, Reason, Status } from '../../src/types';
+import type { Handover, HandoverSummary, Reason, Status } from '../../src/types';
 import type { Team } from '../../src/scoring/owners';
 import type { Item } from '../../src/types';
 
@@ -34,6 +34,9 @@ export type HandoverRow = {
 
 export type HandoverView = { role: 'editor'; handover: Handover } | SubjectView;
 export type { SubjectView };
+
+/** One row of reassignIssues' results. */
+export type ReassignResult = { ari: string; key: string; accountId: string; ok: boolean; error?: string };
 
 export type InventoryInput = {
   id: string;
@@ -73,6 +76,10 @@ export const makeApi = (invoke: Invoke) => {
     answerQuestion: (id: string, questionId: string, answer: string) =>
       call<SubjectView>('answerQuestion', { id, questionId, answer }),
     finishAnswers: (id: string) => call<SubjectView>('finishAnswers', { id }),
+    generateSummary: (id: string, regenerate = false) => call<Handover>('generateSummary', { id, regenerate }),
+    updateSummary: (id: string, summary: HandoverSummary) => call<Handover>('updateSummary', { id, summary }),
+    publishHandover: (id: string, spaceKey: string) => call<Handover>('publishHandover', { id, spaceKey }),
+    reassignIssues: (id: string, itemAris: string[]) => call<{ results: ReassignResult[] }>('reassignIssues', { id, itemAris }),
   };
 };
 

@@ -20,6 +20,7 @@ const setup = (api: Partial<Api> = {}, initial = handover(), autoBuild = false, 
   const platform: Platform = {
     api: { listHandovers: vi.fn(), getHandover: vi.fn(), saveInventory: vi.fn(), setOwner: vi.fn(), ...api } as Api,
     invokeRaw: vi.fn(),
+    listSpaces: vi.fn().mockResolvedValue([]),
     searchPeople: vi.fn(),
     graph,
     navigate: vi.fn(),

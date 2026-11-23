@@ -12,6 +12,15 @@ import type { Route } from './route';
 const params = new URLSearchParams(location.search);
 const h = handover({ status: 'collecting' });
 h.questions.push({ id: 'q2', text: 'What’s left on the dead-letter replay tool?', itemAris: [], answer: 'Single-job replay works. Batch replay needs a rate limit.' });
+h.items[0]!.acceptedOwnerAccountId = 'arjun';
+h.summary = {
+  overview: 'Meera owned the payment-retry service end to end. Arjun takes the retry logic and its open pull request; Dana takes the runbook.',
+  risks: ['The backoff skips hard declines on purpose; the list is in decline_codes.yaml', 'The runbook has no other editor'],
+  sections: [
+    { ownerAccountId: 'arjun', body: 'PAY-1 is mid-flight and due Dec 23. Start from Meera’s notes on the decline codes.', itemAris: [h.items[0]!.ari] },
+    { ownerAccountId: null, body: 'The runbook still needs an owner.', itemAris: [h.items[1]!.ari] },
+  ],
+};
 const PEOPLE = [
   { accountId: 'arjun', name: 'Arjun Rao' },
   { accountId: 'lin', name: 'Lin Chen' },
@@ -39,6 +48,10 @@ const api = {
   createHandover: async () => h,
   setOwner: async () => h,
   saveInventory: async () => h,
+  updateSummary: async () => h,
+  generateSummary: async () => h,
+  publishHandover: async () => h,
+  reassignIssues: async () => ({ results: [{ ari: h.items[0]!.ari, key: 'PAY-1', accountId: 'arjun', ok: true }] }),
 } as unknown as Api;
 
 const root = createRoot(document.getElementById('root')!);
@@ -46,6 +59,7 @@ const show = (route: Route) => root.render(<App route={route} platform={platform
 const platform: Platform = {
   api,
   invokeRaw: async () => ({}),
+  listSpaces: async () => [{ key: 'NWP', name: 'Northwind Pay' }, { key: 'PLAT', name: 'Platform' }],
   searchPeople: async (q) => PEOPLE.filter((p) => p.name.toLowerCase().includes(q.toLowerCase())),
   graph: async () => ({}),
   navigate: show,
