@@ -242,5 +242,4 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 ## Open questions
 
-- Do Bitbucket PRs show up in `atlassianUserPullRequests` once Bitbucket's sync catches up? Recheck pending (section 3).
 - Why does the browser bridge get a 403 on teams when the backend doesn't? Worked around with `graphQuery`; worth a reply on the forum thread.
