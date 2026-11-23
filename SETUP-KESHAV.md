@@ -6,7 +6,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 
 | Piece | Status on Nov 22 |
 | --- | --- |
-| Teamwork Graph reads | Work. New activity is indexed within ~5 min. Real responses are saved in `app/test/fixtures/`. Team lookups fail with a 403 only when the app asks ([forum thread](https://community.developer.atlassian.com/t/teamwork-graph-atlassianuserinteams-returns-edges-but-every-node-fails-with-teamsv2-status-code-is-403/103977)) |
+| Teamwork Graph reads | Work. New activity is indexed within ~5 min. Real responses are saved in `app/test/fixtures/`. Team lookups work from the backend; from the browser bridge they 403, so all graph reads go through the `graphQuery` resolver ([forum thread](https://community.developer.atlassian.com/t/teamwork-graph-atlassianuserinteams-returns-edges-but-every-node-fails-with-teamsv2-status-code-is-403/103977)) |
 | Groq from a Forge resolver | Works |
 | Rovo agent "Baton" | Works: start and list handovers in Ask Rovo |
 | Claude Desktop (MCP) | Works, and sees the same handovers as Rovo |
@@ -108,7 +108,7 @@ The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has
 - [ ] **Seed by Nov 30.** Don't reseed the day before recording; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding.
 - [ ] **Update the agent's suggested question** "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
 - [ ] **Re-record the graph fixtures** against seeded users (section 7).
-- Teams: any team lookup that goes through the app gets a 403, including `requestTeamworkGraph` from the app page (the recorded `userTeams.app-403.json` came from the spike's page). Only a direct call from the browser as the user worked. So expect no teams in the inventory until the forum thread is answered; owner ranking still works from co-contribution.
+- Teams: solved (Nov 23). From the app page, `@forge/bridge`'s `requestTeamworkGraph` gets a 403 on every team (the recorded `userTeams.app-403.json`). From the backend, `api.asUser().requestTeamworkGraph` returns them, which a forum reply suggested and the demo site confirmed. So the UI sends graph reads through the `graphQuery` resolver (section 7), and teams show up.
 - Between demo runs: `npm run reset`, then the `deleteAllHandovers` resolver (`scripts/README.md` section 3).
 
 ## 5. Check it works
@@ -169,7 +169,7 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 - **Calling the backend.** Use `invoke(name, payload)` from `@forge/bridge`. Every resolver returns `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. A `not_found` code also means "no access", so show the same empty state either way.
 - **Routing.** Links from the Rovo agent go to `<site>/jira/apps/<appId>/<envId>/handover/<id>`. The UI should route on `/handover/<id>`.
 - **Who sees what.** `getHandover` returns `{ role: 'editor', handover }` for the manager, recipients and Jira admins. For the departing person it returns a questions-only view (`role: 'subject'`). Render the knowledge-capture screen for `subject` and the inventory for `editor`.
-- **Reading the graph.** Graph reads happen in the UI, as the user. Call `buildInventory({ request, subjectAri, subjectName, ownedPagesQueryKey: PQ_USER_OWNED_PAGES, pageLinksQueryKey: PQ_PAGE_INBOUND_REFS, onProgress })` from `app/src/graph/inventory.ts` (both keys are in `app/src/graph/queryKeys.ts`), with `request = (query, vars) => requestTeamworkGraph(query, vars)` from `@forge/bridge`. It returns `{ items, teams, openAssigned, people, warnings }`: send everything except `warnings` to `saveInventory` with the handover `id`, and show `warnings` as banners. `subjectName` (the handover's `subjectName`) is what finds Bitbucket PRs: without it they're missed (section 8). `onProgress` reports each source (`assignedJira`, `reportedJira`, `pullRequests`, `pages`, `goalsAndProjects`, `teams`, then `details`) for the progress bar. It makes a few dozen graph calls, so expect several seconds.
+- **Reading the graph.** The UI drives it, but every query runs on the backend as the user, because team lookups 403 through the browser bridge. Call `buildInventory({ request: backendGraphRequest(invoke), subjectAri, subjectName, ownedPagesQueryKey: PQ_USER_OWNED_PAGES, pageLinksQueryKey: PQ_PAGE_INBOUND_REFS, onProgress })` from `app/src/graph/inventory.ts`. `backendGraphRequest` is in `app/src/graph/proxy.ts`, `invoke` comes from `@forge/bridge`, and both keys are in `app/src/graph/queryKeys.ts`. Don't use `requestTeamworkGraph` from the bridge. The `graphQuery` resolver behind it runs only Baton's own queries, by name. It returns `{ items, teams, openAssigned, people, warnings }`: send everything except `warnings` to `saveInventory` with the handover `id`, and show `warnings` as banners. `subjectName` (the handover's `subjectName`) is what finds Bitbucket PRs: without it they're missed (section 8). `onProgress` reports each source (`assignedJira`, `reportedJira`, `pullRequests`, `pages`, `goalsAndProjects`, `teams`, then `details`) for the progress bar. It makes a few dozen graph calls, so expect several seconds.
 - **The LLM can fail.** `generateQuestions` and `generateSummary` return `llm_unavailable` when both LLM providers fail or the hourly limit (20 calls per site) is hit. Show the error and keep the rest of the screen working. The inventory never depends on the LLM.
 - **Publish.** `publishHandover({ id, spaceKey })` needs a summary, creates the Confluence page as the user, and moves the handover to Published. It returns the handover with `confluencePageUrl`. A missing space or a duplicate title come back as `bad_input` / `conflict` with a message you can show.
 - **Reassign.** `reassignIssues({ id, itemAris })` assigns each Jira issue to its accepted owner, as the user, and returns `{ results: [{ ari, key, accountId, ok, error? }] }`. One failure doesn't stop the rest. Show the confirmation dialog listing every change **before** calling it, then show any failed rows.
@@ -233,7 +233,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 - [ ] **Add the goal and project graph scopes** to the manifest, with exact names from the Scopes page.
 - [ ] **Check the storage size limit** against a full handover.
-- [ ] **Remove the dev-only pieces before submission:** the `devGraphQuery` resolver in `app/src/index.ts` (runs any graph query as the caller, used to test saved queries) and `app/static/ui/dev.js`.
+- [ ] **Remove the dev-only page before submission:** `app/static/ui/dev.js`. (The `devGraphQuery` resolver is gone: `graphQuery` replaced it and only runs Baton's own queries.)
 - [x] **Category: Apps for Software Teams** (decided Nov 22). The spec recommended Business Teams, but the demo story (Northwind Pay engineers, PRs, Jira) is a software team's. Frame the video and Devpost text for dev teams: unreviewed PRs, the knowledge only one engineer has. **(affects you)**
 - [ ] **Marketplace bonus: decide on Dec 7**, once the MVP is demo-able. If there's slack then, submit a paid listing for review (a review ticket is enough for the prize; see section 6).
 - [ ] **Check her employment contract** for side-project clauses.
@@ -242,4 +242,4 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 ## Open questions
 
-- Fix for the teams 403 when the app asks: watch the forum thread.
+- Why does the browser bridge get a 403 on teams when the backend doesn't? Worked around with `graphQuery`; worth a reply on the forum thread.
