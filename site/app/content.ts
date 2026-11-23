@@ -8,7 +8,7 @@ export const exampleRows = [
   { score: 60, title: 'PR #2 retry thresholds to config', why: 'only Meera · open', to: 'Lin' },
   { score: 60, title: 'DLQ replay tool for failed retries', why: 'only Meera · mid-flight', to: 'Dana' },
   { score: 60, title: 'Retry service memory limits', why: 'only Meera · mid-flight', to: 'Sam' },
-  { score: 55, title: 'Payment retry service runbook', why: 'only Meera · 4 inbound links', to: 'Dana' },
+  { score: 60, title: 'Payment retry service runbook', why: 'only Meera · 4 inbound links', to: 'Dana' },
 ];
 
 /** The knowledge-risk signals and their points (app/src/scoring/risk.ts). */
@@ -18,7 +18,7 @@ export const rules = [
   { signal: 'Work is mid-flight', points: 20 },
   { signal: 'Due before, or within a week after, the last day', points: 15 },
   { signal: 'Open PR whose only reviewer is them', points: 15 },
-  { signal: 'Page linked from 3 or more other pages', points: 15 },
+  { signal: 'Page linked from 3 or more other pages', points: 20 },
   { signal: 'Open and untouched for 30+ days', points: 10 },
 ];
 
