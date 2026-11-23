@@ -1,12 +1,14 @@
 # Baton dev setup for Keshav
 
-Nov 16, 2026 · from Aditi · updated Nov 22: the real app in `app/` is deployed and tested end to end
+Nov 16, 2026 · from Aditi · updated Nov 23: the backend is done and tested live; the UI and the seed are next
 
-The backend works end to end on the demo site: the app page, the Rovo agent and Claude Desktop (MCP) all see the same handovers, and publish and reassign work. This gets you your own copy, on your own environment and demo site. Plan on about an hour.
+The backend works end to end on the demo site: the app page, the Rovo agent and Claude Desktop (MCP) all see the same handovers, the inventory covers issues, PRs, pages, teams and goals, and publish and reassign work. This gets you your own copy, on your own environment and demo site. Plan on about an hour.
 
-| Piece | Status on Nov 22 |
+| Piece | Status on Nov 23 |
 | --- | --- |
-| Teamwork Graph reads | Work. New activity is indexed within ~5 min. Real responses are saved in `app/test/fixtures/`. Team lookups work from the backend; from the browser bridge they 403, so all graph reads go through the `graphQuery` resolver ([forum thread](https://community.developer.atlassian.com/t/teamwork-graph-atlassianuserinteams-returns-edges-but-every-node-fails-with-teamsv2-status-code-is-403/103977)) |
+| Teamwork Graph reads | Work. New activity is indexed within ~5 min. Real responses are saved in `app/test/fixtures/`. All graph reads go through the backend `graphQuery` resolver, as the user |
+| Teams | Load (Nov 23). Through the browser bridge every team 403'd; through the backend they come back ([forum thread](https://community.developer.atlassian.com/t/teamwork-graph-atlassianuserinteams-returns-edges-but-every-node-fails-with-teamsv2-status-code-is-403/103977)) |
+| Risk signals | All six can fire: Jira's updated date and sprint come from Jira's REST API, page link counts from a saved graph query |
 | Groq from a Forge resolver | Works |
 | Rovo agent "Baton" | Works: start and list handovers in Ask Rovo |
 | Claude Desktop (MCP) | Works, and sees the same handovers as Rovo |
@@ -14,6 +16,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Reassign Jira issues | Works, as the signed-in user |
 | Bitbucket PRs in the graph | Work through the person's Jira issues, not the person (Nov 23): the graph files Bitbucket people under third-party IDs. A PR needs a Jira key to be found (section 8) |
 | Custom UI | Started Nov 23 in `app/ui/`: handover list, New handover and the Inventory screen. Not deployed yet (section 7) |
+| Seed data | Scripts ready; site setup half done (projects and space exist). Waiting on the 7 users and their tokens (section 4) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
 
@@ -197,6 +200,8 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 - [x] **`rovo:skill` exists** (Preview). Wrapping `get-handover` and `find-owner` as skills is still to do (below).
 - [x] **Turn graph results into items.** `app/src/graph/normalize.ts`, one converter per query, tested against the fixtures. The queries are checked against the recorded schema in a test.
 - [x] **One function that builds the inventory.** `buildInventory` in `app/src/graph/inventory.ts`; see "Reading the graph" in section 7. **(affects you)**
+- [x] **Teams load** (Nov 23). Graph reads go through the backend `graphQuery` resolver: the browser bridge got a 403 on every team, the backend doesn't. Pass `request: backendGraphRequest(invoke)` to `buildInventory`. The dev-only `devGraphQuery` is gone. **(affects you)**
+- [x] **Root README rewritten** (Nov 23) as the project's front page: pitch, flow, Mermaid architecture diagram, how Baton uses Teamwork Graph, install steps for judges, status. Covers the submission checklist's "README with an architecture image".
 - [x] **Workload counts for owner ranking.** `buildInventory` counts open assigned work for up to 25 likely owners.
 - [x] ~~Register `PQ_ITEM_COLLABORATORS`.~~ Not needed for now: `buildInventory` gets collaborators from page contributors and issue commenters instead. Revisit if that's too slow on real data.
 
