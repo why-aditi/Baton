@@ -19,6 +19,30 @@ const WIDELY_REFERENCED = 3;
 
 export const bandFor = (risk: number): Band => (risk >= 60 ? 'high' : risk >= 30 ? 'medium' : 'low');
 
+/** Points per signal. Every reason string scoreRisk emits maps to one of these (see reasonPoints). */
+const POINTS = {
+  onlySubject: 40,
+  oneOther: 20,
+  midFlight: 20,
+  noOtherReviewer: 15,
+  stale: 10,
+  widelyReferenced: 15,
+  dueSoon: 15,
+} as const;
+
+const FIXED_REASONS: Record<string, number> = {
+  'Only one other person has context': POINTS.oneOther,
+  'Work is mid-flight': POINTS.midFlight,
+  'No other reviewer': POINTS.noOtherReviewer,
+  'Stale, so context is likely only in their head': POINTS.stale,
+  'Widely referenced page': POINTS.widelyReferenced,
+  'Due soon after they leave': POINTS.dueSoon,
+};
+
+/** How many points a stored reason added, for the UI's score breakdown. Unknown reasons give 0. */
+export const reasonPoints = (reason: string): number =>
+  FIXED_REASONS[reason] ?? (/^Only .+ has worked on this$/.test(reason) ? POINTS.onlySubject : 0);
+
 /** Deterministic 0–100 knowledge-risk score. Every point added carries a reason for the UI. */
 export const scoreRisk = (item: Item, ctx: RiskContext): RiskResult => {
   let risk = 0;
@@ -31,10 +55,10 @@ export const scoreRisk = (item: Item, ctx: RiskContext): RiskResult => {
   const open = item.statusCategory !== 'done';
   const others = new Set(item.collaborators.filter((c) => c !== ctx.subjectAri));
 
-  if (others.size === 0) add(40, `Only ${ctx.subjectName} has worked on this`);
-  else if (others.size === 1) add(20, 'Only one other person has context');
+  if (others.size === 0) add(POINTS.onlySubject, `Only ${ctx.subjectName} has worked on this`);
+  else if (others.size === 1) add(POINTS.oneOther, 'Only one other person has context');
 
-  if (item.statusCategory === 'in_progress') add(20, 'Work is mid-flight');
+  if (item.statusCategory === 'in_progress') add(POINTS.midFlight, 'Work is mid-flight');
 
   const reviewers = item.reviewers ?? [];
   if (
@@ -43,20 +67,20 @@ export const scoreRisk = (item: Item, ctx: RiskContext): RiskResult => {
     reviewers.length > 0 &&
     reviewers.every((r) => r === ctx.subjectAri)
   ) {
-    add(15, 'No other reviewer');
+    add(POINTS.noOtherReviewer, 'No other reviewer');
   }
 
   if (open && item.updatedAt && Date.parse(ctx.now) - Date.parse(item.updatedAt) > STALE_DAYS * DAY) {
-    add(10, 'Stale, so context is likely only in their head');
+    add(POINTS.stale, 'Stale, so context is likely only in their head');
   }
 
   if (item.kind === 'confluence_page' && (item.inboundLinks ?? 0) >= WIDELY_REFERENCED) {
-    add(15, 'Widely referenced page');
+    add(POINTS.widelyReferenced, 'Widely referenced page');
   }
 
   const deadline = Date.parse(ctx.lastDay) + DUE_GRACE_DAYS * DAY;
   const dates = [item.dueDate, item.sprintEndDate].filter((d): d is string => !!d);
-  if (open && dates.some((d) => Date.parse(d) <= deadline)) add(15, 'Due soon after they leave');
+  if (open && dates.some((d) => Date.parse(d) <= deadline)) add(POINTS.dueSoon, 'Due soon after they leave');
 
   risk = Math.min(100, risk);
   return { risk, band: bandFor(risk), reasons };
