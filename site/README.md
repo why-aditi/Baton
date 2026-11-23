@@ -1,0 +1,21 @@
+# Baton marketing site
+
+The public page for Baton, in the "developer dark" design picked on Nov 23
+([marketing pages canvas](https://claude.ai/artifact/WYzrLVa7dcu8xntdvEUqHj), sample 3).
+Next.js 16 (App Router) with static export: `npm run build` writes plain files to `out/`, so any static
+host works (GitHub Pages, Netlify, Vercel, S3).
+
+```sh
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # static site in out/
+npm run lint     # typecheck
+```
+
+- **Copy and product facts** live in `app/content.ts`. Keep them in step with the app: the scoring weights
+  with `app/src/scoring/risk.ts`, the tools with `app/manifest.yml`.
+- **Fonts** (Manrope, JetBrains Mono) are downloaded by `next/font` at build time and served from the site,
+  so the page makes no requests to Google.
+- **Install link:** not public yet. When the app has a listing or install link, point the "Install in Jira"
+  buttons (`href="#install"` in `app/page.tsx`) at it and drop the note in the install section.
+- The hero's inventory and the chat are examples from the Northwind Pay demo data and are labelled as such.

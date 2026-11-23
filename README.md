@@ -109,7 +109,8 @@ The full setup (your own Forge environment and demo site, Rovo, MCP, the LLM key
 
 | Path | What |
 | --- | --- |
-| [`app/`](app/README.md) | The Baton Forge app: scoring, LLM layer, storage, resolvers, Rovo/MCP actions, graph queries |
+| [`app/`](app/README.md) | The Baton Forge app: scoring, LLM layer, storage, resolvers, Rovo/MCP actions, graph queries, and the Custom UI in `app/ui/` |
+| [`site/`](site/README.md) | The public marketing page (Next.js, static export) |
 | [`scripts/`](scripts/README.md) | Seed scripts for **Northwind Pay**, the demo company (Jira, Confluence, Bitbucket), plus reset |
 | `spike/` | The week-1 test app, now only used to record Teamwork Graph fixtures |
 | [`SETUP-KESHAV.md`](SETUP-KESHAV.md) | Developer setup, progress and known issues |
