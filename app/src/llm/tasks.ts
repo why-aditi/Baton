@@ -19,12 +19,15 @@ const GROUNDING =
 // replaced by the item's key or title.
 const BRACKETED_REFS = /\s*\((?:I\d+[,;\s]*)+\)/g;
 const BARE_REF = /\bI\d+\b/g;
+// "(PAY-1, I2)" where I2 is PAY-1 becomes "(PAY-1, PAY-1)"; keep one.
+const REPEATED_KEY = /\b([A-Z][A-Z0-9]+-\d+)(?:,\s*\1\b)+/g;
 /** Text for people: placeholders back to names, item refs turned into item names. */
 const prose = (p: Pseudonymizer, labels: Map<string, string>, s: string) =>
   p
     .restore(s)
     .replace(BRACKETED_REFS, '')
     .replace(BARE_REF, (ref) => labels.get(ref) ?? '')
+    .replace(REPEATED_KEY, '$1')
     .replace(/ {2,}/g, ' ')
     .replace(/ ([,.;:])/g, '$1')
     .trim();
