@@ -190,5 +190,22 @@ export const buildInventory = async (opts: {
 
   const order = Object.keys(SOURCES);
   results.sort((a, b) => order.indexOf(a.source) - order.indexOf(b.source));
-  return { items, teams, openAssigned, people, warnings: coverageWarnings(results) };
+  return { items, teams, openAssigned, people, warnings: withKnownTeamsIssue(coverageWarnings(results), teamRun) };
+};
+
+/**
+ * Team lookups through the app fail with a teamsV2 403 (forum thread in SETUP-KESHAV.md). That's
+ * expected for now, so it gets one plain note instead of an error and a "hidden teams" warning.
+ */
+const TEAMS_403 = /teamsV2.*403/;
+const withKnownTeamsIssue = (warnings: Warning[], teamRun: RunResult): Warning[] => {
+  if (!teamRun.errors.some((e) => TEAMS_403.test(e))) return warnings;
+  return [
+    ...warnings.filter((w) => w.source !== 'teams'),
+    {
+      source: 'teams',
+      level: 'info',
+      message: "Teams aren't available yet because of a known Atlassian issue, so owner suggestions are based on who worked on each item.",
+    },
+  ];
 };
