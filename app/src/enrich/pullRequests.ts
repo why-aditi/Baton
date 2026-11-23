@@ -86,12 +86,16 @@ export const applyPullRequestDetails = (
     // A reviewer we can't match still counts as "another reviewer". Rather than invent an ID (it would
     // become an owner suggestion), leave reviewers empty so "No other reviewer" can't fire wrongly.
     const allMatched = reviewers.every(known);
+    // Other people we couldn't turn into accounts, counted once each (by ID, else name).
+    const people = [d.author, ...d.reviewers].filter((p): p is PrPerson => !!p && !isSubject(p));
+    const unnamed = new Set(people.filter((p) => !ariOf(p.name)).map((p) => p.id ?? p.name)).size;
     return [
       {
         ...item,
         reviewers: allMatched ? [...new Set(reviewers.filter(known))] : [],
         collaborators: [...new Set([...item.collaborators, ...[author, ...reviewers].filter(known)])],
         subjectRole: authored ? ('author' as const) : ('reviewer' as const),
+        ...(unnamed > 0 && { unnamedOthers: unnamed }),
       },
     ];
   });

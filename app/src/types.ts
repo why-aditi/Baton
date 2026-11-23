@@ -28,6 +28,11 @@ export type Item = {
   sprintEndDate?: string;
   /** Confluence only: how many other pages link to this one. */
   inboundLinks?: number;
+  /**
+   * Pull requests only: other people on it Baton can't name (Bitbucket names come back null). They
+   * count as "someone else has context" when scoring, but are never suggested as owners.
+   */
+  unnamedOthers?: number;
 };
 
 export type Band = 'high' | 'medium' | 'low';

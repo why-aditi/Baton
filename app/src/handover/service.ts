@@ -72,6 +72,7 @@ const itemInput = z.object({
   dueDate: z.string().optional(),
   sprintEndDate: z.string().optional(),
   inboundLinks: z.number().optional(),
+  unnamedOthers: z.number().int().min(0).max(100).optional(),
 });
 
 const inventoryInput = z.object({

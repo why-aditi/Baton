@@ -84,6 +84,12 @@ describe('scoreRisk', () => {
     expect(scoreRisk(item({ statusCategory: 'done', updatedAt: '2026-01-01T00:00:00Z' }), ctx).risk).toBe(0);
   });
 
+  test("unnamed people on a PR count as others (Arjun's PR that only Meera reviews)", () => {
+    const pr = item({ kind: 'pull_request', collaborators: [ctx.subjectAri], unnamedOthers: 1 });
+    expect(scoreRisk(pr, ctx).reasons).toContain('Only one other person has context');
+    expect(scoreRisk(pr, ctx).reasons).not.toContain('Only Meera has worked on this');
+  });
+
   test('a page linked from 3 or more other pages adds 20', () => {
     const page = item({ kind: 'confluence_page', statusCategory: undefined, inboundLinks: 3 });
     const r = scoreRisk(page, ctx);

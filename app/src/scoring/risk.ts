@@ -55,10 +55,11 @@ export const scoreRisk = (item: Item, ctx: RiskContext): RiskResult => {
   };
 
   const open = item.statusCategory !== 'done';
-  const others = new Set(item.collaborators.filter((c) => c !== ctx.subjectAri));
+  // People Baton can't name (Bitbucket PR authors) still have context.
+  const others = new Set(item.collaborators.filter((c) => c !== ctx.subjectAri)).size + (item.unnamedOthers ?? 0);
 
-  if (others.size === 0) add(POINTS.onlySubject, `Only ${ctx.subjectName} has worked on this`);
-  else if (others.size === 1) add(POINTS.oneOther, 'Only one other person has context');
+  if (others === 0) add(POINTS.onlySubject, `Only ${ctx.subjectName} has worked on this`);
+  else if (others === 1) add(POINTS.oneOther, 'Only one other person has context');
 
   if (item.statusCategory === 'in_progress') add(POINTS.midFlight, 'Work is mid-flight');
 
