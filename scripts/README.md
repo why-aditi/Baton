@@ -53,9 +53,8 @@ This puts every seeded Jira issue back to its story assignee and status (undoing
 
 ## Things the seed can't fake
 
-- **"Stale" chips.** An issue counts as stale after 30 days without an update, and Jira won't let you backdate one. Issues seeded on Nov 30 won't be stale until Dec 30. The other chips (Only Meera, Mid-flight, Due after last day, No other reviewer) show right away.
+- **"Stale" chips.** An issue counts as stale after 30 days without an update, and Jira won't let you backdate one. Issues seeded on Nov 30 won't be stale until Dec 30. The other chips (Only Meera, Mid-flight, Due after last day, No other reviewer, and Widely referenced on the runbook, which 4 pages link to) show once the graph has indexed the seed, within a few minutes.
 - **Issue keys.** Keys are given out in creation order, so on fresh projects the hero issue is `PAY-1`, not the `PAY-142` the agent's suggested questions mention. After seeding, update that suggested question in `app/manifest.yml` to the hero's real key.
-- **"Widely referenced" chips.** The runbook is linked from 4 pages, but Baton can't count page links yet (SETUP-KESHAV.md section 8), so this chip doesn't show.
 
 ## Tests
 
