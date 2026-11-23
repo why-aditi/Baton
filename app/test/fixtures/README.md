@@ -4,23 +4,24 @@ The normalizers in `src/graph/` are tested against these. Each file is
 `{ recordedAt, site, query, variables, response }`; tests read `response`. `schema.json` lists every
 field, union member, enum and argument reachable from the queries Baton uses (183 types).
 
-Recorded 2026-11-22 on the Codegeist demo site. There was no Northwind Pay seed yet, so they were
-recorded against Aditi's account with her identity swapped for a fake **Meera Iyer**
-(`712020:00000000-0000-4000-8000-00000000me01`). Other names are Atlassian's fictional demo users.
-Re-record after Keshav's seed lands.
+Recorded on the Codegeist demo site. Most were re-recorded on **2026-11-23** against the seeded
+Northwind Pay data (`scripts/`), with seeded Meera's real account ID swapped for the fake
+**Meera Iyer** (`712020:00000000-0000-4000-8000-00000000me01`) the tests use. Other people are the
+seeded personas (Arjun, Lin, Priya, Sam, Dana, Omar). `ownedPages`, `pageInboundRefs` and
+`userTeams.app-403` are still the 2026-11-22 recordings: the first two only run as the app.
 
 | File | Query | What it shows |
 | --- | --- | --- |
-| `assignedJira.json`, `reportedJira.json` | `atlassianUser{Assigned,Reported}JiraWorkItems` | One `JiraWorkItem` with status, `statusCategory.key` (`new` / `indeterminate` / `done`), type, assignee, reporter |
-| `pullRequests.json` | `atlassianUserPullRequests` | Empty: the demo org's Bitbucket is behind an IP allowlist |
-| `userTeams.json` | `atlassianUserInTeams` | 20 `AtlassianTeam` nodes, **called as the user** |
+| `assignedJira.json`, `reportedJira.json` | `atlassianUser{Assigned,Reported}JiraWorkItems` | Meera's 14 open assigned issues and 8 reported (7 of them also assigned to her), with status, `statusCategory.key`, assignee, reporter |
+| `pullRequests.json` | `atlassianUserPullRequests` | Empty: Bitbucket people are third-party users, so this finds nothing for an Atlassian account |
+| `userTeams.json` | `atlassianUserInTeams` | Platform and Payments, **called as the user** |
 | `userTeams.app-403.json` | same, **called as the app** | Every node null with teamsV2 403 errors |
-| `teamMembers.json` | `atlassianTeamMembers` | `AtlassianUser` nodes |
-| `goalsAndProjects.json` | `atlassianUserGoalsAndProjects` (no `roles`) | 17 `AtlassianGoal` + 8 `AtlassianProject` |
-| `pageContributors.json` | `confluencePageContributors` | `AtlassianUser` nodes for one page |
-| `workItemComments.json` | `jiraWorkItemComments` | Empty (no comments on the issue) |
+| `teamMembers.json` | `atlassianTeamMembers` | The Payments team's 5 `AtlassianUser` nodes |
+| `goalsAndProjects.json` | `atlassianUserGoalsAndProjects` (no `roles`) | Meera's goal "Reduce failed payment retries by 30%" |
+| `pageContributors.json` | `confluencePageContributors` | Meera, the only contributor to the payment-retry runbook |
+| `workItemComments.json` | `jiraWorkItemComments` | Empty (no comments on PAY-1) |
 | `ownedPages.json` | `customQuery` with `PQ_USER_OWNED_PAGES` | The same page twice, once per relationship |
-| `issuePullRequests.json` | `jiraWorkItemLinkedExternalPullRequests` | The Bitbucket PR linked to SALES-31; its author is a third-party ID, not an Atlassian user |
+| `issuePullRequests.json` | `jiraWorkItemLinkedExternalPullRequests` | PR #3 linked to PAY-7: Arjun's, Meera reviews. Author and reviewer are third-party IDs with `name: null` |
 | `pageInboundRefs.json` | `customQuery` with `PQ_PAGE_INBOUND_REFS` | Three pages linking to one: two native page links, one plain URL |
 
 ## What the recording found
@@ -36,6 +37,10 @@ Re-record after Keshav's seed lands.
 - **Teams return 403 only when the app asks.** The same query as the user resolves. Tracked in the
   [forum thread](https://community.developer.atlassian.com/t/teamwork-graph-atlassianuserinteams-returns-edges-but-every-node-fails-with-teamsv2-status-code-is-403/103977).
 - **`AtlassianUser.email` exists.** Never select it.
+- **Bitbucket people have no names** (Nov 23). PR authors and reviewers are
+  `third-party-user/…/tp:<Bitbucket user ID>` with `name: null`, still null hours after seeding.
+  Baton recognises the subject by the ID on most PRs linked to their own issues
+  (`inferSubjectId` in `src/enrich/pullRequests.ts`).
 
 ## Recording more
 

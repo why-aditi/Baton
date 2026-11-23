@@ -68,6 +68,7 @@ export const makeApi = (invoke: Invoke) => {
       recipientAccountIds: string[];
     }) => call<Handover>('createHandover', input),
     saveInventory: (input: InventoryInput) => call<Handover>('saveInventory', input),
+    summarizeItems: (id: string) => call<Handover>('summarizeItems', { id }),
     setOwner: (id: string, itemAri: string, accountId: string | null) =>
       call<Handover>('setOwner', { id, itemAri, accountId }),
     generateQuestions: (id: string, regenerate = false) => call<Handover>('generateQuestions', { id, regenerate }),

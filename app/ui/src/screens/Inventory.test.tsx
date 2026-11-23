@@ -18,7 +18,7 @@ afterEach(cleanup);
 
 const setup = (api: Partial<Api> = {}, initial = handover(), autoBuild = false, graph = vi.fn()) => {
   const platform: Platform = {
-    api: { listHandovers: vi.fn(), getHandover: vi.fn(), saveInventory: vi.fn(), setOwner: vi.fn(), ...api } as Api,
+    api: { listHandovers: vi.fn(), getHandover: vi.fn(), saveInventory: vi.fn(), summarizeItems: vi.fn().mockRejectedValue(new Error('llm down')), setOwner: vi.fn(), ...api } as Api,
     invokeRaw: vi.fn(),
     listSpaces: vi.fn().mockResolvedValue([]),
     searchPeople: vi.fn(),
@@ -84,6 +84,18 @@ describe('Inventory', () => {
     setup({ saveInventory }, handover({ items: [] }), true, graph);
     await waitFor(() => expect(saveInventory).toHaveBeenCalledWith(expect.objectContaining({ id: 'h1', items: [] })));
     expect(graph).toHaveBeenCalled();
+  });
+
+  test('after saving, asks for one-line summaries and shows them', async () => {
+    const graph = vi.fn().mockResolvedValue({ data: null });
+    const saved = handover();
+    const withLines = { ...saved, items: saved.items.map((i, n) => (n === 0 ? { ...i, oneLine: 'Retry logic only Meera knows.' } : i)) };
+    const summarizeItems = vi.fn().mockResolvedValue(withLines);
+    setup({ saveInventory: vi.fn().mockResolvedValue(saved), summarizeItems }, handover({ items: [] }), true, graph);
+    await waitFor(() => expect(summarizeItems).toHaveBeenCalledWith('h1'));
+    // The empty fake graph leaves warnings to read first.
+    fireEvent.click(await screen.findByRole('button', { name: 'See the inventory' }));
+    expect(await screen.findByText('Retry logic only Meera knows.')).toBeTruthy();
   });
 
   test('an empty handover opened later waits for the button', () => {

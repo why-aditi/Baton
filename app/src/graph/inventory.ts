@@ -4,7 +4,7 @@ import type { Team } from '../scoring/owners';
 import type { Item } from '../types';
 import { coverageWarnings, mergeItems, type SourceResult, type Warning } from './merge';
 import { goalsAndProjects, issuePullRequests, jiraWorkItems, ownedPages, pullRequests, teams as toTeams, users, type People } from './normalize';
-import { applyPullRequestDetails, prDetailsFromGraph } from '../enrich/pullRequests';
+import { applyPullRequestDetails, inferSubjectId, prDetailsFromGraph } from '../enrich/pullRequests';
 import { Q } from './queries';
 import { runPaged, type GraphRequest, type RunResult } from './runner';
 
@@ -157,9 +157,14 @@ export const buildInventory = async (opts: {
     const issues = items.filter((i) => i.kind === 'jira_issue').slice(0, MAX_ISSUES_FOR_PRS);
     const prRuns = await mapLimit(issues, CONCURRENCY, (i) => quiet(Q.issuePullRequests, { id: i.ari }));
     const prNodes = prRuns.flatMap((r) => r.nodes);
-    // Authors and reviewers come as names; match them to the accounts already loaded, and keep only
-    // PRs the subject wrote or reviews.
-    const subject = { accountId: subjectAri.slice(subjectAri.lastIndexOf('/') + 1), name: opts.subjectName };
+    // Match people to the accounts already loaded, and keep only PRs the subject wrote or reviews.
+    // Names are often null, so the subject's third-party ID is inferred from PRs on their assigned issues.
+    const assignedPrNodes = prRuns.flatMap((r, n) => (issues[n]!.subjectRole === 'assignee' ? r.nodes : []));
+    const subject = {
+      accountId: subjectAri.slice(subjectAri.lastIndexOf('/') + 1),
+      name: opts.subjectName,
+      thirdPartyId: inferSubjectId(prDetailsFromGraph(assignedPrNodes)),
+    };
     const linked = {
       items: applyPullRequestDetails(issuePullRequests(prNodes, opts.subjectName).items, prDetailsFromGraph(prNodes), people, subject),
     };

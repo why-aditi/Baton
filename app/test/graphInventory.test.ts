@@ -7,7 +7,10 @@ const fixture = (name: string): GraphResponse =>
   JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), 'utf8')).response;
 
 const MEERA = 'ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01';
-const ISSUE = 'ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400';
+// PAY-1: assigned to and reported by Meera in the seed.
+const ISSUE = 'ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66433';
+const PAY7 = 'ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66439';
+const ARJUN = 'ari:cloud:identity::user/712020:956daaf1-70f4-44ef-92b1-92169450c4da';
 const PAGE = 'ari:cloud:confluence:7251940d-1e14-4314-b9e9-647e62148c96:page/2719746';
 
 const BY_OPERATION: Record<string, string> = {
@@ -47,11 +50,12 @@ describe('buildInventory', () => {
     const { request } = fakeGraph();
     const inv = await run(request);
     expect(inv.items.filter((i) => i.ari === ISSUE)).toEqual([
-      expect.objectContaining({ key: 'SALES-31', subjectRole: 'assignee' }),
+      expect.objectContaining({ key: 'PAY-1', subjectRole: 'assignee' }),
     ]);
     expect(inv.items.filter((i) => i.ari === PAGE)).toHaveLength(1);
-    expect(inv.items.filter((i) => i.kind === 'goal' || i.kind === 'project')).toHaveLength(25);
-    expect(inv.items).toHaveLength(27);
+    expect(inv.items.filter((i) => i.kind === 'goal')).toHaveLength(1);
+    // 14 assigned issues (the 7 she reported are among them), 1 page, 1 goal.
+    expect(inv.items).toHaveLength(16);
   });
 
   test('passes the subject, the persisted query key and the PR window', async () => {
@@ -64,19 +68,23 @@ describe('buildInventory', () => {
     expect(calls.find((c) => c.op === 'baton_assignedWork')?.vars).toEqual({ userId: MEERA });
   });
 
-  test('loads members for up to 10 teams, as user ARIs', async () => {
+  test("loads each team's members, as user ARIs", async () => {
     const { request, calls } = fakeGraph();
+    const inv = await run(request);
+    expect(calls.filter((c) => c.op === 'baton_teamMembers')).toHaveLength(2);
+    expect(inv.teams.map((t) => t.name)).toEqual(['Platform', 'Payments']);
+    expect(inv.teams[1]?.members).toHaveLength(5);
+    expect(inv.teams[1]?.members).toContain(MEERA);
+  });
+
+  test('loads members for at most 10 teams', async () => {
+    const many = Array.from({ length: 12 }, (_, n) => ({ node: { __typename: 'AtlassianTeam', id: `ari:cloud:identity::team/t${n}`, displayName: `T${n}` } }));
+    const { request, calls } = fakeGraph({
+      baton_userTeams: () => ({ data: { atlassianUserInTeams: { edges: many, pageInfo: { hasNextPage: false } } } }),
+    });
     const inv = await run(request);
     expect(calls.filter((c) => c.op === 'baton_teamMembers')).toHaveLength(10);
     expect(inv.teams).toHaveLength(10);
-    expect(inv.teams[0]).toEqual({
-      name: 'Team Pulse',
-      members: [
-        'ari:cloud:identity::user/60ad34a79e21bd0071e6f4db',
-        'ari:cloud:identity::user/60ad301a5c7373006939113f',
-        MEERA,
-      ],
-    });
   });
 
   test('collects display names by account ID', async () => {
@@ -84,7 +92,7 @@ describe('buildInventory', () => {
     const inv = await run(request);
     expect(inv.people).toMatchObject({
       '712020:00000000-0000-4000-8000-00000000me01': 'Meera Iyer',
-      '60ad34a79e21bd0071e6f4db': 'Emma Paris',
+      '712020:c29f7e54-6c0b-4b0a-8fb4-fde14d848855': 'Priya Nair',
     });
   });
 
@@ -119,7 +127,8 @@ describe('buildInventory', () => {
   test('counts open assigned items for owner candidates, not the subject', async () => {
     const { request, calls } = fakeGraph();
     const inv = await run(request);
-    expect(inv.openAssigned).toMatchObject({ 'ari:cloud:identity::user/60ad34a79e21bd0071e6f4db': 1 });
+    // The fake answers every workload lookup with Meera's 14 recorded open issues.
+    expect(inv.openAssigned).toMatchObject({ [ARJUN]: 14 });
     expect(inv.openAssigned).not.toHaveProperty(MEERA);
     const counted = calls.filter((c) => c.op === 'baton_openAssigned').map((c) => c.vars.userId);
     expect(counted).not.toContain(MEERA);
@@ -211,11 +220,21 @@ describe('buildInventory', () => {
   });
 
   test("finds Bitbucket PRs through the subject's Jira issues when given their name", async () => {
-    const { request, calls } = fakeGraph();
+    // As recorded on the seed: PAY-7 links Arjun's PR that Meera reviews, every name null. PAY-1 gets
+    // a PR by Meera (same third-party ID as the recorded reviewer), so her ID can be inferred.
+    const recorded = fixture('issuePullRequests');
+    const [edge] = (recorded.data as any).jiraWorkItemLinkedExternalPullRequests.edges;
+    const meeraTp = edge.node.reviewers[0].user.id;
+    const hers = { node: { ...edge.node, id: 'pr-hers', url: 'https://bitbucket.org/x/pull-requests/1', title: 'PAY-1 Add jittered backoff', author: { id: meeraTp, name: null }, reviewers: [] } };
+    const prs = (edges: unknown[]) => ({ data: { jiraWorkItemLinkedExternalPullRequests: { edges, pageInfo: { hasNextPage: false } } } });
+    const { request, calls } = fakeGraph({
+      baton_issuePullRequests: (vars) => (vars.id === PAY7 ? recorded : vars.id === ISSUE ? prs([hers]) : prs([])),
+    });
     const inv = await run(request, { subjectName: 'Meera Iyer' });
     expect(calls.filter((c) => c.op === 'baton_issuePullRequests').map((c) => c.vars.id)).toContain(ISSUE);
     expect(inv.items.filter((i) => i.kind === 'pull_request')).toEqual([
-      expect.objectContaining({ title: 'SALES-31 Baton graph probe 2', subjectRole: 'author' }),
+      expect.objectContaining({ title: 'PAY-1 Add jittered backoff', subjectRole: 'author' }),
+      expect.objectContaining({ title: 'PAY-7 Idempotency keys for settlement captures', subjectRole: 'reviewer', reviewers: [MEERA] }),
     ]);
     // The person-level PR query found nothing, but this route did: no "no pull requests" warning.
     expect(inv.warnings.some((w) => w.source === 'pullRequests')).toBe(false);

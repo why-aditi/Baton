@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { applyPullRequestDetails, prDetailsFromGraph, type PrDetails } from '../src/enrich/pullRequests';
+import { applyPullRequestDetails, inferSubjectId, prDetailsFromGraph, type PrDetails } from '../src/enrich/pullRequests';
 import type { Item } from '../src/types';
 
 const URL1 = 'https://bitbucket.org/{ws}/{repo}/pull-requests/1';
@@ -17,12 +17,17 @@ const nodes = [
 ];
 
 describe('prDetailsFromGraph', () => {
-  test('reads author and reviewer names from graph nodes', () => {
+  test('reads author and reviewer IDs and names from graph nodes', () => {
     expect(prDetailsFromGraph(nodes)).toEqual([
-      { url: URL1, author: { name: 'Meera Iyer' }, reviewers: [{ name: 'Arjun Rao' }] },
-      { url: URL2, author: { name: 'Arjun Rao' }, reviewers: [{ name: 'Meera Iyer' }] },
+      { url: URL1, author: { id: tp('m'), name: 'Meera Iyer' }, reviewers: [{ id: tp('a'), name: 'Arjun Rao' }] },
+      { url: URL2, author: { id: tp('a'), name: 'Arjun Rao' }, reviewers: [{ id: tp('m'), name: 'Meera Iyer' }] },
       { url: 'https://x/4', reviewers: [] },
     ]);
+  });
+
+  test('keeps people whose name is null, by ID', () => {
+    const [d] = prDetailsFromGraph([{ __typename: 'ExternalPullRequest', url: URL1, author: { id: tp('m'), name: null }, reviewers: [{ user: { id: tp('a'), name: null } }] }]);
+    expect(d).toEqual({ url: URL1, author: { id: tp('m') }, reviewers: [{ id: tp('a') }] });
   });
 });
 
@@ -63,5 +68,40 @@ describe('applyPullRequestDetails', () => {
     const issue: Item = { ari: 'i', kind: 'jira_issue', title: 'i', url: 'https://x/i', collaborators: [], subjectRole: 'assignee' };
     const unknownPr = pr('https://bitbucket.org/other/pull-requests/9', { subjectRole: 'author' });
     expect(applyPullRequestDetails([issue, unknownPr], details(), people, subject)).toEqual([issue, unknownPr]);
+  });
+});
+
+// As on the seeded demo site (Nov 23): every name null, only third-party IDs.
+const nameless = (url: string, author: string, reviewers: string[] = []): PrDetails => ({
+  url, author: { id: tp(author) }, reviewers: reviewers.map((r) => ({ id: tp(r) })),
+});
+
+describe('inferSubjectId', () => {
+  test("picks the ID on most PRs linked to the subject's issues", () => {
+    // Meera wrote two and reviews Arjun's third.
+    expect(inferSubjectId([nameless(URL1, 'm'), nameless(URL2, 'm'), nameless(URL3, 'a', ['m'])])).toBe(tp('m'));
+  });
+
+  test('gives up on a single PR or a tie', () => {
+    expect(inferSubjectId([nameless(URL1, 'm')])).toBeUndefined();
+    expect(inferSubjectId([nameless(URL1, 'm', ['a']), nameless(URL2, 'a', ['m'])])).toBeUndefined();
+    expect(inferSubjectId([])).toBeUndefined();
+  });
+});
+
+describe('applyPullRequestDetails without names', () => {
+  const pr = (url: string): Item => ({ ari: `ari:pr:${url}`, kind: 'pull_request', title: 't', url, collaborators: [], subjectRole: 'reviewer' });
+  const subject = { accountId: 'meera', name: 'Meera Iyer', thirdPartyId: tp('m') };
+  const details = [nameless(URL1, 'm'), nameless(URL2, 'a', ['m']), nameless(URL3, 'a', ['l'])];
+
+  test('recognises the subject by third-party ID', () => {
+    const [mine, reviewed] = applyPullRequestDetails([pr(URL1), pr(URL2), pr(URL3)], details, {}, subject);
+    expect(mine).toMatchObject({ subjectRole: 'author', reviewers: [], collaborators: [user('meera')] });
+    // Meera is the only reviewer of Arjun's PR, so "No other reviewer" can fire.
+    expect(reviewed).toMatchObject({ subjectRole: 'reviewer', reviewers: [user('meera')], collaborators: [user('meera')] });
+  });
+
+  test('without the ID, nameless PRs are dropped rather than guessed', () => {
+    expect(applyPullRequestDetails([pr(URL1)], details, {}, { accountId: 'meera', name: 'Meera Iyer' })).toEqual([]);
   });
 });

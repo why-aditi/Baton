@@ -60,6 +60,22 @@ describe('generateQuestions', () => {
     expect((await generateQuestions(llm.client, handover))?.[0]?.text).toBe('Meera Iyer, who else knows?');
   });
 
+  test('turns item refs the model wrote into the text into item names (seen live with Groq, Nov 23)', async () => {
+    const texts = ['Where are the test cases for PAY-7 (I1) stored?', 'Who reviews I2 and API2 now?', 'Steps for (I1, I2)?'];
+    const llm = fakeLlm(
+      JSON.stringify({
+        questions: [...texts, 'Q4?', 'Q5?'].map((text, n) => ({ id: `q${n}`, text, itemAris: ['I1'] })),
+      }),
+    );
+    // I2 is the second-riskiest item in the fixture handover.
+    const second = handover.items[1]!;
+    expect((await generateQuestions(llm.client, handover))?.slice(0, 3).map((q) => q.text)).toEqual([
+      'Where are the test cases for PAY-7 stored?',
+      `Who reviews ${second.key ?? second.title} and API2 now?`,
+      'Steps for?',
+    ]);
+  });
+
   test('sends at most the top 15 items by risk', async () => {
     const many = makeHandover({
       items: Array.from({ length: 20 }, (_, n) => scored(`ari:${n}`, { risk: n, title: `T${n}` })),

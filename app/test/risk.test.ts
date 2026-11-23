@@ -84,11 +84,16 @@ describe('scoreRisk', () => {
     expect(scoreRisk(item({ statusCategory: 'done', updatedAt: '2026-01-01T00:00:00Z' }), ctx).risk).toBe(0);
   });
 
-  test('a page linked from 3 or more other pages adds 15', () => {
+  test('a page linked from 3 or more other pages adds 20', () => {
     const page = item({ kind: 'confluence_page', statusCategory: undefined, inboundLinks: 3 });
     const r = scoreRisk(page, ctx);
-    expect(r.risk).toBe(15);
+    expect(r.risk).toBe(20);
     expect(r.reasons).toEqual(['Widely referenced page']);
+  });
+
+  test("a page only the subject knows that others link to is High (the seed's runbook)", () => {
+    const page = item({ kind: 'confluence_page', statusCategory: undefined, inboundLinks: 4, collaborators: [ctx.subjectAri] });
+    expect(scoreRisk(page, ctx)).toMatchObject({ risk: 60, band: 'high' });
   });
 
   test('a page linked from 2 pages gets no reference signal', () => {

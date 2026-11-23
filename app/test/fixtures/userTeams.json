@@ -1,7 +1,7 @@
 {
-  "recordedAt": "2026-11-22",
-  "site": "Codegeist demo site (one-atlas-ubvd)",
-  "query": "query baton_userTeams($userId: ID!) { atlassianUserInTeams(userId: $userId, first: 25) { edges { node { __typename ... on AtlassianTeam { id displayName profileUrl } } } pageInfo { hasNextPage endCursor } } }",
+  "recordedAt": "2026-11-23",
+  "site": "one-atlas-ubvd.atlassian.net",
+  "query": "query baton_userTeams($userId: ID!, $after: String) { atlassianUserInTeams(userId: $userId, first: 25, after: $after) { edges { node { __typename ... on AtlassianTeam { id displayName } } } pageInfo { hasNextPage endCursor } } }",
   "variables": {
     "userId": "ari:cloud:identity::user/712020:00000000-0000-4000-8000-00000000me01"
   },
@@ -12,161 +12,15 @@
           {
             "node": {
               "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/7644ded0-55cf-436e-86df-6d7872f92738",
-              "displayName": "Team Pulse",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/7644ded0-55cf-436e-86df-6d7872f92738"
+              "id": "ari:cloud:identity::team/1bd3d0ef-b454-4fd7-80c9-19c245a26c60",
+              "displayName": "Platform"
             }
           },
           {
             "node": {
               "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/b1a951a3-c9b4-4808-b2df-150cef6b4b49",
-              "displayName": "Team Echo",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/b1a951a3-c9b4-4808-b2df-150cef6b4b49"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/de33fe7f-50e5-4187-8ec0-3bb980d9eb25",
-              "displayName": "Team Atlas",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/de33fe7f-50e5-4187-8ec0-3bb980d9eb25"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/a83cb96d-ef86-4f86-b979-56ea758a1210",
-              "displayName": "Team Vault",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/a83cb96d-ef86-4f86-b979-56ea758a1210"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/45aeb7af-ac01-4830-b3d7-45f67e65602d",
-              "displayName": "Team Orbit",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/45aeb7af-ac01-4830-b3d7-45f67e65602d"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/a76bae81-9b99-45f3-9706-abedbf1fc7a4",
-              "displayName": "Team Nova",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/a76bae81-9b99-45f3-9706-abedbf1fc7a4"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/65b9445e-3344-4aa0-a2d9-d0921aabbcaa",
-              "displayName": "Legal",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/65b9445e-3344-4aa0-a2d9-d0921aabbcaa"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/88cfade3-3450-4d5a-ac68-a1451463190f",
-              "displayName": "People Services",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/88cfade3-3450-4d5a-ac68-a1451463190f"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/7f2b27b0-5fe1-4840-8d15-d4e98dd6ec7f",
-              "displayName": "Sales",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/7f2b27b0-5fe1-4840-8d15-d4e98dd6ec7f"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/8a99b541-8221-4eec-afe8-4290566aa176",
-              "displayName": "Marketing",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/8a99b541-8221-4eec-afe8-4290566aa176"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/ae59dbcc-d9e8-4ab7-8438-23b084837e9c",
-              "displayName": "Product Team",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/ae59dbcc-d9e8-4ab7-8438-23b084837e9c"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/ed86ce03-1395-43c1-b3fe-369670bcfc92",
-              "displayName": "Platform Support",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/ed86ce03-1395-43c1-b3fe-369670bcfc92"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/f0a331ad-b60b-4928-889d-6ff8c07c8416",
-              "displayName": "Platform Engineering",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/f0a331ad-b60b-4928-889d-6ff8c07c8416"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/a6257e40-5ff9-4902-9d2f-9c57696ce69a",
-              "displayName": "Platform Dev",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/a6257e40-5ff9-4902-9d2f-9c57696ce69a"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/4a4ede1a-0ebf-45d1-9e84-fffa9d36b5a8",
-              "displayName": "Network Support",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/4a4ede1a-0ebf-45d1-9e84-fffa9d36b5a8"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/45bed9d1-4a50-4901-a14f-8a59f727f714",
-              "displayName": "AWS Support",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/45bed9d1-4a50-4901-a14f-8a59f727f714"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/27a8ebc4-5b49-49f4-b6c4-aedcdf17026e",
-              "displayName": "Systems Engineering",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/27a8ebc4-5b49-49f4-b6c4-aedcdf17026e"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/aa25e62d-7fc4-40f5-9bf1-5d5ea6a3927d",
-              "displayName": "Mobile Backend",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/aa25e62d-7fc4-40f5-9bf1-5d5ea6a3927d"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/7f1670c0-cab1-43c7-94af-9461ee3116b4",
-              "displayName": "Front End Wizards",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/7f1670c0-cab1-43c7-94af-9461ee3116b4"
-            }
-          },
-          {
-            "node": {
-              "__typename": "AtlassianTeam",
-              "id": "ari:cloud:identity::team/13dc585f-6f65-4a7f-9171-dfaa4732192b",
-              "displayName": "Mobile Dev",
-              "profileUrl": "https://home.atlassian.com/o/d3b9a3fd-ccd7-49e2-86d0-8f5d3ad822cb/people/team/13dc585f-6f65-4a7f-9171-dfaa4732192b"
+              "id": "ari:cloud:identity::team/49999cf4-063e-4f30-b8b0-a0702098af66",
+              "displayName": "Payments"
             }
           }
         ],
@@ -175,6 +29,10 @@
           "endCursor": null
         }
       }
+    },
+    "extensions": {
+      "request_id": "1aca51c8-3afe-4d9e-b700-742fc91c7411",
+      "tId": "1aca51c83afe4d9eb700742fc91c7411"
     }
   }
 }

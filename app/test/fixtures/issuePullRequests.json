@@ -1,10 +1,9 @@
 {
   "recordedAt": "2026-11-23",
-  "site": "Codegeist demo site (one-atlas-ubvd)",
-  "note": "Bitbucket PR #2 linked to SALES-31 by the key in its title. The author is a third-party ID, not an Atlassian user ARI, which is why atlassianUserPullRequests returns nothing for Bitbucket PRs. No reviewers on this route.",
-  "query": "Q.issuePullRequests (src/graph/queries.ts)",
+  "site": "one-atlas-ubvd.atlassian.net",
+  "query": "query baton_issuePullRequests($id: ID!, $after: String) { jiraWorkItemLinkedExternalPullRequests(id: $id, first: 25, after: $after) { edges { node { __typename ... on ExternalPullRequest { id displayId title url status lastUpdatedAt repositoryId author { id name } reviewers { approvalStatus user { id name } } } } } pageInfo { hasNextPage endCursor } } }",
   "variables": {
-    "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66400"
+    "id": "ari:cloud:jira:7251940d-1e14-4314-b9e9-647e62148c96:issue/66439"
   },
   "response": {
     "data": {
@@ -13,17 +12,26 @@
           {
             "node": {
               "__typename": "ExternalPullRequest",
-              "id": "ari:cloud:graph::pull-request/activation/e941c6bc-98af-41fd-8215-b554bb5d7196/c5d248a3-976c-4b54-ab5d-209efb1f29a8",
-              "displayId": "2",
-              "title": "SALES-31 Baton graph probe 2",
-              "url": "https://bitbucket.org/{4ccb998a-926d-4549-be3f-9d6169d0e399}/{04d0e079-212a-4e68-ab1c-e939dfc24a0e}/pull-requests/2",
+              "id": "ari:cloud:graph::pull-request/activation/e941c6bc-98af-41fd-8215-b554bb5d7196/759140ab-71b1-45f5-9588-5fd1cdb960af",
+              "displayId": "3",
+              "title": "PAY-7 Idempotency keys for settlement captures",
+              "url": "https://bitbucket.org/{4ccb998a-926d-4549-be3f-9d6169d0e399}/{863d4db4-20e1-47e0-9281-74f290122838}/pull-requests/3",
               "status": "OPEN",
-              "lastUpdatedAt": "2026-11-22T10:35:13.843Z",
-              "repositoryId": "7b30346430653037392d323132612d346536382d616231632d6539333964666332346130657d",
+              "lastUpdatedAt": "2026-11-23T05:39:03.840Z",
+              "repositoryId": "7b38363364346462342d323065312d343765302d393238312d3734663239303132323833387d",
               "author": {
-                "id": "ari:cloud:identity::third-party-user/d1aeca97-d9e2-43a0-9ad9-0eccc5acb65a/tp:00000000-0000-4000-8000-00000000me01",
-                "name": "Meera Iyer"
-              }
+                "id": "ari:cloud:identity::third-party-user/d1aeca97-d9e2-43a0-9ad9-0eccc5acb65a/tp:93106e49-4452-450b-906b-5d1e78d2c447",
+                "name": null
+              },
+              "reviewers": [
+                {
+                  "approvalStatus": "UNAPPROVED",
+                  "user": {
+                    "id": "ari:cloud:identity::third-party-user/d1aeca97-d9e2-43a0-9ad9-0eccc5acb65a/tp:d1dd24ef-73e3-48a9-b979-ef6884b4ce27",
+                    "name": null
+                  }
+                }
+              ]
             }
           }
         ],
@@ -32,6 +40,10 @@
           "endCursor": null
         }
       }
+    },
+    "extensions": {
+      "request_id": "da758fc6-85a0-4af6-90f3-87cbfe9ecff9",
+      "tId": "da758fc685a04af690f387cbfe9ecff9"
     }
   }
 }
