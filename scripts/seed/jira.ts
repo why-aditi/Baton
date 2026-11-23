@@ -101,6 +101,8 @@ export const jiraApi = (config: Config, fetch: FetchLike): JiraApi => {
   };
   const ids = new Map<UserKey, Promise<string>>();
   const admin = as('priya');
+  // Story projects (PAY, PLAT) map to the site's real keys, e.g. PLAT is taken on Codegeist demo sites.
+  const jiraKey = (story: string) => (config.projectKeys as Record<string, string> | undefined)?.[story] ?? story;
 
   return {
     accountId(user) {
@@ -110,7 +112,7 @@ export const jiraApi = (config: Config, fetch: FetchLike): JiraApi => {
 
     async projectExists(key) {
       try {
-        await admin.json('GET', `/rest/api/3/project/${encodeURIComponent(key)}`);
+        await admin.json('GET', `/rest/api/3/project/${encodeURIComponent(jiraKey(key))}`);
         return true;
       } catch (e) {
         if (isNotFound(e)) return false;
@@ -147,7 +149,7 @@ export const jiraApi = (config: Config, fetch: FetchLike): JiraApi => {
     async create(user, i) {
       const created = await as(user).json('POST', '/rest/api/3/issue', {
         fields: {
-          project: { key: i.project },
+          project: { key: jiraKey(i.project) },
           summary: i.summary,
           issuetype: { name: i.issueType },
           labels: i.labels,
