@@ -43,7 +43,7 @@ export default function Home() {
             <figure className="panel" style={{ margin: 0 }}>
               <div className="panel-head">
                 <span>Meera Iyer · leaving Dec 20</span>
-                <span>5 high</span>
+                <span>6 high</span>
               </div>
               <ol className="rows" aria-label="Example inventory, highest risk first">
                 {exampleRows.map((r) => (
