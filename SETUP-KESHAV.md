@@ -1,6 +1,6 @@
 # Baton dev setup for Keshav
 
-Nov 16, 2026 · from Aditi · updated Nov 23: the backend is done and tested live; the UI and the seed are next
+Nov 16, 2026 · from Aditi · updated Nov 23: the backend and UI are built, and the demo site is seeded
 
 The backend works end to end on the demo site: the app page, the Rovo agent and Claude Desktop (MCP) all see the same handovers, the inventory covers issues, PRs, pages, teams and goals, and publish and reassign work. This gets you your own copy, on your own environment and demo site. Plan on about an hour.
 
@@ -16,7 +16,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Reassign Jira issues | Works, as the signed-in user |
 | Bitbucket PRs in the graph | Work through the person's Jira issues, not the person (Nov 23): the graph files Bitbucket people under third-party IDs. A PR needs a Jira key to be found (section 8) |
 | Custom UI | All five screens built in `app/ui/` (Nov 23): handover list, New handover, Inventory, Questions with the answer screen, and Review and publish. Tested with fakes, not yet deployed to a site (section 7) |
-| Seed data | Scripts ready; site setup half done (projects and space exist). Waiting on the 7 users and their tokens (section 4) |
+| Seed data | Seeded on Aditi's site (Nov 23): 59 issues, 12 pages, 6 PRs, both teams. Still to do: the 2 goals and the project in Atlassian Home (section 4) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
 
@@ -107,12 +107,13 @@ The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has
 - [x] **Write the seed scripts** (Nov 22, on `main`). `npm test` in `scripts/` passes against in-memory fakes of Jira, Confluence and Bitbucket.
 - [x] **Jira projects and Confluence space** (Nov 23, on Aditi's demo site): `PAY` (Payments) and `NWPLAT` (Platform), both company-managed with a Task issue type that has Due date on its create screen, and the `NWP` space. The site already has a `PLAT` ("Platform Development"), so the seed maps the story's PLAT to `NWPLAT`: set `SEED_PLAT_KEY=NWPLAT` in `scripts/.env.seed`.
 - [x] **`scripts/.env.seed` on Aditi's machine** (Nov 23, git-ignored): every setting except the 7 emails and tokens, including site `one-atlas-ubvd.atlassian.net`, space `NWP`, workspace `one-atlas-ubvd`, Bitbucket project `DEMO` (the workspace's only project; Premium workspaces need one for new repos) and `SEED_PLAT_KEY=NWPLAT`. On your own site, start from `.env.seed.example` and use your site's values.
-- [ ] **Invite the 7 users** (Meera, Arjun, Lin, Priya, Sam, Dana, Omar) with email aliases you control and Jira, Confluence and Bitbucket access. Sign in as each and create an API token. Only a person can do this.
-- [ ] **Then, with the users in place:** create the 2 teams (Payments, Platform), add the users to the Bitbucket workspace, and create the goals and project in Atlassian Home (no API). Claude can do these in Chrome once the users exist.
-- [x] **Bitbucket's IP allowlist is off** (Nov 23, 09:35): Bitbucket opens again. Recheck right before seeding (section 3).
-- [ ] **Add the 7 emails and tokens to `scripts/.env.seed`** yourself, then Claude runs `npm run seed`. A dry run with the file as it is stops before touching the site and lists exactly the 14 missing values.
-- [ ] **Run `npm run seed` in `scripts/`.** It creates 59 Jira issues (14 open ones for Meera), 12 Confluence pages (the payment-retry runbook and 3 more only Meera has touched) and 6 Bitbucket PRs (2 by Meera with no other reviewer). It's safe to rerun.
-- [ ] **Seed by Nov 30.** Don't reseed the day before recording; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding.
+- [x] **Invite the 7 users** (Nov 23): Meera, Arjun, Lin, Priya, Sam, Dana and Omar, as `+name` aliases of one Gmail address, with Jira, Confluence and Bitbucket access through group membership. Each has an API token for the site and a second one for Bitbucket, both in `scripts/.env.seed`.
+- [x] **Bitbucket repo access** (Nov 23). The users could see the workspace but no repos, so the seed got a 403. Fixed by creating `payments-service` in project `DEMO` and giving the group `bitbucket-users-one-atlas-ubvd` Write on it. The users' Bitbucket tokens lack `read:workspace` and `read:project`; the seed doesn't need them.
+- [x] **Ran `npm run seed`** (Nov 23, ~11:05): 59 Jira issues (`PAY-1` to `PAY-34`, `NWPLAT-1` to `NWPLAT-25`), 12 Confluence pages in `NWP`, and 6 PRs in `one-atlas-ubvd/payments-service` (`#1` to `#6`). The graph shows Meera's 14 open issues. The Bitbucket IP allowlist had switched itself back on and had to be turned off again first (section 3).
+- [x] **Teams** (Nov 23): Payments (Meera, Arjun, Lin, Priya, Omar) and Platform (Meera, Priya, Sam, Dana), created as Priya through the public Teams API (`/gateway/api/public/teams/v1/org/<orgId>/teams/` on the site, Basic auth with her token). Aditi isn't in either.
+- [ ] **The 2 goals and the project in Atlassian Home** (no API): "Reduce failed payment retries by 30%" (owner Meera), "Close the books in 2 days" (owner Priya) and the project "Retry service v2" (owner Priya). Claude does these in Chrome.
+- [ ] **PR authors have no names yet.** On the seeded PRs the graph returns author and reviewer IDs with `name: null` (checked ~20 min after seeding). Baton matches PR people by name, so until names appear Meera's PRs are dropped. Recheck; if they stay empty, Baton needs another way to match.
+- [ ] **Don't reseed the day before recording**; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding (Dec 23).
 - [ ] **Update the agent's suggested question** "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
 - [ ] **Re-record the graph fixtures** against seeded users (section 7).
 - Teams: solved (Nov 23). From the app page, `@forge/bridge`'s `requestTeamworkGraph` gets a 403 on every team (the recorded `userTeams.app-403.json`). From the backend, `api.asUser().requestTeamworkGraph` returns them, which a forum reply suggested and the demo site confirmed. So the UI sends graph reads through the `graphQuery` resolver (section 7), and teams show up.
@@ -213,7 +214,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 - [x] **Bitbucket PRs in the graph** (Nov 23). The graph has them, but files authors and reviewers under third-party IDs (`ari:cloud:identity::third-party-user/…`), so "this person's PRs" (`atlassianUserPullRequests`) returns nothing. Asking each Jira issue for its linked PRs (`jiraWorkItemLinkedExternalPullRequests`) works. `buildInventory` does that for the person's issues, matches authors and reviewers to accounts by display name, and keeps only PRs the person wrote or reviews. **(affects you)**
   - **A PR is found only if a Jira key is in its title, branch or commits.** The seed puts one in every title.
   - **A PR Meera only reviews** is found only if it's linked to one of her own issues. The seed's "Meera reviews Arjun's PR" needs to carry one of her issue keys.
-  - **Reviewers are untested on a real PR:** both test PRs have none, and Bitbucket is blocked by its IP allowlist again (Nov 23). If a reviewer's name doesn't match an account, the PR gets no reviewers, so "No other reviewer" can't fire wrongly.
+  - **Names aren't there yet on the seeded PRs** (Nov 23): authors and reviewers come back with IDs but `name: null`, so matching finds no one (section 4). If a reviewer's name doesn't match an account, the PR gets no reviewers, so "No other reviewer" can't fire wrongly.
   - **Ruled out:** Bitbucket's API from the app (Forge refuses Bitbucket scopes alongside Jira and Confluence ones: "Workspace scopes can not be used with site scopes") and Jira's `/rest/dev-status` API ("Authentication Required" from Forge; it only takes a browser session).
 
 **Code**
