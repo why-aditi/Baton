@@ -74,6 +74,7 @@ access), `bad_input`, `conflict`, `llm_unavailable` and `internal`.
 | `publishHandover` | `{ id, spaceKey }` | editor | Creates the Confluence page as the user (needs a summary), then `Handover`, moved to published, with `confluencePageUrl` |
 | `deleteAllHandovers` | `{ confirm: "DELETE" }` | Jira admins only | `{ deleted }`. Removes every handover on the site, for resetting a demo |
 | `reassignIssues` | `{ id, itemAris }` | editor | `{ results: { ari, key, accountId, ok, error? }[] }`. Jira issues with an accepted owner only. Show the confirmation dialog first |
+| `graphQuery` | `{ operation, variables }` | anyone signed in | `{ data, errors? }`: one of Baton's graph queries (`operation` is a key of `Q` in `src/graph/queries.ts`), run on the backend as the user. Team lookups 403 through the browser bridge but work here. Use `backendGraphRequest(invoke)` from `src/graph/proxy.ts` as `buildInventory`'s `request` rather than calling it directly |
 
 `teams` is `{ name, members: userAri[] }[]`, `openAssigned` maps a user ARI to their count of open
 assigned items, and `people` maps an account ID to a display name. LLM output is cached: calling

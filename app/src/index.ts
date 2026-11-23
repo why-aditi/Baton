@@ -1,12 +1,14 @@
 // Forge entry points: the app page's resolvers and the five Rovo/MCP actions.
 // The logic lives in src/handover/service.ts and src/actions; this file only wires Forge in.
 import * as ResolverModule from '@forge/resolver';
-import api, { fetch, getAppContext } from '@forge/api';
+import api, { fetch } from '@forge/api';
 import { randomUUID } from 'node:crypto';
 import { Actions } from './actions';
 import { forgeAtlassian } from './forge/atlassian';
 import { KvsStore } from './forge/kvsStore';
 import { callerFromAction, callerFromContext, findPeople, handoverLink, profileLink } from './forge/platform';
+import { resolveGraphCall } from './graph/proxy';
+import type { GraphResponse } from './graph/runner';
 import { BatonError, HandoverService } from './handover/service';
 import { createClient, type FetchLike } from './llm/client';
 import { providersFromEnv } from './llm/models';
@@ -49,6 +51,22 @@ const RESOLVERS: Record<string, Handler> = {
   publishHandover: (s, c, p) => s.publish(c, p),
   reassignIssues: (s, c, p) => s.reassign(c, p),
   deleteAllHandovers: (s, c, p) => s.deleteAllHandovers(c, p),
+  // Graph reads for buildInventory, as the user, from the backend (the browser bridge gets 403 on
+  // teams). Only Baton's own queries, by operation name: see src/graph/proxy.ts.
+  graphQuery: (_s, _c, p) => runGraphQuery(p),
+};
+
+const runGraphQuery = async (payload: unknown): Promise<GraphResponse> => {
+  let call: { query: string; variables: Record<string, unknown> };
+  try {
+    call = resolveGraphCall(payload);
+  } catch (e) {
+    throw new BatonError('bad_input', e instanceof Error ? e.message : String(e));
+  }
+  const res = await api.asUser().requestTeamworkGraph(call.query, call.variables);
+  const body = await res.json().catch(() => null);
+  if (!body) throw new Error(`Teamwork Graph returned HTTP ${res.status} with no body`);
+  return { data: body.data ?? null, ...(body.errors && { errors: body.errors }) };
 };
 
 /** Every resolver returns { ok: true, data } or { ok: false, error: { code, message } }. */
@@ -66,15 +84,6 @@ for (const [name, fn] of Object.entries(RESOLVERS)) {
     }
   });
 }
-// DEV ONLY, remove before submission: runs a Teamwork Graph query as the calling user, so saved
-// (app-owned) queries can be tried from the dev page. Grants nothing beyond the user's own access.
-// Refuses outside development environments, so it can't ship by accident.
-resolver.define('devGraphQuery', async ({ payload }: { payload: any }) => {
-  if (getAppContext().environmentType !== 'DEVELOPMENT') return { ok: false, error: 'devGraphQuery is development-only' };
-  const res = await api.asUser().requestTeamworkGraph(String(payload?.query ?? ''), payload?.variables ?? {});
-  return { ok: res.ok, status: res.status, body: await res.json().catch(() => null) };
-});
-
 export const handler = resolver.getDefinitions();
 
 // ---- actions (Rovo agent and MCP tools) ----

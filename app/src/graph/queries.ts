@@ -40,8 +40,9 @@ export const Q = {
         ... on AtlassianProject { id key name url archived state dueDateEndedAt lastUpdatedAt owner ${USER} } } }
       ${PAGE_INFO} } }`,
 
-  // Team nodes come back null with teamsV2 403 whenever the app asks, including from the app page
-  // (see test/fixtures/userTeams.app-403.json); only a direct browser call as the user resolved them.
+  // Through @forge/bridge (the app page) team nodes come back null with teamsV2 403
+  // (test/fixtures/userTeams.app-403.json); through api.asUser() on the backend they resolve. So the UI
+  // runs every query through the graphQuery resolver (src/graph/proxy.ts).
   userTeams: `query baton_userTeams($userId: ID!, $after: String) {
     atlassianUserInTeams(userId: $userId, first: 25, after: $after) {
       edges { node { __typename ... on AtlassianTeam { id displayName } } } ${PAGE_INFO} } }`,
