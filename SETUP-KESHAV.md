@@ -13,7 +13,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Publish to Confluence | Works, as the signed-in user, with @mentions and item links |
 | Reassign Jira issues | Works, as the signed-in user |
 | Bitbucket PRs in the graph | Work through the person's Jira issues, not the person (Nov 23): the graph files Bitbucket people under third-party IDs. A PR needs a Jira key to be found (section 8) |
-| Custom UI | Started Nov 23 in `app/ui/`: handover list and the Inventory screen. Not deployed yet (section 7) |
+| Custom UI | Started Nov 23 in `app/ui/`: handover list, New handover and the Inventory screen. Not deployed yet (section 7) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
 
@@ -169,7 +169,7 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 
 **What's yours in `app/`:**
 
-- **The Custom UI.** Started Nov 23 in `app/ui/` (React 18, Vite, `@atlaskit`), and the manifest's `resources` now points at `app/ui/build`. Built so far: the handover list and the Inventory screen in the split layout (risk-sorted list on the left; the selected item's score breakdown, owner choice and linked questions on the right), with the build-inventory progress panel, which reads the graph through `graphQuery`. Still to build: New handover, the questions editor and knowledge capture, and Review and publish with the reassign dialog. `npm test` and `npm run build` in `app/ui/`. Designs picked on Nov 23: [UI directions](https://claude.ai/artifact/UazZ5o76sLqBHFL3smFZGy) (split detail) and [marketing pages](https://claude.ai/artifact/WYzrLVa7dcu8xntdvEUqHj) (developer dark).
+- **The Custom UI.** Started Nov 23 in `app/ui/` (React 18, Vite, `@atlaskit`), and the manifest's `resources` now points at `app/ui/build`. Built so far: the handover list, New handover (person search through Jira's user search as the user, reason, last day, an optional person to share with; creating it opens the handover and starts reading the graph), and the Inventory screen in the split layout (risk-sorted list on the left; the selected item's score breakdown, owner choice and linked questions on the right), with the build-inventory progress panel, which reads the graph through `graphQuery`. Still to build: the questions editor and knowledge capture, and Review and publish with the reassign dialog. `npm test` and `npm run build` in `app/ui/`. Designs picked on Nov 23: [UI directions](https://claude.ai/artifact/UazZ5o76sLqBHFL3smFZGy) (split detail) and [marketing pages](https://claude.ai/artifact/WYzrLVa7dcu8xntdvEUqHj) (developer dark).
 - **Calling the backend.** Use `invoke(name, payload)` from `@forge/bridge`. Every resolver returns `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. A `not_found` code also means "no access", so show the same empty state either way.
 - **Routing.** Links from the Rovo agent go to `<site>/jira/apps/<appId>/<envId>/handover/<id>`. The UI should route on `/handover/<id>`.
 - **Who sees what.** `getHandover` returns `{ role: 'editor', handover }` for the manager, recipients and Jira admins. For the departing person it returns a questions-only view (`role: 'subject'`). Render the knowledge-capture screen for `subject` and the inventory for `editor`.

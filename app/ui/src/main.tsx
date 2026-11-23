@@ -1,5 +1,5 @@
 import '@atlaskit/css-reset';
-import { invoke, router, view } from '@forge/bridge';
+import { invoke, requestJira, router, view } from '@forge/bridge';
 import { backendGraphRequest } from '../../src/graph/proxy';
 import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
 import { createRoot } from 'react-dom/client';
@@ -19,15 +19,22 @@ const start = async () => {
     invokeRaw: (name, payload) => invoke(name, payload),
     // Graph reads go through the graphQuery resolver: team lookups 403 through the browser bridge.
     graph: backendGraphRequest((name, payload) => invoke(name, payload)),
+    searchPeople: async (query) => {
+      const res = await requestJira(`/rest/api/3/user/search?maxResults=10&query=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error(`User search failed: HTTP ${res.status}`);
+      const users = (await res.json()) as { accountId: string; displayName: string; active: boolean; accountType: string }[];
+      // Apps and customer accounts can't own work, so only active Atlassian accounts are offered.
+      return users.filter((u) => u.active && u.accountType === 'atlassian').map((u) => ({ accountId: u.accountId, name: u.displayName }));
+    },
     navigate: (route) => history.push(pathFor(route)),
     openUrl: (url) => void router.open(url),
     now: () => new Date(),
   };
 
   const root = createRoot(document.getElementById('root')!);
-  const render = (pathname: string) => root.render(<App platform={platform} route={parseRoute(pathname)} />);
-  render(history.location.pathname);
-  history.listen((location) => render(location.pathname));
+  const render = (l: { pathname: string; search: string }) => root.render(<App platform={platform} route={parseRoute(l.pathname, l.search)} />);
+  render(history.location);
+  history.listen((location) => render(location));
 };
 
 void start();

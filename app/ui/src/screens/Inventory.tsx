@@ -28,7 +28,7 @@ const border = `1px solid ${token('color.border', '#091E4224')}`;
 const bandColor = (band: ScoredItem['band']) =>
   band === 'high' ? token('color.text.danger', '#AE2E24') : band === 'medium' ? token('color.text.warning', '#A54800') : subtle;
 
-export const Inventory = ({ initial }: { initial: Handover }) => {
+export const Inventory = ({ initial, autoBuild = false }: { initial: Handover; autoBuild?: boolean }) => {
   const { now } = usePlatform();
   const [h, setH] = useState(initial);
   const [rebuilding, setRebuilding] = useState(false);
@@ -60,7 +60,7 @@ export const Inventory = ({ initial }: { initial: Handover }) => {
         )}
       </header>
       {building ? (
-        <BuildInventory handover={h} onDone={onBuilt} onCancel={h.items.length ? () => setRebuilding(false) : undefined} />
+        <BuildInventory handover={h} autoStart={autoBuild && h.items.length === 0} onDone={onBuilt} onCancel={h.items.length ? () => setRebuilding(false) : undefined} />
       ) : h.items.length === 0 ? (
         <EmptyState title="No open work found">
           Baton found nothing open for {h.subjectName}. If that seems wrong, check that Baton’s Teamwork Graph scopes are granted, and
