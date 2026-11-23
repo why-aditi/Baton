@@ -131,9 +131,9 @@ modules:
         - start-handover
 
 resources:
-  # Placeholder until the Custom UI build exists; point this at its build output (e.g. static/ui/build).
+  # The Custom UI build. Run `npm run build` in ui/ before `forge deploy`.
   - key: main
-    path: static/ui
+    path: ui/build
 
 permissions:
   scopes:
