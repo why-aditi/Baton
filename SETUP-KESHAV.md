@@ -15,7 +15,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Publish to Confluence | Works, as the signed-in user, with @mentions and item links |
 | Reassign Jira issues | Works, as the signed-in user |
 | Bitbucket PRs in the graph | Work through the person's Jira issues (Nov 23). Bitbucket people have third-party IDs and no names, so Baton recognises the departing person by ID. A PR needs a Jira key to be found (section 8) |
-| Custom UI | All five screens built in `app/ui/` and run on the demo site with seed data (Nov 23): Meera's handover has 22 items, 8 drafted questions, one-liners and a generated summary (section 7) |
+| Custom UI | All five screens built in `app/ui/` and the whole flow run on the demo site with seed data (Nov 23): new handover, inventory, questions, Meera's answers, summary, publish, reassign (section 5) |
 | Groq on seed data | Questions, one-liners and the summary all work (Nov 23) |
 | Seed data | Seeded on Aditi's site (Nov 23): 59 issues, 12 pages, 6 PRs, both teams, 2 goals and the project. The project's owner is still Aditi (section 4) |
 
@@ -123,7 +123,19 @@ The scripts live in `scripts/`; `scripts/README.md` has the full steps. They ran
 
 ## 5. Check it works
 
-All on your site, from Jira → Apps → **Baton** → `/dev` (the resolver test page) unless it says otherwise:
+**Already done on Aditi's site** (Nov 23, through the real UI on the seed, Priya running the handover for Meera):
+
+- [x] Build (`npm run build` in `app/ui/`), `forge deploy`, and Baton opens from Jira → Apps
+- [x] New handover for Meera, then build the inventory: 22 items, including her 3 PRs, the runbook and her goal
+- [x] Draft questions with Baton: 8, each linked to its items
+- [x] Meera, signed in as herself, sees "your handover", answers 2 questions (saved as she types), and "I'm done answering" warns about the 6 blank ones, then shows "Thanks, you're done"
+- [x] Priya sees "Ready to publish" and 2 of 8 answered; the regenerated summary names items in its risks and folds in Meera's answer
+- [x] Publish to `NWP`: page "Handover: Meera Iyer (last day 2026-12-30)", created as Priya, 9 @mentions, item links
+- [x] Reassign: PAY-9 went from Meera to Lin in Jira (then put back on Meera so the seed stays as it was)
+- [x] Ask Rovo → Baton (listed once) → "List open handovers" shows the same handover. Meera showed as a bare profile URL instead of her name: to look into
+- [ ] Claude Desktop → "List open handovers" shows the same handover (Aditi checks)
+
+**On your own site,** all from Jira → Apps → **Baton** → `/dev` (the resolver test page) unless it says otherwise:
 
 - [ ] The Baton page loads
 - [ ] `listHandovers` with payload `{}` returns `{ "ok": true, "data": [] }`
