@@ -38,7 +38,7 @@ modules:
         If an action returns an error, tell the user plainly.
       conversationStarters:
         - What did Meera leave unfinished?
-        - Who owns PAY-142 now?
+        - Who owns PAY-1 now?
         - Start a handover for Arjun, last day Jan 10
         - What's high-risk in open handovers?
       actions:
@@ -81,7 +81,7 @@ modules:
           title: Item
           type: string
           required: true
-          description: A Jira issue key such as PAY-142, a pull request URL, or a Confluence page title.
+          description: A Jira issue key such as PAY-1, a pull request URL, or a Confluence page title.
     - key: list-at-risk-items
       name: List at-risk items
       function: list-at-risk-items-fn
