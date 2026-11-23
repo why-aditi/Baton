@@ -66,6 +66,19 @@ describe('jiraApi', () => {
     });
   });
 
+  test('maps story projects to the configured Jira keys (PLAT is taken on demo sites)', async () => {
+    const mapped = { ...config, projectKeys: { PAY: 'PAY', PLAT: 'NWPLAT' } } as Config;
+    const { fetch, reqs } = router([
+      ['GET /rest/api/3/project/NWPLAT', () => ({ body: { key: 'NWPLAT' } })],
+      ['POST /rest/api/3/issue', () => ({ status: 201, body: { id: '11', key: 'NWPLAT-1' } })],
+    ]);
+    const api = jiraApi(mapped, fetch);
+    expect(await api.projectExists('PLAT')).toBe(true);
+    await api.create('sam', { project: 'PLAT', summary: 'S', issueType: 'Task', labels: [] });
+    expect(reqs.map((r) => r.url)).toEqual(['https://demo.atlassian.net/rest/api/3/project/NWPLAT', 'https://demo.atlassian.net/rest/api/3/issue']);
+    expect(reqs[1]?.body.fields.project).toEqual({ key: 'NWPLAT' });
+  });
+
   test('transition picks the transition into the wanted status category', async () => {
     const { fetch, reqs } = router([
       ['GET /transitions', () => ({ body: { transitions: [{ id: '11', to: { statusCategory: { key: 'new' } } }, { id: '21', to: { statusCategory: { key: 'indeterminate' } } }] } })],

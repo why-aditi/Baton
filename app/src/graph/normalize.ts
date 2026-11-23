@@ -100,6 +100,35 @@ export const pullRequests = (nodes: unknown[], subjectAri: string): Normalized =
 
 // ---- Confluence pages (persisted query PQ_USER_OWNED_PAGES) ----
 
+/**
+ * PRs linked to the subject's Jira issues (Q.issuePullRequests). Bitbucket authors carry a
+ * third-party ID, not an Atlassian one, so the role is a first guess by display name: the subject's
+ * name means author, anything else is assumed to be a PR they review. The backend corrects this
+ * from Jira's development info (with reviewers) and drops PRs the subject has no part in.
+ */
+export const issuePullRequests = (nodes: unknown[], subjectName: string): Normalized => {
+  const items: Item[] = [];
+  const name = subjectName.trim().toLowerCase();
+  for (const n of nodes) {
+    if (!isType(n, 'ExternalPullRequest') || CLOSED_PR.has(n.status)) continue;
+    items.push(
+      clean({
+        ari: n.id,
+        kind: 'pull_request' as const,
+        title: n.title || n.displayId || 'Untitled pull request',
+        url: n.url ?? '',
+        status: n.status,
+        statusCategory: OPEN_PR.has(n.status) ? ('in_progress' as const) : undefined,
+        updatedAt: n.lastUpdatedAt,
+        collaborators: [],
+        subjectRole: n.author?.name?.trim().toLowerCase() === name ? ('author' as const) : ('reviewer' as const),
+        container: n.repositoryId,
+      }),
+    );
+  }
+  return { items, people: {} };
+};
+
 const LIVE_PAGE = new Set(['CURRENT', 'DRAFT']);
 
 /**

@@ -3,13 +3,15 @@
 import type { Team } from '../scoring/owners';
 import type { Item } from '../types';
 import { coverageWarnings, mergeItems, type SourceResult, type Warning } from './merge';
-import { goalsAndProjects, jiraWorkItems, ownedPages, pullRequests, teams as toTeams, users, type People } from './normalize';
+import { goalsAndProjects, issuePullRequests, jiraWorkItems, ownedPages, pullRequests, teams as toTeams, users, type People } from './normalize';
+import { applyPullRequestDetails, prDetailsFromGraph } from '../enrich/pullRequests';
 import { Q } from './queries';
 import { runPaged, type GraphRequest, type RunResult } from './runner';
 
 const MAX_TEAMS = 10;
 const MAX_PAGES_FOR_CONTRIBUTORS = 30;
 const MAX_ISSUES_FOR_COMMENTS = 40;
+const MAX_ISSUES_FOR_PRS = 60;
 const MAX_CANDIDATES = 25;
 const CONCURRENCY = 6;
 
@@ -56,6 +58,8 @@ export const buildInventory = async (opts: {
   ownedPagesQueryKey: string;
   /** PQ_PAGE_INBOUND_REFS from queryKeys.ts. Without it, pages get no link counts. */
   pageLinksQueryKey?: string;
+  /** The subject's display name. With it, Bitbucket PRs linked to their Jira issues are found too. */
+  subjectName?: string;
   onProgress?: (p: Progress) => void;
   sleep?: (ms: number) => Promise<void>;
 }): Promise<Inventory> => {
@@ -93,7 +97,7 @@ export const buildInventory = async (opts: {
     goalsAndProjects(goals.nodes, subjectAri),
   ];
   for (const n of normalized) Object.assign(people, n.people);
-  const items = mergeItems(normalized.map((n) => n.items));
+  let items = mergeItems(normalized.map((n) => n.items));
 
   // 2. Details: team members, page contributors and issue commenters (more collaborators).
   report('details', 'collaborators', 0, false);
@@ -146,6 +150,26 @@ export const buildInventory = async (opts: {
       });
     addCollaborators(issue, authors);
   });
+
+  // 2b. Bitbucket PRs, through the subject's Jira issues: the graph files Bitbucket authors under a
+  // third-party ID, so the person-level PR query above misses them. The backend adds reviewers.
+  if (opts.subjectName) {
+    const issues = items.filter((i) => i.kind === 'jira_issue').slice(0, MAX_ISSUES_FOR_PRS);
+    const prRuns = await mapLimit(issues, CONCURRENCY, (i) => quiet(Q.issuePullRequests, { id: i.ari }));
+    const prNodes = prRuns.flatMap((r) => r.nodes);
+    // Authors and reviewers come as names; match them to the accounts already loaded, and keep only
+    // PRs the subject wrote or reviews.
+    const subject = { accountId: subjectAri.slice(subjectAri.lastIndexOf('/') + 1), name: opts.subjectName };
+    const linked = {
+      items: applyPullRequestDetails(issuePullRequests(prNodes, opts.subjectName).items, prDetailsFromGraph(prNodes), people, subject),
+    };
+    if (linked.items.length) {
+      items = mergeItems([items, linked.items]);
+      // Don't warn that pull requests are missing when this route found some.
+      const prSource = results.find((r) => r.source === 'pullRequests');
+      if (prSource) prSource.count += linked.items.length;
+    }
+  }
 
   // 3. Workload of the likely new owners: people on the items first, then teammates.
   const candidates = [

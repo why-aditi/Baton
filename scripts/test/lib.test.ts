@@ -68,6 +68,11 @@ describe('loadConfig', () => {
     expect(c.users.arjun.bitbucketToken).toBe('bb');
   });
 
+  test('project keys default to the story keys and can be overridden', () => {
+    expect(loadConfig(full()).projectKeys).toEqual({ PAY: 'PAY', PLAT: 'PLAT' });
+    expect(loadConfig({ ...full(), SEED_PLAT_KEY: ' nwplat ' }).projectKeys).toEqual({ PAY: 'PAY', PLAT: 'NWPLAT' });
+  });
+
   test('names every missing setting', () => {
     const env = full();
     delete env.SEED_SITE;

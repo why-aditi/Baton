@@ -16,7 +16,7 @@ These scripts create the demo company Baton is shown on, through the REST APIs, 
 The scripts don't create accounts, projects or spaces, because those need admin rights and change rarely.
 
 1. **Users.** Invite 7 users with email aliases you control (`you+meera@…`, `you+arjun@…`, and so on) and give each access to Jira, Confluence and Bitbucket. Sign in as each one and create an API token at id.atlassian.com/manage-profile/security/api-tokens.
-2. **Jira projects.** Create `PAY` (Payments) and `PLAT` (Platform). Both need a **Task** issue type with **Due date** on its create screen, and all 7 users must be able to create, comment on, assign and transition issues. A different issue type name goes in `SEED_ISSUE_TYPE`.
+2. **Jira projects.** Create `PAY` (Payments) and `PLAT` (Platform). Codegeist demo sites already have a `PLAT` ("Platform Development"), so use another key there, such as `NWPLAT`, and set `SEED_PLAT_KEY=NWPLAT` (`SEED_PAY_KEY` works the same way). Both need a **Task** issue type with **Due date** on its create screen, and all 7 users must be able to create, comment on, assign and transition issues. A different issue type name goes in `SEED_ISSUE_TYPE`.
 3. **Confluence space.** Create `NWP` (Northwind Pay), or another key in `SEED_SPACE_KEY`, where all 7 can add and edit pages.
 4. **Bitbucket.** Use the workspace that's linked to the Jira site (SETUP-KESHAV.md section 3) and add all 7 users to it. Bitbucket may not accept the token from step 1. If it doesn't, create an API token with Bitbucket scopes for each person (reading and writing repositories and pull requests; Meera also needs to create repositories) and put it in `SEED_<NAME>_BITBUCKET_TOKEN`.
 5. **Teams.** In the Teams app, create **Payments** (Meera, Arjun, Lin, Priya, Omar) and **Platform** (Meera, Priya, Sam, Dana).
@@ -55,6 +55,7 @@ This puts every seeded Jira issue back to its story assignee and status (undoing
 
 - **"Stale" chips.** An issue counts as stale after 30 days without an update, and Jira won't let you backdate one. Issues seeded on Nov 30 won't be stale until Dec 30. The other chips (Only Meera, Mid-flight, Due after last day, No other reviewer, and Widely referenced on the runbook, which 4 pages link to) show once the graph has indexed the seed, within a few minutes.
 - **Issue keys.** Keys are given out in creation order, so on fresh projects the hero issue is `PAY-1`, not the `PAY-142` the agent's suggested questions mention. After seeding, update that suggested question in `app/manifest.yml` to the hero's real key.
+- **Pull requests come from their Jira issues, not the person.** Teamwork Graph files Bitbucket PRs under a third-party author ID, so asking "this person's PRs" returns nothing. Asking an issue for its linked PRs works. That's why every PR title carries a Jira key: a PR without one won't be found.
 
 ## Tests
 

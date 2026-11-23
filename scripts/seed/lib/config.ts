@@ -1,6 +1,6 @@
 // Reads the seed configuration from the environment (or a .env.seed file, see README).
 import { readFileSync } from 'node:fs';
-import { USERS, type UserKey } from '../story';
+import { PROJECTS, USERS, type ProjectKey, type UserKey } from '../story';
 
 export type UserCreds = { email: string; token: string; bitbucketToken: string };
 
@@ -14,6 +14,8 @@ export type Config = {
   /** Bitbucket project for the repo. Premium workspaces require one. */
   bitbucketProject?: string;
   issueType: string;
+  /** The real Jira key for each story project (PAY, PLAT), when the site already uses one. */
+  projectKeys: Record<ProjectKey, string>;
   users: Record<UserKey, UserCreds>;
 };
 
@@ -56,6 +58,9 @@ export const loadConfig = (env: NodeJS.ProcessEnv = process.env): Config => {
     workspace: env.SEED_BITBUCKET_WORKSPACE?.trim() ?? '',
     bitbucketProject: env.SEED_BITBUCKET_PROJECT?.trim() || undefined,
     issueType: env.SEED_ISSUE_TYPE?.trim() || 'Task',
+    projectKeys: Object.fromEntries(
+      (Object.keys(PROJECTS) as ProjectKey[]).map((k) => [k, env[`SEED_${k}_KEY`]?.trim().toUpperCase() || k]),
+    ) as Record<ProjectKey, string>,
     users,
   };
   if (missing.length) throw new Error(`Missing seed settings: ${missing.join(', ')}. See scripts/README.md.`);
