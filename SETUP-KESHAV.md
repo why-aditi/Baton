@@ -12,7 +12,7 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Claude Desktop (MCP) | Works, and sees the same handovers as Rovo |
 | Publish to Confluence | Works, as the signed-in user, with @mentions and item links |
 | Reassign Jira issues | Works, as the signed-in user |
-| Bitbucket PRs in the graph | Pending. Bitbucket is reachable and linked to Jira (Nov 22), and two test PRs exist, but neither the graph nor Jira's Development panel showed them 10 minutes later (section 3) |
+| Bitbucket PRs in the graph | Work through the person's Jira issues, not the person (Nov 23): the graph files Bitbucket people under third-party IDs. A PR needs a Jira key to be found (section 8) |
 | Custom UI | Not built. Yours (section 7) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
@@ -95,6 +95,7 @@ Then create a repo and a PR as a seeded user, and check that `atlassianUserPullR
 
 The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has the full steps. They haven't been run against a site yet. What's left:
 
+- [x] **Write the seed scripts** (Nov 22, on `main`). `npm test` in `scripts/` passes against in-memory fakes of Jira, Confluence and Bitbucket.
 - [ ] **Set up the site by hand** (`scripts/README.md` step 1): invite the 7 users with email aliases you control, each with their own API token so authorship is real. Then create the PAY and PLAT projects, the NWP space, the 2 teams, and the goals and project. Add the users to the Bitbucket workspace.
 - [ ] **Run `npm run seed` in `scripts/`.** It creates 59 Jira issues (14 open ones for Meera), 12 Confluence pages (the payment-retry runbook and 3 more only Meera has touched) and 6 Bitbucket PRs (2 by Meera with no other reviewer). It's safe to rerun.
 - [ ] **Seed by Nov 30.** Don't reseed the day before recording; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding.
