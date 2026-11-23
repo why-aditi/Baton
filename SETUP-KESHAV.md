@@ -1,6 +1,6 @@
 # Baton dev setup for Keshav
 
-Nov 16, 2026 · from Aditi · updated Nov 23: the backend and UI are built, and the demo site is seeded
+Nov 16, 2026 · from Aditi · updated Nov 23 (evening): built, seeded, and run end to end on the demo site
 
 The backend works end to end on the demo site: the app page, the Rovo agent and Claude Desktop (MCP) all see the same handovers, the inventory covers issues, PRs, pages, teams and goals, and publish and reassign work. This gets you your own copy, on your own environment and demo site. Plan on about an hour.
 
@@ -14,9 +14,10 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Claude Desktop (MCP) | Works, and sees the same handovers as Rovo |
 | Publish to Confluence | Works, as the signed-in user, with @mentions and item links |
 | Reassign Jira issues | Works, as the signed-in user |
-| Bitbucket PRs in the graph | Work through the person's Jira issues, not the person (Nov 23): the graph files Bitbucket people under third-party IDs. A PR needs a Jira key to be found (section 8) |
-| Custom UI | All five screens built in `app/ui/` (Nov 23): handover list, New handover, Inventory, Questions with the answer screen, and Review and publish. Tested with fakes, not yet deployed to a site (section 7) |
-| Seed data | Seeded on Aditi's site (Nov 23): 59 issues, 12 pages, 6 PRs, both teams. Still to do: the 2 goals and the project in Atlassian Home (section 4) |
+| Bitbucket PRs in the graph | Work through the person's Jira issues (Nov 23). Bitbucket people have third-party IDs and no names, so Baton recognises the departing person by ID. A PR needs a Jira key to be found (section 8) |
+| Custom UI | All five screens built in `app/ui/` and run on the demo site with seed data (Nov 23): Meera's handover has 22 items, 8 drafted questions, one-liners and a generated summary (section 7) |
+| Groq on seed data | Questions, one-liners and the summary all work (Nov 23) |
+| Seed data | Seeded on Aditi's site (Nov 23): 59 issues, 12 pages, 6 PRs, both teams, 2 goals and the project. The project's owner is still Aditi (section 4) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
 
@@ -102,7 +103,7 @@ Then create a PR as a seeded user **with a Jira key in its title**. Baton finds 
 
 **The demo site's pre-loaded data doesn't show up in Teamwork Graph.** Alana Grant has 36 open issues in Jira, and the graph returns 0 for her. A new issue created via the API showed up within 5 minutes. So all Northwind Pay data must be created fresh, through the API or UI, by the real users.
 
-The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has the full steps. They haven't been run against a site yet. What's left:
+The scripts live in `scripts/`; `scripts/README.md` has the full steps. They ran on Aditi's site on Nov 23:
 
 - [x] **Write the seed scripts** (Nov 22, on `main`). `npm test` in `scripts/` passes against in-memory fakes of Jira, Confluence and Bitbucket.
 - [x] **Jira projects and Confluence space** (Nov 23, on Aditi's demo site): `PAY` (Payments) and `NWPLAT` (Platform), both company-managed with a Task issue type that has Due date on its create screen, and the `NWP` space. The site already has a `PLAT` ("Platform Development"), so the seed maps the story's PLAT to `NWPLAT`: set `SEED_PLAT_KEY=NWPLAT` in `scripts/.env.seed`.
@@ -111,11 +112,12 @@ The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has
 - [x] **Bitbucket repo access** (Nov 23). The users could see the workspace but no repos, so the seed got a 403. Fixed by creating `payments-service` in project `DEMO` and giving the group `bitbucket-users-one-atlas-ubvd` Write on it. The users' Bitbucket tokens lack `read:workspace` and `read:project`; the seed doesn't need them.
 - [x] **Ran `npm run seed`** (Nov 23, ~11:05): 59 Jira issues (`PAY-1` to `PAY-34`, `NWPLAT-1` to `NWPLAT-25`), 12 Confluence pages in `NWP`, and 6 PRs in `one-atlas-ubvd/payments-service` (`#1` to `#6`). The graph shows Meera's 14 open issues. The Bitbucket IP allowlist had switched itself back on and had to be turned off again first (section 3).
 - [x] **Teams** (Nov 23): Payments (Meera, Arjun, Lin, Priya, Omar) and Platform (Meera, Priya, Sam, Dana), created as Priya through the public Teams API (`/gateway/api/public/teams/v1/org/<orgId>/teams/` on the site, Basic auth with her token). Aditi isn't in either.
-- [ ] **The 2 goals and the project in Atlassian Home** (no API): "Reduce failed payment retries by 30%" (owner Meera), "Close the books in 2 days" (owner Priya) and the project "Retry service v2" (owner Priya). Claude does these in Chrome.
-- [ ] **PR authors have no names yet.** On the seeded PRs the graph returns author and reviewer IDs with `name: null` (checked ~20 min after seeding). Baton matches PR people by name, so until names appear Meera's PRs are dropped. Recheck; if they stay empty, Baton needs another way to match.
-- [ ] **Don't reseed the day before recording**; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding (Dec 23).
+- [x] **Goals and project in Atlassian Home** (Nov 23, in the browser): goals "Reduce failed payment retries by 30%" (`GGTRTEJK-34`, owner Meera) and "Close the books in 2 days" (`GGTRTEJK-35`, owner Priya), and the project "Retry service v2" (`GGTRTEJK-36`).
+- [ ] **Make Priya the project's owner.** It's still Aditi: the project's people picker didn't list any seed user yet, though the goal form found them. Retry in a day.
+- [x] **PR people without names** (Nov 23). Six hours after seeding, PR authors and reviewers still came back with IDs and `name: null`. Baton now recognises the departing person by the ID on most PRs linked to their own issues, and counts the other, unnamed people as "someone else has context" without suggesting them as owners. On the site, Meera's 3 PRs show (2 hers, 1 she alone reviews).
+- [ ] **Don't reseed close to recording day** (a reminder: it stays open until recording is done). Indexing can lag, and seeded issues can't be backdated, so nothing shows the "Stale" chip until 30 days after seeding: Dec 23 for the Nov 23 seed. If the demo needs a Stale item, record on or after Dec 23.
 - [x] **Update the agent's suggested question** (Nov 23, PR #20) "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
-- [ ] **Re-record the graph fixtures** against seeded users (section 7).
+- [x] **Re-recorded the graph fixtures** on the seed (Nov 23), with seeded Meera swapped for the fake ID the tests use. `ownedPages` and `pageInboundRefs` are still from Nov 22: they only run as the app.
 - Teams: solved (Nov 23). From the app page, `@forge/bridge`'s `requestTeamworkGraph` gets a 403 on every team (the recorded `userTeams.app-403.json`). From the backend, `api.asUser().requestTeamworkGraph` returns them, which a forum reply suggested and the demo site confirmed. So the UI sends graph reads through the `graphQuery` resolver (section 7), and teams show up.
 - Between demo runs: `npm run reset`, then the `deleteAllHandovers` resolver (`scripts/README.md` section 3).
 
@@ -184,6 +186,7 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 
 **Gotchas for the UI:**
 
+- **Run `npm run build` in `app/ui/` before every `forge deploy`.** The UI bundles `app/src/graph/` into itself, so a backend-only deploy ships the old inventory code. On Nov 23 a deploy without a rebuild found 0 PRs.
 - **Don't build `Item`s by hand.** `buildInventory` sets every field scoring reads (status category, reviewers, due dates, container), and `saveInventory` adds Jira's updated date and sprint end. If you add a source of your own, follow `app/src/graph/normalize.ts`: a missing field doesn't error, the item just scores lower.
 - **Item URLs must be `http` or `https`.** `saveInventory` rejects anything else, so a bad link can't reach the published page.
 - **People are stored by account ID**, but collaborators and team members are user ARIs (`ari:cloud:identity::user/<accountId>`). Pass display names to `saveInventory` as `people: { accountId: name }`.
@@ -214,7 +217,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 - [x] **Bitbucket PRs in the graph** (Nov 23). The graph has them, but files authors and reviewers under third-party IDs (`ari:cloud:identity::third-party-user/…`), so "this person's PRs" (`atlassianUserPullRequests`) returns nothing. Asking each Jira issue for its linked PRs (`jiraWorkItemLinkedExternalPullRequests`) works. `buildInventory` does that for the person's issues, matches authors and reviewers to accounts by display name, and keeps only PRs the person wrote or reviews. **(affects you)**
   - **A PR is found only if a Jira key is in its title, branch or commits.** The seed puts one in every title.
   - **A PR Meera only reviews** is found only if it's linked to one of her own issues. The seed's "Meera reviews Arjun's PR" needs to carry one of her issue keys.
-  - **Names aren't there yet on the seeded PRs** (Nov 23): authors and reviewers come back with IDs but `name: null`, so matching finds no one (section 4). If a reviewer's name doesn't match an account, the PR gets no reviewers, so "No other reviewer" can't fire wrongly.
+  - **Names never arrived on the seeded PRs** (Nov 23): authors and reviewers have IDs (`…/tp:<Bitbucket user ID>`) but `name: null`. Baton recognises the departing person by the ID on most PRs linked to their issues (`inferSubjectId` in `app/src/enrich/pullRequests.ts`) and counts the others as `unnamedOthers`. If a reviewer can't be matched, the PR gets no reviewers, so "No other reviewer" can't fire wrongly. Bitbucket's public user lookup doesn't resolve these IDs.
   - **Ruled out:** Bitbucket's API from the app (Forge refuses Bitbucket scopes alongside Jira and Confluence ones: "Workspace scopes can not be used with site scopes") and Jira's `/rest/dev-status` API ("Authentication Required" from Forge; it only takes a browser session).
 
 **Code**
@@ -226,11 +229,11 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 **LLM**
 
 - [ ] **Mistral setup.** Create the account and key, turn on the training opt-out if there is one, send you the key, and pin exact model IDs instead of the "latest" aliases.
-- [ ] **Try the three LLM calls on real seed data.** That's questions, one-liners and the summary: check that Groq's JSON mode works and the questions are concrete. **(needs your seed)**
+- [x] **Tried the three LLM calls on seed data** (Nov 23). Groq's JSON mode works and the questions are concrete. Fixed on the way: item refs (`I1`) leaked into the text, so bare refs now become the item's key or title; risks now name the item; and the one-liners were never requested, so the inventory build now asks for them after saving. **(affects you)**
 
 **Scoring**
 
-- [ ] **Tune the risk weights on seed data.** **(needs your seed, due Nov 30)**
+- [x] **Tuned the risk weights on seed data** (Nov 23). "Widely referenced page" went from +15 to +20: pages can't be mid-flight or due soon, so Meera's runbook (only she knows it, 4 pages link to it) was stuck at 55, Medium. It's now 60, High. Nothing else needed changing.
 
 **Agent and MCP**
 
