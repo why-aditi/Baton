@@ -1,64 +1,133 @@
 # Baton
 
-Baton turns a departing teammate's scattered work into a ranked handover in minutes. It finds every open item they own across Jira, Bitbucket and Confluence, scores each one for knowledge risk ("only this person has touched it"), suggests who should take it over, and asks the person targeted questions to capture what's only in their head before their last day.
+**Baton turns a departing teammate's scattered work into a ranked handover in minutes.**
 
-It's a Forge app for Jira, built for Codegeist 2026 (Business Teams), and aims at the Best Agents, Atlassian MCP and Teamwork Graph bonus prizes.
+When someone leaves, goes on leave or changes teams, their context leaves with them: open Jira work goes stale, pull requests sit unreviewed, and pages only they maintained rot. Managers rebuild this by hand, from memory, usually after the person is gone.
+
+Baton does it before their last day. It finds every open item the person owns across Jira, Bitbucket and Confluence, scores each one for **knowledge risk** ("only this person has touched it"), suggests who should take it over, and asks the person **targeted questions** to capture what's only in their head. Then it publishes the handover to Confluence and reassigns the work.
+
+Built on Atlassian Forge for [Codegeist 2026](https://codegeist2026.devpost.com/): **Apps for Software Teams**, aiming at the **Best Agents**, **Best app with MCP** and **Teamwork Graph** bonus prizes.
+
+## What it does
+
+1. **Start a handover.** Pick the person, the reason (leaving, leave, team change) and their last day.
+2. **Build the inventory.** Baton reads Teamwork Graph for the person's open Jira work, the Bitbucket PRs they wrote or review, the Confluence pages they own, their teams, goals and projects.
+3. **Score knowledge risk.** Each item gets a 0–100 score with plain-language reasons: *Only Meera has worked on this*, *Work is mid-flight*, *No other reviewer*, *Stale*, *Due soon after they leave*, *Widely referenced page*.
+4. **Suggest owners.** The top three candidates per item, ranked from co-contribution, team membership and workload, each with a reason.
+5. **Capture what's unwritten.** An LLM writes 5–10 concrete questions from the riskiest items; the departing person answers them in Baton.
+6. **Publish and reassign.** Baton writes the handover narrative, publishes it as a Confluence page with @mentions of the new owners, and bulk-reassigns the chosen Jira issues after a confirmation step.
+7. **Ask it anywhere.** The **Baton** Rovo agent and the **Baton handovers** MCP server answer questions such as *"Who owns PAY-1 now?"* and can start a handover, from Rovo chat or from an external AI client like Claude Desktop.
 
 ## How it works
 
-```
-Baton app page (Jira) ──reads Teamwork Graph as the user──►  Teamwork Graph
-        │ invoke
-        ▼
-   Resolvers  ──scoring, storage, Jira/Confluence REST──►  Forge storage, Jira, Confluence
-        │
-        └──anonymized prompts only──►  Groq, then Mistral
+```mermaid
+flowchart LR
+  subgraph clients[Where people use it]
+    UI[Baton app page<br/>Jira, Custom UI]
+    Rovo[Rovo chat<br/>baton-agent]
+    MCP[Claude Desktop<br/>via MCP]
+  end
 
-Rovo chat (baton-agent) ─┐
-                         ├──►  5 shared actions  ──►  Forge storage
-Claude Desktop (MCP) ────┘
+  subgraph forge[Baton on Forge, one installation across Jira and Confluence]
+    R[Resolvers<br/>scoring, owners, storage, publish]
+    G[graphQuery<br/>Baton's own queries only]
+    A[5 shared actions]
+  end
+
+  subgraph atlassian[Atlassian platform]
+    TWG[(Teamwork Graph)]
+    KVS[(Forge storage)]
+    JC[Jira and Confluence REST]
+  end
+
+  LLM[Groq, then Mistral<br/>anonymized prompts only]
+
+  UI -- invoke --> R
+  UI -- invoke --> G
+  G -- as the user --> TWG
+  R --> KVS
+  R -- as the user --> JC
+  R -- language tasks only --> LLM
+  Rovo --> A
+  MCP --> A
+  A --> KVS
 ```
 
-- The app page reads Teamwork Graph in the browser, as the signed-in user, so people only see work they already have access to.
-- Risk and owner scores are deterministic, unit-tested code. The LLM only writes language: questions, one-line item summaries and the handover narrative.
-- Only anonymized prompts leave Atlassian. People become P1, P2… and items I1, I2…, and every LLM answer is checked against the items it was given.
-- The Rovo agent and the MCP server share the same five actions: `list-handovers`, `get-handover`, `find-owner`, `list-at-risk-items` and `start-handover`.
+- **Everything runs as the signed-in user,** so people only ever see work they already have access to. Graph reads go through a backend resolver that runs only Baton's own named queries.
+- **Scores are deterministic code, not the LLM.** Risk and owner ranking are pure, unit-tested functions, so the same inventory always gets the same scores.
+- **The LLM only writes language:** the questions, one-line item summaries and the narrative. It gets scored items as JSON and its output is checked against a schema; any item it invents is stripped.
+- **Only anonymized prompts leave Atlassian.** People become P1, P2… and items I1, I2… before any call, and are mapped back afterwards. Graph data, storage and REST calls stay on Atlassian.
+- **One set of actions, two front doors.** The Rovo agent and the MCP server share the same five actions: `list-handovers`, `get-handover`, `find-owner`, `list-at-risk-items` and `start-handover`.
+
+### How Baton uses Teamwork Graph
+
+| Need | Graph query |
+| --- | --- |
+| Open Jira work the person is assigned or reported | `atlassianUserAssignedJiraWorkItems`, `atlassianUserReportedJiraWorkItems` |
+| Bitbucket PRs they wrote or review | `jiraWorkItemLinkedExternalPullRequests` on each of their issues, matched by name |
+| Confluence pages they own or created | Saved Cypher query over `atlassian_user_owns_confluence_page` and `atlassian_user_created_confluence_page` |
+| How widely a page is referenced | Saved Cypher query over `content_entity_links_entity` |
+| Who else worked on each item | `confluencePageContributors`, `jiraWorkItemComments` |
+| Candidate owners and their teams | `atlassianUserInTeams`, `atlassianTeamMembers` |
+| Goals and projects | `atlassianUserGoalsAndProjects` |
+
+Things we learned the hard way are in [app/test/fixtures/README.md](app/test/fixtures/README.md), alongside real responses recorded from a demo site.
+
+## Install (for judges)
+
+Baton needs:
+
+- **Organization admin rights,** because Teamwork Graph scopes need an org admin to grant them.
+- **Jira and Confluence** on the same site, and **Rovo** enabled for the agent. Codegeist demo sites (`forge site provision`) have all of these.
+
+Steps:
+
+1. Open the installation link from the Devpost submission and install Baton **in Jira** on your site, granting the requested scopes.
+2. Connect the same installation **to Confluence**: admin.atlassian.com → Apps → Sites → your site → **Connected apps → Baton → Manage connections**. Baton is one installation across both products, and publishing needs Confluence. *(This step is still being verified on a clean site from the installation link.)*
+3. Grant any further scopes it asks for.
+4. Open **Jira → Apps → Baton**.
+5. For the Rovo agent: click **Ask Rovo**, pick **Baton** in the agent list and ask *"What's high-risk in open handovers?"*
+6. For MCP: in **admin.atlassian.com → Apps → Sites → your site → Connected apps → Baton**, turn on **Expose tools to MCP-compatible apps**. Then add `https://mcp.atlassian.com/forge/83b0292d-c06a-4bec-9e04-426a67cb0280` as a custom connector in Claude Desktop and sign in to your site.
+
+Bitbucket PRs are found through the Jira issues they mention, so they need a Jira key in their title, branch or commits, and the Bitbucket workspace linked to the Jira site.
+
+## Develop
+
+Needs Node.js 22 and the Forge CLI (`npm install -g @forge/cli@14.2.0`).
+
+```sh
+cd app
+npm install
+npm test            # unit tests, no site or login needed
+npm run typecheck
+forge deploy        # then: forge install -p Jira, then forge install -p Confluence
+```
+
+The full setup (your own Forge environment and demo site, Rovo, MCP, the LLM keys, and every gotcha we hit) is in [SETUP-KESHAV.md](SETUP-KESHAV.md).
 
 ## Repository
 
 | Path | What |
 | --- | --- |
-| `app/` | The Baton app. See [app/README.md](app/README.md) |
-| `scripts/` | Seed scripts for the Northwind Pay demo company, plus reset. See [scripts/README.md](scripts/README.md) |
-| `spike/` | The week-1 test page, now also used to record Teamwork Graph fixtures |
+| [`app/`](app/README.md) | The Baton Forge app: scoring, LLM layer, storage, resolvers, Rovo/MCP actions, graph queries |
+| [`scripts/`](scripts/README.md) | Seed scripts for **Northwind Pay**, the demo company (Jira, Confluence, Bitbucket), plus reset |
+| `spike/` | The week-1 test app, now only used to record Teamwork Graph fixtures |
+| [`SETUP-KESHAV.md`](SETUP-KESHAV.md) | Developer setup, progress and known issues |
 | `Baton — Codegeist 2026 Tech Spec.pdf` | The spec: scope, design, data model, timeline |
-| `SETUP-KESHAV.md` | Dev setup: Forge CLI, your own environment and demo site, Rovo, MCP |
 
-## Status (Nov 22, 2026)
+## Status (Nov 23, 2026)
 
 | Area | State |
 | --- | --- |
-| Week-1 spikes (graph, Groq, Rovo, MCP, Confluence publish) | Pass |
-| Risk scoring, owner ranking, LLM layer, storage, resolvers, Rovo/MCP actions | Built and unit-tested; deployed to the dev site Nov 22 |
-| Graph paging, merging, scope self-check | Built and unit-tested |
-| Turning graph results into items, building the inventory | Built and tested against responses recorded on the demo site (Nov 22) |
-| Confluence publish and reassign (backend) | Built and unit-tested (Nov 22) |
-| Custom UI | Not started |
-| Seed data (Northwind Pay) | Scripts written and tested against fakes (`scripts/`); not yet run on a site. Due Nov 30 |
+| Risk scoring, owner ranking, LLM layer, storage | Built and unit-tested |
+| Teamwork Graph inventory (issues, PRs, pages, links, teams, goals) | Built, tested against recorded responses, checked live on the demo site |
+| Publish to Confluence, reassign Jira issues | Built and tested live |
+| Rovo agent and MCP server | Working end to end, from Rovo chat and Claude Desktop |
+| Custom UI | Not built yet |
+| Seed data (Northwind Pay) | Scripts written and tested against fakes; site setup in progress, due Nov 30 |
 
-## Develop
-
-Needs Node.js 22.
-
-```sh
-cd app
-npm install
-npm test            # unit tests, no site needed
-npm run typecheck
-```
-
-To deploy and install on a site, follow [SETUP-KESHAV.md](SETUP-KESHAV.md). Installing needs organization admin rights, because the app uses Teamwork Graph scopes.
+**Known limits.** "Stale" can't be faked: seeded issues only turn stale 30 days after seeding. Bitbucket PRs without a Jira key aren't found. Teamwork Graph and Forge's Rovo and MCP features are in Preview.
 
 ## Team
 
-Aditi owns graph, scoring, LLM and agent work. Keshav owns the UI, seed data and publishing.
+**Aditi Kala**: graph, scoring, LLM, agent and MCP. **Keshav**: UI, seed data and the demo.
