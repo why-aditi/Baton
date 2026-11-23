@@ -89,7 +89,7 @@ Use `forge logs -e keshav -f` in a second terminal while testing.
 
 Then create a PR as a seeded user **with a Jira key in its title**. Baton finds PRs through the issues they mention, not through the person: the graph files Bitbucket people under third-party IDs, so `atlassianUserPullRequests` returns nothing for Bitbucket (section 8). The issue's Development panel shows the PR once Jira has it; on Aditi's site that took up to an hour after linking.
 
-**The IP allowlist can come back.** It was off on Nov 22 and back on by the next morning. If Bitbucket shows the block page again, untick "Restrict access to certain IP addresses" under Workspace settings → Access controls before running the seed.
+**The IP allowlist can come back.** It was off on Nov 22, blocking again the next morning, and off again by 09:35 that day (Nov 23). Check that Bitbucket opens right before running the seed. If it shows the block page, untick "Restrict access to certain IP addresses" under Workspace settings → Access controls and click **Update**. The red "you must add your current IP address" note under the box is only a warning about turning it back on.
 
 ## 4. Seed data (your workstream)
 
@@ -99,9 +99,11 @@ The scripts are written (Nov 22) and live in `scripts/`; `scripts/README.md` has
 
 - [x] **Write the seed scripts** (Nov 22, on `main`). `npm test` in `scripts/` passes against in-memory fakes of Jira, Confluence and Bitbucket.
 - [x] **Jira projects and Confluence space** (Nov 23, on Aditi's demo site): `PAY` (Payments) and `NWPLAT` (Platform), both company-managed with a Task issue type that has Due date on its create screen, and the `NWP` space. The site already has a `PLAT` ("Platform Development"), so the seed maps the story's PLAT to `NWPLAT`: set `SEED_PLAT_KEY=NWPLAT` in `scripts/.env.seed`.
+- [x] **`scripts/.env.seed` on Aditi's machine** (Nov 23, git-ignored): every setting except the 7 emails and tokens, including site `one-atlas-ubvd.atlassian.net`, space `NWP`, workspace `one-atlas-ubvd`, Bitbucket project `DEMO` (the workspace's only project; Premium workspaces need one for new repos) and `SEED_PLAT_KEY=NWPLAT`. On your own site, start from `.env.seed.example` and use your site's values.
 - [ ] **Invite the 7 users** (Meera, Arjun, Lin, Priya, Sam, Dana, Omar) with email aliases you control and Jira, Confluence and Bitbucket access. Sign in as each and create an API token. Only a person can do this.
 - [ ] **Then, with the users in place:** create the 2 teams (Payments, Platform), add the users to the Bitbucket workspace, and create the goals and project in Atlassian Home (no API). Claude can do these in Chrome once the users exist.
-- [ ] **Turn Bitbucket's IP allowlist off** if it's back on (section 3).
+- [x] **Bitbucket's IP allowlist is off** (Nov 23, 09:35): Bitbucket opens again. Recheck right before seeding (section 3).
+- [ ] **Add the 7 emails and tokens to `scripts/.env.seed`** yourself, then Claude runs `npm run seed`. A dry run with the file as it is stops before touching the site and lists exactly the 14 missing values.
 - [ ] **Run `npm run seed` in `scripts/`.** It creates 59 Jira issues (14 open ones for Meera), 12 Confluence pages (the payment-retry runbook and 3 more only Meera has touched) and 6 Bitbucket PRs (2 by Meera with no other reviewer). It's safe to rerun.
 - [ ] **Seed by Nov 30.** Don't reseed the day before recording; indexing can lag. Seeded issues can't be backdated, so none will show the "Stale" chip until 30 days after seeding.
 - [ ] **Update the agent's suggested question** "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
