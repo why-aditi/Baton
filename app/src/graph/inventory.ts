@@ -172,7 +172,11 @@ export const buildInventory = async (opts: {
       items = mergeItems([items, linked.items]);
       // Don't warn that pull requests are missing when this route found some.
       const prSource = results.find((r) => r.source === 'pullRequests');
-      if (prSource) prSource.count += linked.items.length;
+      if (prSource) {
+        prSource.count += linked.items.length;
+        // The progress panel already showed this source's count from the person-level query.
+        report('pullRequests', prSource.label, prSource.count, true);
+      }
     }
   }
 

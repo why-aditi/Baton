@@ -236,8 +236,23 @@ describe('buildInventory', () => {
       expect.objectContaining({ title: 'PAY-1 Add jittered backoff', subjectRole: 'author' }),
       expect.objectContaining({ title: 'PAY-7 Idempotency keys for settlement captures', subjectRole: 'reviewer', reviewers: [MEERA] }),
     ]);
+    expect(inv.items.find((i) => i.title.startsWith('PAY-7'))?.unnamedOthers).toBe(1);
     // The person-level PR query found nothing, but this route did: no "no pull requests" warning.
     expect(inv.warnings.some((w) => w.source === 'pullRequests')).toBe(false);
+  });
+
+  test('the progress panel gets the pull request count found through issues', async () => {
+    const recorded = fixture('issuePullRequests');
+    const [edge] = (recorded.data as any).jiraWorkItemLinkedExternalPullRequests.edges;
+    const meeraTp = edge.node.reviewers[0].user.id;
+    const hers = { node: { ...edge.node, id: 'pr-hers', url: 'https://bitbucket.org/x/pull-requests/1', author: { id: meeraTp, name: null }, reviewers: [] } };
+    const prs = (edges: unknown[]) => ({ data: { jiraWorkItemLinkedExternalPullRequests: { edges, pageInfo: { hasNextPage: false } } } });
+    const { request } = fakeGraph({
+      baton_issuePullRequests: (vars) => (vars.id === PAY7 ? recorded : vars.id === ISSUE ? prs([hers]) : prs([])),
+    });
+    const seen: { source: string; count: number; done: boolean }[] = [];
+    await run(request, { subjectName: 'Meera Iyer', onProgress: (p: any) => seen.push(p) });
+    expect(seen.filter((p) => p.source === 'pullRequests' && p.done).at(-1)?.count).toBe(2);
   });
 
   test("without the subject's name, PRs aren't looked up per issue", async () => {

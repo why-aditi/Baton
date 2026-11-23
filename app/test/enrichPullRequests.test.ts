@@ -99,6 +99,9 @@ describe('applyPullRequestDetails without names', () => {
     expect(mine).toMatchObject({ subjectRole: 'author', reviewers: [], collaborators: [user('meera')] });
     // Meera is the only reviewer of Arjun's PR, so "No other reviewer" can fire.
     expect(reviewed).toMatchObject({ subjectRole: 'reviewer', reviewers: [user('meera')], collaborators: [user('meera')] });
+    // Arjun has no name, so he isn't a collaborator (no owner suggestion), but he's counted.
+    expect(reviewed?.unnamedOthers).toBe(1);
+    expect(mine?.unnamedOthers).toBeUndefined();
   });
 
   test('without the ID, nameless PRs are dropped rather than guessed', () => {
