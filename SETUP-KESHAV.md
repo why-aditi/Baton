@@ -133,7 +133,7 @@ The scripts live in `scripts/`; `scripts/README.md` has the full steps. They ran
 - [x] Publish to `NWP`: page "Handover: Meera Iyer (last day 2026-12-30)", created as Priya, 9 @mentions, item links
 - [x] Reassign: PAY-9 went from Meera to Lin in Jira (then put back on Meera so the seed stays as it was)
 - [x] Ask Rovo → Baton (listed once) → "List open handovers" shows the same handover. Meera showed as a bare profile URL instead of her name: to look into
-- [ ] Claude Desktop → "List open handovers" shows the same handover (Aditi checks)
+- [x] Claude Desktop → "List open handovers" (Nov 24, as Aditi) shows Meera's handover as published, plus Aditi's own test handovers (Jennifer Evans, Kevin Campbell, Alana Grant). It lists more than Rovo did because site admins see every handover; Priya isn't an admin
 
 **On your own site,** all from Jira → Apps → **Baton** → `/dev` (the resolver test page) unless it says otherwise:
 
