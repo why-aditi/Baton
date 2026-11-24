@@ -18,6 +18,12 @@ export type ActionDeps = {
 };
 
 type Input = Record<string, unknown>;
+
+/**
+ * A person as a ready-made Markdown link, "[Meera Iyer](<profile URL>)". Agents copy it as is, so
+ * the name shows instead of a bare URL. Brackets in the name are escaped so the link survives.
+ */
+export const personLink = (name: string, url: string) => `[${name.replace(/[\\[\]]/g, '\\$&')}](${url})`;
 const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
 
 /** Trims the longest list until the JSON fits in maxBytes. */
@@ -75,7 +81,8 @@ export class Actions {
 
   private name = (h: Handover, accountId?: string) => (accountId ? (h.people[accountId] ?? accountId) : null);
 
-  private url = async (accountId?: string | null) => (accountId ? this.deps.profile(accountId) : null);
+  private link = async (name: string | null, accountId?: string | null) =>
+    accountId ? personLink(name ?? accountId, await this.deps.profile(accountId)) : null;
 
   private async owner(h: Handover, i: ScoredItem) {
     const accepted = i.acceptedOwnerAccountId;
@@ -83,7 +90,7 @@ export class Actions {
     const accountId = accepted ?? top?.accountId;
     return {
       newOwner: this.name(h, accountId),
-      newOwnerUrl: await this.url(accountId),
+      newOwnerLink: await this.link(this.name(h, accountId), accountId),
       ownerStatus: accepted ? ('accepted' as const) : top ? ('suggested' as const) : ('none' as const),
       reason: accepted
         ? (i.suggestions.find((x) => x.accountId === accepted)?.reason ?? 'Chosen by the manager')
@@ -108,7 +115,7 @@ export class Actions {
       handovers: await Promise.all(
         editable.map(async (r) => ({
           person: r.subjectName,
-          personUrl: await this.url(r.subjectAccountId),
+          personLink: await this.link(r.subjectName, r.subjectAccountId),
           reason: r.reason,
           lastDay: r.lastDay,
           status: r.status,
@@ -125,7 +132,7 @@ export class Actions {
     if (!h) return { result: `No handover found for "${person}".` };
     return {
       person: h.subjectName,
-      personUrl: await this.url(h.subjectAccountId),
+      personLink: await this.link(h.subjectName, h.subjectAccountId),
       reason: h.reason,
       lastDay: h.lastDay,
       status: h.status,
@@ -133,8 +140,8 @@ export class Actions {
       itemCount: h.items.length,
       topRisks: await Promise.all(
         h.items.slice(0, 10).map(async (i) => {
-          const { newOwner, newOwnerUrl } = await this.owner(h, i);
-          return { title: i.title, key: i.key, url: i.url, kind: i.kind, risk: i.risk, band: i.band, reasons: i.reasons, newOwner, newOwnerUrl };
+          const { newOwner, newOwnerLink } = await this.owner(h, i);
+          return { title: i.title, key: i.key, url: i.url, kind: i.kind, risk: i.risk, band: i.band, reasons: i.reasons, newOwner, newOwnerLink };
         }),
       ),
       answeredQuestions: h.questions
@@ -163,7 +170,7 @@ export class Actions {
             item: { title: i.title, key: i.key, url: i.url },
             handoverFor: h.subjectName,
             currentOwner: h.subjectName,
-            currentOwnerUrl: await this.url(h.subjectAccountId),
+            currentOwnerLink: await this.link(h.subjectName, h.subjectAccountId),
             ...(await this.owner(h, i)),
             link: await this.deps.link(h.id),
           };
@@ -185,17 +192,17 @@ export class Actions {
           h.items
             .filter((i) => i.risk >= minRisk)
             .map(async (i) => {
-              const { newOwner, newOwnerUrl } = await this.owner(h, i);
+              const { newOwner, newOwnerLink } = await this.owner(h, i);
               return {
                 person: h.subjectName,
-                personUrl: await this.url(h.subjectAccountId),
+                personLink: await this.link(h.subjectName, h.subjectAccountId),
                 title: i.title,
                 key: i.key,
                 url: i.url,
                 risk: i.risk,
                 reasons: i.reasons,
                 newOwner,
-                newOwnerUrl,
+                newOwnerLink,
               };
             }),
         ),
@@ -221,7 +228,7 @@ export class Actions {
     });
     return {
       result: `Started a draft handover for ${subject.name}. Open Baton to build the inventory.`,
-      personUrl: await this.url(subject.accountId),
+      personLink: await this.link(subject.name, subject.accountId),
       link: await this.deps.link(h.id),
     };
   });

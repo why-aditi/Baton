@@ -67,7 +67,7 @@ describe('list-handovers', () => {
       handovers: [
         {
           person: 'Meera Iyer',
-          personUrl: 'https://site/jira/people/meera',
+          personLink: '[Meera Iyer](https://site/jira/people/meera)',
           reason: 'leaving',
           lastDay: '2026-11-26',
           status: 'draft',
@@ -116,20 +116,27 @@ describe('people links', () => {
   test('get-handover links the person and each new owner to their Jira profile', async () => {
     await svc.setOwner(boss, { id: handoverId, itemAri: 'ari:pay142', accountId: 'arjun' });
     const r = (await actions.getHandover(boss, { person: 'Meera' })) as any;
-    expect(r.personUrl).toBe('https://site/jira/people/meera');
-    expect(r.topRisks.find((i: any) => i.key === 'PAY-142').newOwnerUrl).toBe('https://site/jira/people/arjun');
+    expect(r.personLink).toBe('[Meera Iyer](https://site/jira/people/meera)');
+    expect(r.topRisks.find((i: any) => i.key === 'PAY-142').newOwnerLink).toBe('[Arjun Rao](https://site/jira/people/arjun)');
   });
 
   test('items with no owner get no owner link', async () => {
     const r = (await actions.getHandover(boss, { person: 'Meera' })) as any;
-    expect(r.topRisks.find((i: any) => i.title === 'Payment retry runbook').newOwnerUrl).toBeNull();
+    expect(r.topRisks.find((i: any) => i.title === 'Payment retry runbook').newOwnerLink).toBeNull();
   });
 
   test('list-at-risk-items and start-handover link people too', async () => {
     const risky = (await actions.listAtRiskItems(boss, { person: 'Meera' })) as any;
-    expect(risky.items[0].personUrl).toBe('https://site/jira/people/meera');
+    expect(risky.items[0].personLink).toBe('[Meera Iyer](https://site/jira/people/meera)');
     const started = (await actions.startHandover(boss, { person: 'Arjun', reason: 'leave', lastDay: '2027-01-10' })) as any;
-    expect(started.personUrl).toBe('https://site/jira/people/arjun');
+    expect(started.personLink).toBe('[Arjun Rao](https://site/jira/people/arjun)');
+  });
+});
+
+describe('people link text', () => {
+  test('square brackets in a name are escaped so the link still works', async () => {
+    const { personLink } = await import('../src/actions');
+    expect(personLink('Lin [contractor]', 'https://site/jira/people/lin')).toBe('[Lin \\[contractor\\]](https://site/jira/people/lin)');
   });
 });
 
@@ -150,9 +157,9 @@ describe('find-owner', () => {
       item: { title: 'Retry backoff', key: 'PAY-142', url: 'https://site/ari:pay142' },
       handoverFor: 'Meera Iyer',
       currentOwner: 'Meera Iyer',
-      currentOwnerUrl: 'https://site/jira/people/meera',
+      currentOwnerLink: '[Meera Iyer](https://site/jira/people/meera)',
       newOwner: 'Arjun Rao',
-      newOwnerUrl: 'https://site/jira/people/arjun',
+      newOwnerLink: '[Arjun Rao](https://site/jira/people/arjun)',
       ownerStatus: 'accepted',
       reason: 'Worked on this item',
       link: `https://site/jira/apps/app/env?handover=${handoverId}`,
