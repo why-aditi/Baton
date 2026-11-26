@@ -346,6 +346,20 @@ export class HandoverService {
     return this.save(h);
   }
 
+  /**
+   * Deletes one handover: the person who started it, or a Jira admin. Recipients can see it but not
+   * delete it. A Confluence page it published is left alone.
+   */
+  async deleteHandover(caller: Caller, input: unknown): Promise<{ deleted: string }> {
+    const id = (input as { id?: unknown } | null)?.id;
+    const { h } = await this.load(caller, typeof id === 'string' ? id : '');
+    if (!caller.isAdmin && caller.accountId !== h.initiatorAccountId) {
+      throw new BatonError('bad_input', 'Only the person who started this handover, or a Jira admin, can delete it');
+    }
+    await this.deps.store.delete(h.id);
+    return { deleted: h.id };
+  }
+
   /** Jira admins only, for resetting a demo site. Returns how many were deleted. */
   async deleteAllHandovers(caller: Caller, input: unknown): Promise<{ deleted: number }> {
     if (!caller.isAdmin) throw new BatonError('not_found', 'Handover not found');
