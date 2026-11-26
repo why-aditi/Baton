@@ -132,7 +132,7 @@ The scripts live in `scripts/`; `scripts/README.md` has the full steps. They ran
 - [x] Priya sees "Ready to publish" and 2 of 8 answered; the regenerated summary names items in its risks and folds in Meera's answer
 - [x] Publish to `NWP`: page "Handover: Meera Iyer (last day 2026-12-30)", created as Priya, 9 @mentions, item links
 - [x] Reassign: PAY-9 went from Meera to Lin in Jira (then put back on Meera so the seed stays as it was)
-- [x] Ask Rovo → Baton (listed once) → "List open handovers" shows the same handover. Meera showed as a bare profile URL instead of her name; fixed Nov 24 (section 8), recheck after the next deploy
+- [x] Ask Rovo → Baton (listed once) → "List open handovers" shows the same handover. Meera showed as a bare profile URL instead of her name; fixed Nov 24 (section 8) and rechecked Nov 26 as Priya: she now shows as a "Meera Iyer" profile chip with her avatar
 - [x] Claude Desktop → "List open handovers" (Nov 24, as Aditi) shows Meera's handover as published, plus Aditi's own test handovers (Jennifer Evans, Kevin Campbell, Alana Grant). It lists more than Rovo did because site admins see every handover; Priya isn't an admin
 
 **On your own site,** all from Jira → Apps → **Baton** → `/dev` (the resolver test page) unless it says otherwise:
@@ -251,7 +251,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 - [ ] **Wrap `get-handover` and `find-owner` as `rovo:skill`s,** which helps with the Best Agents prize.
 - [ ] **Check the agent's four suggested questions** give correct, cited answers in Rovo and in Claude Desktop, before Dec 14.
-- [x] **Fix the agent's people links.** The actions return `personLink`, `currentOwnerLink` and `newOwnerLink`: a ready-made Markdown link, `[Meera Iyer](<site>/jira/people/<accountId>)`, and the agent prompt says to copy it exactly. (Nov 24: replaced the separate `*Url` fields, after Rovo showed Meera as a bare profile URL. Recheck in Rovo after the next deploy.)
+- [x] **Fix the agent's people links.** The actions return `personLink`, `currentOwnerLink` and `newOwnerLink`: a ready-made Markdown link, `[Meera Iyer](<site>/jira/people/<accountId>)`, and the agent prompt says to copy it exactly. (Nov 24: replaced the separate `*Url` fields, after Rovo showed Meera as a bare profile URL. Verified in Rovo Nov 26: the link renders as a name chip. For a second or two it shows the raw URL, then switches to the name.)
 - [x] **Baton showing up twice in the Rovo picker.** That came from per-product installs; with one installation it shows once (Nov 22).
 
 **Loose ends**
