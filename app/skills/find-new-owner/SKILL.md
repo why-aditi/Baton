@@ -20,7 +20,7 @@ Use this skill when someone asks who has a piece of work now: "Who owns PAY-1 no
 
 ## Answering
 
-Start with the item, `item.title` linked to `item.url` (with `item.key` if there is one), then the owner. What to say depends on `ownerStatus`:
+Start with the item, its `item.itemLink` copied exactly (with `item.key` if there is one), then the owner. What to say depends on `ownerStatus`:
 
 - **`accepted`:** the manager has decided. "{newOwnerLink} owns it now", then the `reason`.
 - **`suggested`:** nobody has decided yet. "Baton suggests {newOwnerLink}", then the `reason`, and say the manager hasn't confirmed it.

@@ -24,6 +24,13 @@ type Input = Record<string, unknown>;
  * the name shows instead of a bare URL. Brackets in the name are escaped so the link survives.
  */
 export const personLink = (name: string, url: string) => `[${name.replace(/[\\[\]]/g, '\\$&')}](${url})`;
+/**
+ * A URL that survives as a Markdown link target. Bitbucket PR URLs carry `{uuid}` segments, and Rovo
+ * left `[title](…{uuid}…)` as raw text (seen live Nov 26); percent-encoding them keeps the same page.
+ */
+export const mdUrl = (url?: string) => url?.replace(/[{}()<> ]/g, (c) => encodeURIComponent(c));
+/** An item as a ready-made Markdown link, so agents show the PR or page title rather than its URL. */
+const itemLink = (i: { title: string; url?: string }) => (i.url ? personLink(i.title, mdUrl(i.url)!) : null);
 const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
 
 /** Trims the longest list until the JSON fits in maxBytes. */
@@ -141,7 +148,7 @@ export class Actions {
       topRisks: await Promise.all(
         h.items.slice(0, 10).map(async (i) => {
           const { newOwner, newOwnerLink } = await this.owner(h, i);
-          return { title: i.title, key: i.key, url: i.url, kind: i.kind, risk: i.risk, band: i.band, reasons: i.reasons, newOwner, newOwnerLink };
+          return { title: i.title, key: i.key, url: mdUrl(i.url), itemLink: itemLink(i), kind: i.kind, risk: i.risk, band: i.band, reasons: i.reasons, newOwner, newOwnerLink };
         }),
       ),
       answeredQuestions: h.questions
@@ -157,7 +164,7 @@ export class Actions {
     const q = query.toLowerCase();
     const tests: ((i: ScoredItem) => boolean)[] = [
       (i) => i.key?.toLowerCase() === q,
-      (i) => i.url === query,
+      (i) => i.url === query || mdUrl(i.url) === query,
       (i) => i.title.toLowerCase() === q,
       (i) => i.title.toLowerCase().includes(q),
     ];
@@ -167,7 +174,7 @@ export class Actions {
         const i = h.items.find(test);
         if (i) {
           return {
-            item: { title: i.title, key: i.key, url: i.url },
+            item: { title: i.title, key: i.key, url: mdUrl(i.url), itemLink: itemLink(i) },
             handoverFor: h.subjectName,
             currentOwner: h.subjectName,
             currentOwnerLink: await this.link(h.subjectName, h.subjectAccountId),
@@ -198,7 +205,8 @@ export class Actions {
                 personLink: await this.link(h.subjectName, h.subjectAccountId),
                 title: i.title,
                 key: i.key,
-                url: i.url,
+                url: mdUrl(i.url),
+                itemLink: itemLink(i),
                 risk: i.risk,
                 reasons: i.reasons,
                 newOwner,
