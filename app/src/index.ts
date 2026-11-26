@@ -50,6 +50,7 @@ const RESOLVERS: Record<string, Handler> = {
   markPublished: (s, c, p) => s.markPublished(c, { id: p?.id, pageId: p?.pageId, url: p?.url }),
   publishHandover: (s, c, p) => s.publish(c, p),
   reassignIssues: (s, c, p) => s.reassign(c, p),
+  deleteHandover: (s, c, p) => s.deleteHandover(c, p),
   deleteAllHandovers: (s, c, p) => s.deleteAllHandovers(c, p),
   // Graph reads for buildInventory, as the user, from the backend (the browser bridge gets 403 on
   // teams). Only Baton's own queries, by operation name: see src/graph/proxy.ts.
