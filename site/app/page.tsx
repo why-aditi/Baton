@@ -1,4 +1,4 @@
-import { exampleRows, facts, rules, steps, tools } from './content';
+import { exampleRows, facts, installUrl, rules, steps, tools } from './content';
 
 export default function Home() {
   return (
@@ -15,7 +15,7 @@ export default function Home() {
             <a href="#how">How it works</a>
             <a href="#score">Scoring</a>
             <a href="#mcp">MCP</a>
-            <a className="btn btn-primary" href="#install">
+            <a className="btn btn-primary" href={installUrl}>
               Install in Jira
             </a>
           </div>
@@ -32,7 +32,7 @@ export default function Home() {
                 risk, and routes it to the teammate best placed to take it.
               </p>
               <div className="actions">
-                <a className="btn btn-primary" href="#install">
+                <a className="btn btn-primary" href={installUrl}>
                   Install in Jira
                 </a>
                 <a className="btn btn-ghost" href="#mcp">
@@ -159,8 +159,14 @@ export default function Home() {
                   Optional: in admin.atlassian.com, open Baton under <b>Connected apps</b> and turn on <b>Expose tools to MCP-compatible apps</b>.
                 </li>
               </ol>
-              {/* The install link goes here once the app is listed (Codegeist submission). */}
-              <p className="note">The install link is published with the Codegeist submission.</p>
+              <div className="actions">
+                <a className="btn btn-primary" href={installUrl}>
+                  Install Baton
+                </a>
+              </div>
+              <p className="note">
+                Baton isn&apos;t on the Marketplace, so Atlassian shows an “app not reviewed” notice on install.
+              </p>
             </div>
           </div>
         </section>

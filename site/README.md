@@ -20,6 +20,7 @@ npm run lint     # typecheck
   with `app/src/scoring/risk.ts`, the tools with `app/manifest.yml`.
 - **Fonts** (Manrope, JetBrains Mono) are downloaded by `next/font` at build time and served from the site,
   so the page makes no requests to Google.
-- **Install link:** not public yet. When the app has a listing or install link, point the "Install in Jira"
-  buttons (`href="#install"` in `app/page.tsx`) at it and drop the note in the install section.
+- **Install link:** `installUrl` in `app/content.ts`, the Forge installation link from the developer console
+  (Baton → Distribution). Every install button uses it. Generating a new link there invalidates the old one, so
+  update it here too.
 - The hero's inventory and the chat are examples from the Northwind Pay demo data and are labelled as such.
