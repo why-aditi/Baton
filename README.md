@@ -58,6 +58,7 @@ flowchart LR
 - **The LLM only writes language:** the questions, one-line item summaries and the narrative. It gets scored items as JSON and its output is checked against a schema; any item it invents is stripped.
 - **Only anonymized prompts leave Atlassian.** People become P1, P2… and items I1, I2… before any call, and are mapped back afterwards. Graph data, storage and REST calls stay on Atlassian.
 - **One set of actions, two front doors.** The Rovo agent and the MCP server share the same five actions: `list-handovers`, `get-handover`, `find-owner`, `list-at-risk-items` and `start-handover`.
+- **Skills for the common questions.** Two Rovo skills, `handover-briefing` and `find-new-owner`, wrap `get-handover` and `find-owner` with step-by-step instructions (`app/skills/`), so the agent answers "What did Meera leave unfinished?" and "Who owns PAY-1 now?" the same way every time.
 
 ### How Baton uses Teamwork Graph
 
