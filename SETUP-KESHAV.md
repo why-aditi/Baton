@@ -1,10 +1,10 @@
 # Baton dev setup for Keshav
 
-Nov 16, 2026 · from Aditi · updated Nov 23 (evening): built, seeded, and run end to end on the demo site
+Nov 16, 2026 · from Aditi · updated Nov 26: in production with a public installation link, marketing page live
 
 The backend works end to end on the demo site: the app page, the Rovo agent and Claude Desktop (MCP) all see the same handovers, the inventory covers issues, PRs, pages, teams and goals, and publish and reassign work. This gets you your own copy, on your own environment and demo site. Plan on about an hour.
 
-| Piece | Status on Nov 23 |
+| Piece | Status (Nov 23, updated Nov 26) |
 | --- | --- |
 | Teamwork Graph reads | Work. New activity is indexed within ~5 min. Real responses are saved in `app/test/fixtures/`. All graph reads go through the backend `graphQuery` resolver, as the user |
 | Teams | Load (Nov 23). Through the browser bridge every team 403'd; through the backend they come back ([forum thread](https://community.developer.atlassian.com/t/teamwork-graph-atlassianuserinteams-returns-edges-but-every-node-fails-with-teamsv2-status-code-is-403/103977)) |
@@ -18,6 +18,8 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Custom UI | All five screens built in `app/ui/` and the whole flow run on the demo site with seed data (Nov 23): new handover, inventory, questions, Meera's answers, summary, publish, reassign (section 5) |
 | Groq on seed data | Questions, one-liners and the summary all work (Nov 23) |
 | Seed data | Seeded on Aditi's site (Nov 23): 59 issues, 12 pages, 6 PRs, both teams, 2 goals and the project. The project's owner is still Aditi (section 4) |
+| Production and install link | Deployed to `production` (Nov 26, with `GROQ_API_KEY` set there) and shared: developer console → Baton → Distribution → "Sharing with anyone". Copy the installation link from that page. App details on the install screen: company Baton, support = GitHub issues, privacy policy below, stores personal data = Yes |
+| Marketing page | Live at https://why-aditi.github.io/Baton/ (privacy policy at `/privacy/`). `.github/workflows/site.yml` republishes it on every push to `main` that touches `site/`. The "Install in Jira" buttons still point at `#install` until the installation link is added |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
 
