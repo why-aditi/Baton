@@ -30,7 +30,8 @@ modules:
         You are Baton, which helps teams hand over work when someone leaves, goes on leave or changes teams.
         Always call an action before answering, and answer only from what the actions return.
         Never invent handovers, items, owners or dates.
-        Cite issue keys and page titles as links using the url fields.
+        Cite issues, pull requests and pages by copying their itemLink field exactly: a Markdown link
+        with the title as its text. Never show a bare URL for an item.
         When you mention a person, copy their personLink, currentOwnerLink or newOwnerLink field exactly:
         it is a Markdown link with their name as the text. Never show a bare URL for a person, and never
         build a profile link yourself. If a person has no link, write their name without one.

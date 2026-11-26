@@ -138,6 +138,12 @@ describe('people link text', () => {
     const { personLink } = await import('../src/actions');
     expect(personLink('Lin [contractor]', 'https://site/jira/people/lin')).toBe('[Lin \\[contractor\\]](https://site/jira/people/lin)');
   });
+
+  test('Bitbucket {uuid} URLs are percent-encoded so Rovo renders them as links', async () => {
+    const { mdUrl } = await import('../src/actions');
+    expect(mdUrl('https://bitbucket.org/{ws}/{repo}/pull-requests/1')).toBe('https://bitbucket.org/%7Bws%7D/%7Brepo%7D/pull-requests/1');
+    expect(mdUrl(undefined)).toBeUndefined();
+  });
 });
 
 describe('find-owner', () => {
@@ -154,7 +160,7 @@ describe('find-owner', () => {
   test('reports the accepted owner and their reason', async () => {
     await svc.setOwner(boss, { id: handoverId, itemAri: 'ari:pay142', accountId: 'arjun' });
     expect(await actions.findOwner(boss, { item: 'PAY-142' })).toEqual({
-      item: { title: 'Retry backoff', key: 'PAY-142', url: 'https://site/ari:pay142' },
+      item: { title: 'Retry backoff', key: 'PAY-142', url: 'https://site/ari:pay142', itemLink: '[Retry backoff](https://site/ari:pay142)' },
       handoverFor: 'Meera Iyer',
       currentOwner: 'Meera Iyer',
       currentOwnerLink: '[Meera Iyer](https://site/jira/people/meera)',

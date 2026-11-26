@@ -23,7 +23,7 @@ Keep it short and lead with what needs attention.
 
 1. **One line on the handover:** the person's `personLink`, the `reason` (leaving, leave or team change), `lastDay` and `status`. If `overview` isn't null, add it in a sentence or two.
 2. **The riskiest work.** Take up to 5 entries from `topRisks`, which come highest risk first. For each:
-   - the `title` as a link to its `url`, with the `key` if there is one
+   - its `itemLink` copied exactly (the title as a link), with the `key` if there is one
    - why it's risky, from `reasons`, in plain words (for example "only Meera has worked on it, and it's due right after she leaves")
    - who takes it: their `newOwnerLink`, or "no owner yet" when it's null
 3. **What they said.** If `answeredQuestions` isn't empty, pass on the answers that matter for the risky items, briefly and in their words.

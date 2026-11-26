@@ -2,17 +2,20 @@
 // (@forge/manifest's rovo:skill validators), so a broken skill fails here first.
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
 import { parse } from 'yaml';
 
-const root = new URL('..', import.meta.url).pathname;
+// fileURLToPath, not .pathname: on Windows .pathname gives "/d:/…".
+const root = fileURLToPath(new URL('..', import.meta.url));
 const manifest = parse(readFileSync(join(root, 'manifest.yml'), 'utf8'));
 const skills: { key: string; source: { dir: string }; dependencies: { tools: string[] } }[] = manifest.modules['rovo:skill'] ?? [];
 const actionKeys = new Set<string>(manifest.modules.action.map((a: { key: string }) => a.key));
 const agent = manifest.modules['rovo:agent'][0];
 
 const readSkill = (dir: string) => {
-  const text = readFileSync(join(root, dir, 'SKILL.md'), 'utf8');
+  // Git on Windows checks files out with CRLF.
+  const text = readFileSync(join(root, dir, 'SKILL.md'), 'utf8').replace(/\r\n/g, '\n');
   const m = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!m) throw new Error(`${dir}/SKILL.md has no frontmatter`);
   return { frontmatter: parse(m[1]!) as Record<string, unknown>, body: m[2]! };
