@@ -101,6 +101,7 @@ cd app
 npm install
 npm test            # unit tests, no site or login needed
 npm run typecheck
+(cd ui && npm run build)   # always rebuild the UI first, or UI changes don't ship
 forge deploy        # then: forge install -p Jira, then forge install -p Confluence
 ```
 
@@ -117,16 +118,26 @@ The full setup (your own Forge environment and demo site, Rovo, MCP, the LLM key
 | [`SETUP-KESHAV.md`](SETUP-KESHAV.md) | Developer setup, progress and known issues |
 | `Baton — Codegeist 2026 Tech Spec.pdf` | The spec: scope, design, data model, timeline |
 
-## Status (Nov 23, 2026)
+## Where it runs
+
+| What | Where |
+| --- | --- |
+| Marketing page | https://why-aditi.github.io/Baton/ (GitHub Pages, published by `.github/workflows/site.yml` on every push to `main` that touches `site/`) |
+| Privacy policy | https://why-aditi.github.io/Baton/privacy/ |
+| The app, production | Forge **production** environment, shared through an installation link ("Sharing with anyone", developer console → Baton → Distribution). Deploy with `cd app/ui && npm run build && cd .. && forge deploy -e production` |
+| The app, development | Forge **development** environment, installed on the demo site `one-atlas-ubvd.atlassian.net` |
+
+## Status (Nov 26, 2026)
 
 | Area | State |
 | --- | --- |
 | Risk scoring, owner ranking, LLM layer, storage | Built and unit-tested |
 | Teamwork Graph inventory (issues, PRs, pages, links, teams, goals) | Built, tested against recorded responses, checked live on the demo site |
 | Publish to Confluence, reassign Jira issues | Built and tested live |
-| Rovo agent and MCP server | Working end to end, from Rovo chat and Claude Desktop |
-| Custom UI | Not built yet |
-| Seed data (Northwind Pay) | Scripts written and tested against fakes; site setup in progress, due Nov 30 |
+| Custom UI | Built; the whole flow run live on seed data (new handover → inventory → questions → answers → summary → publish → reassign) |
+| Rovo agent, skills and MCP server | Working end to end, from Rovo chat and Claude Desktop; both skills checked in Rovo |
+| Seed data (Northwind Pay) | Seeded on the demo site: 59 issues, 12 pages, 6 PRs, 2 teams, 2 goals, a project |
+| Distribution | Deployed to production and shared by installation link; marketing page and privacy policy live |
 
 **Known limits.** "Stale" can't be faked: seeded issues only turn stale 30 days after seeding. Bitbucket PRs without a Jira key aren't found. Teamwork Graph and Forge's Rovo and MCP features are in Preview.
 
