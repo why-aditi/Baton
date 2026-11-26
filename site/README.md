@@ -5,6 +5,10 @@ The public page for Baton, in the "developer dark" design picked on Nov 23
 Next.js 16 (App Router) with static export: `npm run build` writes plain files to `out/`, so any static
 host works (GitHub Pages, Netlify, Vercel, S3).
 
+**Live at https://why-aditi.github.io/Baton/.** `.github/workflows/site.yml` builds and publishes it to GitHub Pages
+on every push to `main` that touches `site/` (or run it by hand from the Actions tab). It builds with
+`BASE_PATH=/Baton`, since Pages serves the repo under `/Baton/`; locally the site stays at `/`.
+
 ```sh
 npm install
 npm run dev      # http://localhost:3000
