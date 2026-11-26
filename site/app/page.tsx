@@ -170,6 +170,7 @@ export default function Home() {
         <div className="wrap">
           <span>Baton · built on Atlassian Forge</span>
           <span>Jira · Confluence · Rovo · MCP</span>
+          <a href="privacy/">Privacy</a>
         </div>
       </footer>
     </>
