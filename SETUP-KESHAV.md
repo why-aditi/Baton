@@ -135,15 +135,15 @@ The scripts live in `scripts/`; `scripts/README.md` has the full steps. They ran
 - [x] Ask Rovo → Baton (listed once) → "List open handovers" shows the same handover. Meera showed as a bare profile URL instead of her name; fixed Nov 24 (section 8), recheck after the next deploy
 - [x] Claude Desktop → "List open handovers" (Nov 24, as Aditi) shows Meera's handover as published, plus Aditi's own test handovers (Jennifer Evans, Kevin Campbell, Alana Grant). It lists more than Rovo did because site admins see every handover; Priya isn't an admin
 
-**On your own site,** all from Jira → Apps → **Baton** → `/dev` (the resolver test page) unless it says otherwise:
+**On Keshav's own site** (done, reported Nov 26), all from Jira → Apps → **Baton** → `/dev` (the resolver test page) unless it says otherwise:
 
-- [ ] The Baton page loads
-- [ ] `listHandovers` with payload `{}` returns `{ "ok": true, "data": [] }`
-- [ ] `createHandover` with `{"subjectAccountId":"<someone's account ID>","subjectName":"<their name>","reason":"leaving","lastDay":"2026-12-20"}` returns the new handover
-- [ ] `updateSummary`, then `publishHandover` with `{"id":"<id>","spaceKey":"<a space key>"}`, returns the handover with a `confluencePageUrl`, and the page opens
-- [ ] Ask Rovo → Baton → "List open handovers" shows it
-- [ ] Claude Desktop → "List open handovers" shows the same handover
-- [ ] `forge logs -e keshav` shows `action caller via myself` for both
+- [x] The Baton page loads
+- [x] `listHandovers` with payload `{}` returns `{ "ok": true, "data": [] }`
+- [x] `createHandover` with `{"subjectAccountId":"<someone's account ID>","subjectName":"<their name>","reason":"leaving","lastDay":"2026-12-20"}` returns the new handover
+- [x] `updateSummary`, then `publishHandover` with `{"id":"<id>","spaceKey":"<a space key>"}`, returns the handover with a `confluencePageUrl`, and the page opens
+- [x] Ask Rovo → Baton → "List open handovers" shows it
+- [x] Claude Desktop → "List open handovers" shows the same handover
+- [x] `forge logs -e keshav` shows `action caller via myself` for both
 
 To find an account ID: open the person's Jira profile; the ID is the last part of the URL.
 
@@ -213,7 +213,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 - [x] **Recorded what the graph returns** (Nov 22): `app/test/fixtures/`, findings in its README. Re-record once your seed lands.
 - [x] **Deployed `app/` and tested Rovo and Claude Desktop** (Nov 22): both identify the caller and see the same handovers, now that the app is one installation.
 - [x] **Publish and reassign backend** (Nov 22), tested live on the demo site. **(affects you)**
-- [x] **`rovo:skill` exists** (Preview). Wrapping `get-handover` and `find-owner` as skills is still to do (below).
+- [x] **`rovo:skill` exists** (Preview). `get-handover` and `find-owner` are wrapped as skills (below).
 - [x] **Turn graph results into items.** `app/src/graph/normalize.ts`, one converter per query, tested against the fixtures. The queries are checked against the recorded schema in a test.
 - [x] **One function that builds the inventory.** `buildInventory` in `app/src/graph/inventory.ts`; see "Reading the graph" in section 7. **(affects you)**
 - [x] **Teams load** (Nov 23). Graph reads go through the backend `graphQuery` resolver: the browser bridge got a 403 on every team, the backend doesn't. Pass `request: backendGraphRequest(invoke)` to `buildInventory`. The dev-only `devGraphQuery` is gone. **(affects you)**
@@ -249,7 +249,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 **Agent and MCP**
 
-- [ ] **Wrap `get-handover` and `find-owner` as `rovo:skill`s,** which helps with the Best Agents prize.
+- [x] **Wrapped `get-handover` and `find-owner` as `rovo:skill`s** (Nov 26), for the Best Agents prize. `handover-briefing` (uses `get-handover`, and `list-handovers` when the name doesn't match) and `find-new-owner` (uses `find-owner`) live in `app/skills/*/SKILL.md`, and the agent lists both. `app/test/skills.test.ts` applies the same rules as Forge's validator. Not run in Rovo yet: after the next deploy, ask "What did Meera leave unfinished?" and "Who owns PAY-1 now?" and check the answers follow the skills (top risks with reasons and owners; accepted vs suggested owner).
 - [ ] **Check the agent's four suggested questions** give correct, cited answers in Rovo and in Claude Desktop, before Dec 14.
 - [x] **Fix the agent's people links.** The actions return `personLink`, `currentOwnerLink` and `newOwnerLink`: a ready-made Markdown link, `[Meera Iyer](<site>/jira/people/<accountId>)`, and the agent prompt says to copy it exactly. (Nov 24: replaced the separate `*Url` fields, after Rovo showed Meera as a bare profile URL. Recheck in Rovo after the next deploy.)
 - [x] **Baton showing up twice in the Rovo picker.** That came from per-product installs; with one installation it shows once (Nov 22).

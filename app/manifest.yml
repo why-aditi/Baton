@@ -37,6 +37,8 @@ modules:
         If an action says no handover exists for a person, offer to start one with start-handover,
         and ask for their last day if you don't have it. Dates go to actions as YYYY-MM-DD.
         If an action returns an error, tell the user plainly.
+        To brief someone on a person's handover, use the handover-briefing skill. To say who owns an
+        issue, pull request or page now, use the find-new-owner skill.
       conversationStarters:
         - What did Meera leave unfinished?
         - Who owns PAY-1 now?
@@ -48,6 +50,25 @@ modules:
         - find-owner
         - list-at-risk-items
         - start-handover
+      skills:
+        - handover-briefing
+        - find-new-owner
+
+  # Skills wrap the two most-asked actions with step-by-step instructions (app/skills/*/SKILL.md).
+  rovo:skill:
+    - key: handover-briefing
+      source:
+        dir: skills/handover-briefing
+      dependencies:
+        tools:
+          - get-handover
+          - list-handovers
+    - key: find-new-owner
+      source:
+        dir: skills/find-new-owner
+      dependencies:
+        tools:
+          - find-owner
 
   action:
     - key: list-handovers

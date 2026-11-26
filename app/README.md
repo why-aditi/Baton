@@ -41,6 +41,7 @@ npm run typecheck
 | `src/handover/service.ts` | Every resolver's logic: access checks, state changes, LLM caching, the 20-calls-an-hour limit |
 | `src/handover/access.ts` | Who sees what: editor (initiator, recipients, Jira admins), subject, or nobody |
 | `src/actions/index.ts` | The five Rovo/MCP actions, with replies kept under 4 KB |
+| `skills/*/SKILL.md` | Rovo skills: `handover-briefing` (wraps `get-handover`) and `find-new-owner` (wraps `find-owner`). Checked by `test/skills.test.ts` |
 | `src/publish/page.ts` | `pageTitle`, `pageBody`: the published handover in Confluence storage format, with @mentions and item links |
 | `src/index.ts`, `src/forge/` | Forge wiring: KVS store, caller identity, links, Confluence page create and Jira assign (`atlassian.ts`). Not unit-tested |
 | `src/graph/inventory.ts` | `buildInventory`: runs every query as the user and returns what `saveInventory` takes, plus warnings |
