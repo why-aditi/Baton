@@ -71,7 +71,7 @@ test('shows what is new, what moved on and to whom, and what is still with them'
   expect(screen.getByText('No longer with Meera (2)')).toBeTruthy();
   expect(screen.getByText('Still with Meera (2)')).toBeTruthy();
   expect(screen.getByText('PAY-4 New retry alert')).toBeTruthy();
-  expect(screen.getByText('→ Arjun Rao')).toBeTruthy();
+  expect(screen.getByText('planned for Arjun Rao')).toBeTruthy();
   expect(screen.getByText('no owner was chosen')).toBeTruthy();
   expect(screen.getByText('risk 40 → 60')).toBeTruthy();
   expect(screen.getByText('risk 20')).toBeTruthy();
