@@ -95,7 +95,7 @@ export const BuildInventory = ({
           <div aria-hidden="true" style={{ height: 6, borderRadius: 3, background: token('color.background.neutral', '#091E420F'), overflow: 'hidden' }}>
             <div style={{ height: 6, width: `${(done / STEPS.length) * 100}%`, background: token('color.background.brand.bold', '#0C66E4'), transition: 'width 200ms ease-out' }} />
           </div>
-          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 4 }}>
+          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', rowGap: 4, columnGap: 40 }}>
             {STEPS.map((s) => {
               const p = progress[s];
               return (

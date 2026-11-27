@@ -52,7 +52,7 @@ const emptyH: Handover = {
   ...full(),
   ...(screen === 'build' ? { status: 'draft' as const, items: [], questions: [] } : {}),
   ...(screen === 'inventory' ? { items: [] } : {}),
-  ...(screen === 'questions' ? { questions: [] } : {}),
+  ...(screen === 'questions' || screen === 'answer' ? { questions: [] } : {}),
   ...(screen === 'review' ? { summary: undefined } : {}),
 };
 const published: Handover = { ...full(), status: 'published', confluencePageUrl: 'https://northwind.atlassian.net/wiki/spaces/NWP/pages/1' };
