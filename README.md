@@ -133,11 +133,15 @@ The full setup (your own Forge environment and demo site, Rovo, MCP, the LLM key
 | The app, production | Forge **production** environment, shared through an installation link ("Sharing with anyone", developer console → Baton → Distribution). Deploy with `cd app/ui && npm run build && cd .. && forge deploy -e production` |
 | The app, development | Forge **development** environment, installed on the demo site `one-atlas-ubvd.atlassian.net` |
 
-## Status (Nov 26, 2026)
+## Status (Nov 27, 2026)
 
 | Area | State |
 | --- | --- |
 | Risk scoring, owner ranking, LLM layer, storage | Built and unit-tested |
+| Forge LLMs and Runs on Atlassian | Live: the app has no external egress, and dev and production are both eligible for Runs on Atlassian (`forge eligibility`). Meera's summary regenerated on Forge LLMs |
+| Issue panel | Live: the **Baton handover** panel on PAY-1 shows who's leaving, the risk and reasons, and the suggested owner |
+| What changed since publishing | Live: catches items that left the departing person after publishing |
+| Jira Automation action | Listed in the rule builder and connects; its settings panel still doesn't load (being worked on) |
 | Teamwork Graph inventory (issues, PRs, pages, links, teams, goals) | Built, tested against recorded responses, checked live on the demo site |
 | Publish to Confluence, reassign Jira issues | Built and tested live |
 | Custom UI | Built; the whole flow run live on seed data (new handover → inventory → questions → answers → summary → publish → reassign) |
