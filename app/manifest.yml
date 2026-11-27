@@ -134,6 +134,11 @@ modules:
       name: Start handover
       function: start-handover-fn
       actionVerb: CREATE
+      # Jira Automation's settings form for this action (app/ui: AutomationConfig, chosen in main.tsx).
+      config:
+        resource: main
+      resolver:
+        function: resolver
       description: Starts a draft handover for a person and returns a link to finish it in Baton. Returns the existing one if the person already has a handover in progress.
       inputs:
         person:

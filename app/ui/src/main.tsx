@@ -17,8 +17,15 @@ const start = async () => {
   const context = await view.getContext().catch(() => undefined);
   const issue = (context?.extension as { type?: string; issue?: { id?: string | number; key?: string } } | undefined)?.issue;
   const inIssuePanel = context?.moduleKey === 'baton-issue-badge' && !!issue;
-  // The issue panel has no history of its own: it never navigates inside the iframe.
-  const history = inIssuePanel ? undefined : await view.createHistory();
+  // Jira Automation opens the start-handover action's config UI in this same bundle.
+  const inAutomationConfig = context?.moduleKey === 'start-handover';
+  const showDebug = context?.environmentType !== 'PRODUCTION';
+  if (inAutomationConfig && showDebug) {
+    // Automation's contract for Forge action config isn't documented where we looked; log what it sends.
+    console.info('Baton: Automation config context', JSON.stringify(context));
+  }
+  // The issue panel and the config form have no history of their own: they never navigate in the iframe.
+  const history = inIssuePanel || inAutomationConfig ? undefined : await view.createHistory();
 
   const platform: Platform = {
     api: makeApi((name, payload) => invoke(name, payload)),
@@ -44,9 +51,14 @@ const start = async () => {
     navigate: (route) => history?.push(pathFor(route)),
     openUrl: (url) => void router.open(url),
     now: () => new Date(),
+    submitConfig: (values) => view.submit(values),
   };
 
   const root = createRoot(document.getElementById('root')!);
+  if (inAutomationConfig) {
+    root.render(<App platform={platform} route={{ name: 'automation-config', extension: context?.extension, showDebug }} />);
+    return;
+  }
   if (!history) {
     root.render(<App platform={platform} route={{ name: 'issue', issueId: issue?.id != null ? String(issue.id) : undefined, issueKey: issue?.key }} />);
     return;

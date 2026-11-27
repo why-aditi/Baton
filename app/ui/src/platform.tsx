@@ -18,6 +18,8 @@ export type Platform = {
   /** Opens an item's URL in a new tab, outside the app's iframe. */
   openUrl: (url: string) => void;
   now: () => Date;
+  /** Saves a config form's values (Jira Automation's action settings). Only set in that context. */
+  submitConfig?: (values: Record<string, string>) => Promise<void>;
 };
 
 const PlatformContext = createContext<Platform | null>(null);
