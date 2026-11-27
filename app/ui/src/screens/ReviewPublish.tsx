@@ -12,6 +12,7 @@ import { ApiError, type ReassignResult } from '../api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { errorText } from '../components/States';
 import { usePlatform } from '../platform';
+import { WhatChanged } from './WhatChanged';
 import {
   EMPTY_SUMMARY,
   fromSummaryDraft,
@@ -193,6 +194,12 @@ export const ReviewPublish = ({
           </div>
         )}
       </Card>
+
+      {published && (
+        <Card title="What changed since publishing">
+          <WhatChanged handover={h} />
+        </Card>
+      )}
 
       <Card title="Reassign Jira issues">
         <ReassignList
