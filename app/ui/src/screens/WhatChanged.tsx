@@ -87,7 +87,7 @@ export const WhatChanged = ({ handover: h }: { handover: Handover }) => {
         <Section title={`No longer with ${name} (${d.gone.length})`}>
           {d.gone.map((it) => (
             <li key={it.ari}>
-              {link(it)} <span style={{ color: subtle }}>{it.newOwner ? `→ ${it.newOwner}` : 'no owner was chosen'}</span>
+              {link(it)} <span style={{ color: subtle }}>{it.newOwner ? `planned for ${it.newOwner}` : 'no owner was chosen'}</span>
             </li>
           ))}
         </Section>
