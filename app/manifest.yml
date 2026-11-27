@@ -143,6 +143,12 @@ modules:
           required: true
           description: Their last day, as YYYY-MM-DD.
 
+  # Forge LLMs: Claude, hosted on Atlassian. Used for questions, one-liners and the summary.
+  llm:
+    - key: baton-llm
+      model:
+        - claude
+
   rovo:mcp:
     - key: baton-mcp
       name: Baton handovers
@@ -172,11 +178,8 @@ permissions:
     - read:space:confluence
     - write:page:confluence
     - storage:app
-  external:
-    fetch:
-      backend:
-        - address: api.groq.com
-        - address: api.mistral.ai
+  # No external egress: AI features run on Forge LLMs (the llm module above), so Baton qualifies
+  # as Runs on Atlassian.
 
 app:
   runtime:

@@ -1,7 +1,7 @@
 // Forge entry points: the app page's resolvers and the five Rovo/MCP actions.
 // The logic lives in src/handover/service.ts and src/actions; this file only wires Forge in.
 import * as ResolverModule from '@forge/resolver';
-import api, { fetch } from '@forge/api';
+import api from '@forge/api';
 import { randomUUID } from 'node:crypto';
 import { Actions } from './actions';
 import { forgeAtlassian } from './forge/atlassian';
@@ -10,8 +10,8 @@ import { callerFromAction, callerFromContext, findPeople, handoverLink, profileL
 import { resolveGraphCall } from './graph/proxy';
 import type { GraphResponse } from './graph/runner';
 import { BatonError, HandoverService } from './handover/service';
-import { createClient, type FetchLike } from './llm/client';
-import { providersFromEnv } from './llm/models';
+import { chat, list } from '@forge/llm';
+import { createForgeLlmClient } from './llm/forgeLlm';
 import type { Caller } from './types';
 
 // Forge's bundler (CLI 14.2) double-wraps CJS default exports; unwrap whichever shape arrives.
@@ -23,7 +23,7 @@ const LLM_CALLS_PER_HOUR = 20;
 const service = () =>
   new HandoverService({
     store: new KvsStore(),
-    llm: createClient({ fetch: fetch as unknown as FetchLike, providers: providersFromEnv() }),
+    llm: createForgeLlmClient({ chat, list }),
     now: () => new Date().toISOString(),
     newId: randomUUID,
     llmCallsPerHour: LLM_CALLS_PER_HOUR,

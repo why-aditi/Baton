@@ -9,16 +9,16 @@ The backend works end to end on the demo site: the app page, the Rovo agent and 
 | Teamwork Graph reads | Work. New activity is indexed within ~5 min. Real responses are saved in `app/test/fixtures/`. All graph reads go through the backend `graphQuery` resolver, as the user |
 | Teams | Load (Nov 23). Through the browser bridge every team 403'd; through the backend they come back ([forum thread](https://community.developer.atlassian.com/t/teamwork-graph-atlassianuserinteams-returns-edges-but-every-node-fails-with-teamsv2-status-code-is-403/103977)) |
 | Risk signals | All six can fire: Jira's updated date and sprint come from Jira's REST API, page link counts from a saved graph query |
-| Groq from a Forge resolver | Works |
+| LLM | Forge LLMs (Claude on Atlassian) since Nov 27: no keys, no external calls. Groq was used until then |
 | Rovo agent "Baton" | Works: start and list handovers in Ask Rovo |
 | Claude Desktop (MCP) | Works, and sees the same handovers as Rovo |
 | Publish to Confluence | Works, as the signed-in user, with @mentions and item links |
 | Reassign Jira issues | Works, as the signed-in user |
 | Bitbucket PRs in the graph | Work through the person's Jira issues (Nov 23). Bitbucket people have third-party IDs and no names, so Baton recognises the departing person by ID. A PR needs a Jira key to be found (section 8) |
 | Custom UI | All five screens built in `app/ui/` and the whole flow run on the demo site with seed data (Nov 23): new handover, inventory, questions, Meera's answers, summary, publish, reassign (section 5) |
-| Groq on seed data | Questions, one-liners and the summary all work (Nov 23) |
+| LLM on seed data | Questions, one-liners and the summary worked on Groq (Nov 23); recheck on Forge LLMs (section 8) |
 | Seed data | Seeded on Aditi's site (Nov 23): 59 issues, 12 pages, 6 PRs, both teams, 2 goals and the project. The project's owner is still Aditi (section 4) |
-| Production and install link | Deployed to `production` (Nov 26, with `GROQ_API_KEY` set there) and shared: developer console → Baton → Distribution → "Sharing with anyone". Copy the installation link from that page. App details on the install screen: company Baton, support = GitHub issues, privacy policy below, stores personal data = Yes |
+| Production and install link | Deployed to `production` (Nov 26, with `GROQ_API_KEY` set there; not needed since the move to Forge LLMs) and shared: developer console → Baton → Distribution → "Sharing with anyone". Copy the installation link from that page. App details on the install screen: company Baton, support = GitHub issues, privacy policy below, stores personal data = Yes |
 | Marketing page | Live at https://why-aditi.github.io/Baton/ (privacy policy at `/privacy/`). `.github/workflows/site.yml` republishes it on every push to `main` that touches `site/`. Its install buttons use the installation link (`installUrl` in `site/app/content.ts`) |
 
 The repo has two apps. `app/` is the real Baton and is what you set up. `spike/` is the week-1 test page, now only useful for recording graph fixtures (section 7). Aditi's site is `one-atlas-ubvd.atlassian.net`; you'll get your own.
@@ -31,7 +31,7 @@ The repo has two apps. `app/` is the real Baton and is what you set up. `spike/`
 - [x] Add you as a collaborator on it.
 - [x] Add you to the Developer Space that owns the app (developer.atlassian.com/console). Without this, `forge deploy` fails for you.
 - [x] Send you the Groq API key through a password manager, not chat.
-- [ ] Send you the Mistral API key the same way, once there is one.
+- [x] ~~Send you the Mistral API key~~ Not needed: Baton uses Forge LLMs (Nov 27).
 
 **You need:**
 
@@ -59,11 +59,7 @@ The repo has two apps. `app/` is the real Baton and is what you set up. `spike/`
     forge environments create
     ```
     Name it `keshav` when asked. Check `forge environments --help` if the flags differ.
-6. Set the LLM keys in your environment:
-    ```
-    forge variables set --encrypt -e keshav GROQ_API_KEY <key>
-    forge variables set --encrypt -e keshav MISTRAL_API_KEY <key>   # optional fallback, once it exists
-    ```
+6. Nothing to set for the LLM: Baton uses Forge LLMs, so there are no API keys. (Before Nov 27 this step set `GROQ_API_KEY`; old environments can keep it, it's unused.)
 7. Build the UI, then deploy, install in Jira and connect Confluence. `forge deploy` uploads `app/ui/build`, so build it first, every time the UI changes:
     ```
     cd ui && npm install && npm run build && cd ..
@@ -161,7 +157,7 @@ To find an account ID: open the person's Jira profile; the ID is the last part o
 - **No `noEmit` in `tsconfig.json`.** Forge's bundler then emits nothing and the deploy fails. `npm run typecheck` passes `--noEmit` itself.
 - **Forge storage entities reject empty-string attributes.** The store drops them on write; keep that in mind if you add fields.
 - **No `"type": "module"` in `package.json`.** It breaks the bundle.
-- **Groq models:** the account has no Llama models. Use `openai/gpt-oss-20b` (fast) or `openai/gpt-oss-120b` / `qwen/qwen3.8-27b` (large).
+- **Forge LLM models** are looked up at runtime with `list()` (Haiku-class for fast work, Sonnet-class for large), so don't hard-code model IDs.
 
 **Teamwork Graph** (more in `app/test/fixtures/README.md`)
 
@@ -242,7 +238,8 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 **LLM**
 
-- [ ] **Mistral setup.** Create the account and key, turn on the training opt-out if there is one, send you the key, and pin exact model IDs instead of the "latest" aliases.
+- [x] **Move the LLM to Forge LLMs** (Nov 27), for Runs on Atlassian: `src/llm/forgeLlm.ts`, the `llm` module in the manifest, and no external fetch permissions. Groq and Mistral are gone, so the Mistral setup isn't needed.
+- [ ] **Check Forge LLMs live:** deploy, then `forge eligibility` should say the app is eligible for Runs on Atlassian. Rerun questions, one-liners and the summary on Meera's handover and compare them with the Groq results from Nov 23.
 - [x] **Tried the three LLM calls on seed data** (Nov 23). Groq's JSON mode works and the questions are concrete. Fixed on the way: item refs (`I1`) leaked into the text, so bare refs now become the item's key or title; risks now name the item; and the one-liners were never requested, so the inventory build now asks for them after saving. **(affects you)**
 
 **Scoring**

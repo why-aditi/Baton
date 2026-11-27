@@ -6,7 +6,7 @@ When someone leaves, goes on leave or changes teams, their context leaves with t
 
 Baton does it before their last day. It finds every open item the person owns across Jira, Bitbucket and Confluence, scores each one for **knowledge risk** ("only this person has touched it"), suggests who should take it over, and asks the person **targeted questions** to capture what's only in their head. Then it publishes the handover to Confluence and reassigns the work.
 
-Built on Atlassian Forge for [Codegeist 2026](https://codegeist2026.devpost.com/): **Apps for Software Teams**, aiming at the **Best Agents**, **Best app with MCP** and **Teamwork Graph** bonus prizes.
+Built on Atlassian Forge for [Codegeist 2026](https://codegeist2026.devpost.com/): **Apps for Software Teams**, aiming at the **Best Agents**, **Best app with MCP** and **Teamwork Graph** bonus prizes, and built to qualify for **Runs on Atlassian**: no external calls, AI included.
 
 ## What it does
 
@@ -40,7 +40,7 @@ flowchart LR
     JC[Jira and Confluence REST]
   end
 
-  LLM[Groq, then Mistral<br/>anonymized prompts only]
+  LLM[Forge LLMs: Claude on Atlassian<br/>anonymized prompts]
 
   UI -- invoke --> R
   UI -- invoke --> G
@@ -56,7 +56,7 @@ flowchart LR
 - **Everything runs as the signed-in user,** so people only ever see work they already have access to. Graph reads go through a backend resolver that runs only Baton's own named queries.
 - **Scores are deterministic code, not the LLM.** Risk and owner ranking are pure, unit-tested functions, so the same inventory always gets the same scores.
 - **The LLM only writes language:** the questions, one-line item summaries and the narrative. It gets scored items as JSON and its output is checked against a schema; any item it invents is stripped.
-- **Only anonymized prompts go to the LLM.** The people Baton knows become P1, P2… and items I1, I2… before any call, and are mapped back afterwards. Graph data, storage and REST calls stay on Atlassian. The other way data leaves is MCP: an external AI client you connect gets the handover details you can see. Details in the [privacy policy](https://why-aditi.github.io/Baton/privacy/).
+- **Everything runs on Atlassian.** The LLM is Forge LLMs (Claude, hosted by Atlassian), and the app has no external fetch permissions. Prompts are still anonymized: the people Baton knows become P1, P2… and items I1, I2…, and are mapped back afterwards. The only way data leaves is MCP: an external AI client you connect gets the handover details you can see. Details in the [privacy policy](https://why-aditi.github.io/Baton/privacy/).
 - **One set of actions, two front doors.** The Rovo agent and the MCP server share the same five actions: `list-handovers`, `get-handover`, `find-owner`, `list-at-risk-items` and `start-handover`.
 - **Skills for the common questions.** Two Rovo skills, `handover-briefing` and `find-new-owner`, wrap `get-handover` and `find-owner` with step-by-step instructions (`app/skills/`), so the agent answers "What did Meera leave unfinished?" and "Who owns PAY-1 now?" the same way every time.
 
