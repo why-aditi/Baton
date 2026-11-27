@@ -238,6 +238,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 **LLM**
 
+- [x] **Issue panel badge** (Nov 27): `jira:issuePanel` `baton-issue-badge` shows, on any Jira issue in a handover you can edit, who's leaving, the risk and reasons, the new owner (accepted or suggested) and an Open handover button. Same UI bundle (`IssuePanel.tsx`, chosen in `main.tsx` from the module context) and the `issueHandovers` resolver. Not checked live: after deploying, open PAY-1 and look for the **Baton handover** panel (Jira may show it under the issue's apps button first); the icon is `app/ui/public/baton-icon.svg`.
 - [x] **Move the LLM to Forge LLMs** (Nov 27), for Runs on Atlassian: `src/llm/forgeLlm.ts`, the `llm` module in the manifest, and no external fetch permissions. Groq and Mistral are gone, so the Mistral setup isn't needed.
 - [ ] **Check Forge LLMs live:** deploy, then `forge eligibility` should say the app is eligible for Runs on Atlassian. Rerun questions, one-liners and the summary on Meera's handover and compare them with the Groq results from Nov 23.
 - [x] **Tried the three LLM calls on seed data** (Nov 23). Groq's JSON mode works and the questions are concrete. Fixed on the way: item refs (`I1`) leaked into the text, so bare refs now become the item's key or title; risks now name the item; and the one-liners were never requested, so the inventory build now asks for them after saving. **(affects you)**

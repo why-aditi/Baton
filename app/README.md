@@ -74,6 +74,7 @@ access), `bad_input`, `conflict`, `llm_unavailable` and `internal`.
 | `updateSummary` | `{ id, summary }` | editor | `Handover` |
 | `markPublished` | `{ id, pageId, url }` | editor | `Handover`, moved to published. `publishHandover` already does this |
 | `publishHandover` | `{ id, spaceKey }` | editor | Creates the Confluence page as the user (needs a summary), then `Handover`, moved to published, with `confluencePageUrl` |
+| `issueHandovers` | `{ issueId?, issueKey? }` | anyone (only handovers they can edit) | the handovers containing that issue: person, reason, last day, risk, reasons, new owner, `link`. For the issue panel |
 | `deleteHandover` | `{ id }` | the person who started it, or a Jira admin | `{ deleted: id }`. Removes one handover; a page it published stays |
 | `deleteAllHandovers` | `{ confirm: "DELETE" }` | Jira admins only | `{ deleted }`. Removes every handover on the site, for resetting a demo |
 | `reassignIssues` | `{ id, itemAris }` | editor | `{ results: { ari, key, accountId, ok, error? }[] }`. Jira issues with an accepted owner only. Show the confirmation dialog first |

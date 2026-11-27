@@ -17,6 +17,7 @@ Built on Atlassian Forge for [Codegeist 2026](https://codegeist2026.devpost.com/
 5. **Capture what's unwritten.** An LLM writes 5–10 concrete questions from the riskiest items; the departing person answers them in Baton.
 6. **Publish and reassign.** Baton writes the handover narrative, publishes it as a Confluence page with @mentions of the new owners, and bulk-reassigns the chosen Jira issues after a confirmation step.
 7. **Ask it anywhere.** The **Baton** Rovo agent and the **Baton handovers** MCP server answer questions such as *"Who owns PAY-1 now?"* and can start a handover, from Rovo chat or from an external AI client like Claude Desktop.
+8. **See it on the issue.** The **Baton handover** panel on a Jira issue says whether it's in a handover and, if so, who's leaving, the issue's risk and why, and who takes it over, with a link to the handover.
 
 ## How it works
 
