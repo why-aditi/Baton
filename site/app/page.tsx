@@ -1,4 +1,4 @@
-import { exampleRows, facts, installUrl, rules, steps, tools } from './content';
+import { demoRun, exampleRows, facts, installUrl, rules, steps, tools } from './content';
 
 export default function Home() {
   return (
@@ -42,7 +42,7 @@ export default function Home() {
             </div>
             <figure className="panel" style={{ margin: 0 }}>
               <div className="panel-head">
-                <span>Meera Iyer · leaving Dec 20</span>
+                <span>Meera Iyer · leaving Dec 30</span>
                 <span>6 high</span>
               </div>
               <ol className="rows" aria-label="Example inventory, highest risk first">
@@ -60,7 +60,7 @@ export default function Home() {
                 ))}
               </ol>
               <figcaption className="note" style={{ padding: '10px 16px', borderTop: '1px solid var(--line)' }}>
-                Example from the Northwind Pay demo
+                Example from the Northwind Pay demo. {demoRun}
               </figcaption>
             </figure>
           </div>
