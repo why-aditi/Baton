@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = { title: 'Privacy · Baton' };
 
 // Keep in step with the app: storage in app/src/forge/kvsStore.ts and the Handover type (app/src/types.ts),
-// LLM egress in app/manifest.yml and app/src/llm/tasks.ts (what is sent, and pseudonymize.ts for what is replaced),
+// the LLM (Forge LLMs, app/src/llm/forgeLlm.ts), what it is sent (app/src/llm/tasks.ts) and what is
+// replaced first (app/src/llm/pseudonymize.ts),
 // MCP replies in app/src/actions/index.ts.
 export default function Privacy() {
   return (
@@ -39,13 +40,12 @@ export default function Privacy() {
 
       <h2>What leaves Atlassian</h2>
       <p>
-        <strong>For AI features.</strong> To draft questions, one-line item summaries and the handover summary, Baton
-        sends item titles, keys and statuses, risk reasons, the reason and last day, and the questions and answers to
-        an LLM API: Groq, with Mistral as a fallback. Before sending, it replaces the names, account IDs and email
-        addresses of the people it knows about with placeholders such as P1, refers to items by short references
-        instead of Atlassian IDs, and puts the names back afterwards. A name it doesn&apos;t know, typed into an issue
-        title or an answer, is sent as written. Mistral is only used once its option to not use API data for training
-        is turned on. Each provider handles what it receives under its own terms.
+        <strong>AI features stay on Atlassian.</strong> To draft questions, one-line item summaries and the handover
+        summary, Baton uses Forge LLMs, which Atlassian hosts. It sends them item titles, keys and statuses, risk
+        reasons, the reason and last day, and the questions and answers. Even so, it first replaces the names, account
+        IDs and email addresses of the people it knows about with placeholders such as P1, refers to items by short
+        references instead of Atlassian IDs, and puts the names back afterwards. A name it doesn&apos;t know, typed into
+        an issue title or an answer, is sent as written.
       </p>
       <p>
         <strong>Through MCP.</strong> If you connect an external AI client such as Claude Desktop to Baton, Baton
