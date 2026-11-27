@@ -12,7 +12,13 @@ const start = async () => {
   // Forge injects Atlassian's design tokens and follows the user's light or dark theme.
   // Outside Forge (vite dev), load the tokens ourselves.
   await view.theme.enable().catch(() => setGlobalTheme({ colorMode: 'auto' }));
-  const history = await view.createHistory();
+
+  // The same bundle serves the app page and the Jira issue panel; the module context says which.
+  const context = await view.getContext().catch(() => undefined);
+  const issue = (context?.extension as { type?: string; issue?: { id?: string | number; key?: string } } | undefined)?.issue;
+  const inIssuePanel = context?.moduleKey === 'baton-issue-badge' && !!issue;
+  // The issue panel has no history of its own: it never navigates inside the iframe.
+  const history = inIssuePanel ? undefined : await view.createHistory();
 
   const platform: Platform = {
     api: makeApi((name, payload) => invoke(name, payload)),
@@ -35,12 +41,16 @@ const start = async () => {
         .sort((a, b) => Number(a.type === 'personal') - Number(b.type === 'personal'))
         .map((s) => ({ key: s.key, name: s.name }));
     },
-    navigate: (route) => history.push(pathFor(route)),
+    navigate: (route) => history?.push(pathFor(route)),
     openUrl: (url) => void router.open(url),
     now: () => new Date(),
   };
 
   const root = createRoot(document.getElementById('root')!);
+  if (!history) {
+    root.render(<App platform={platform} route={{ name: 'issue', issueId: issue?.id != null ? String(issue.id) : undefined, issueKey: issue?.key }} />);
+    return;
+  }
   const render = (l: { pathname: string; search: string }) => root.render(<App platform={platform} route={parseRoute(l.pathname, l.search)} />);
   render(history.location);
   history.listen((location) => render(location));

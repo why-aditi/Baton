@@ -347,6 +347,38 @@ export class HandoverService {
   }
 
   /**
+   * The handovers the caller can edit that contain one Jira issue, for the issue panel badge. Found by
+   * issue ID (from the issue's ARI) or key. Anyone else, the departing person included, gets [].
+   */
+  async issueHandovers(caller: Caller, input: unknown) {
+    const i = (input ?? {}) as { issueId?: unknown; issueKey?: unknown };
+    const issueId = typeof i.issueId === 'string' && i.issueId ? i.issueId : undefined;
+    const issueKey = typeof i.issueKey === 'string' && i.issueKey ? i.issueKey.toUpperCase() : undefined;
+    if (!issueId && !issueKey) throw new BatonError('bad_input', 'Pass the issue ID or key');
+
+    const matches = (x: Item) =>
+      x.kind === 'jira_issue' && ((!!issueId && issueIdOf(x.ari) === issueId) || (!!issueKey && x.key?.toUpperCase() === issueKey));
+    return (await this.listEditable(caller)).flatMap((h) =>
+      h.items.filter(matches).map((x) => {
+        const accepted = x.acceptedOwnerAccountId;
+        const ownerId = accepted ?? x.suggestions[0]?.accountId;
+        return {
+          handoverId: h.id,
+          subjectName: h.subjectName,
+          reason: h.reason,
+          lastDay: h.lastDay,
+          status: h.status,
+          risk: x.risk,
+          band: x.band,
+          reasons: x.reasons,
+          newOwner: ownerId ? { accountId: ownerId, name: h.people[ownerId] ?? ownerId } : null,
+          ownerStatus: accepted ? ('accepted' as const) : ownerId ? ('suggested' as const) : ('none' as const),
+        };
+      }),
+    );
+  }
+
+  /**
    * Deletes one handover: the person who started it, or a Jira admin. Recipients can see it but not
    * delete it. A Confluence page it published is left alone.
    */

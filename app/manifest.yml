@@ -8,6 +8,15 @@ modules:
         function: resolver
       title: Baton
 
+  # "This issue is in an open handover" on Jira issues: who's leaving, the risk and the new owner.
+  jira:issuePanel:
+    - key: baton-issue-badge
+      resource: main
+      resolver:
+        function: resolver
+      title: Baton handover
+      icon: resource:main;baton-icon.svg
+
   function:
     - key: resolver
       handler: index.handler

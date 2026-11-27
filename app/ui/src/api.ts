@@ -35,6 +35,22 @@ export type HandoverRow = {
 export type HandoverView = { role: 'editor'; handover: Handover } | SubjectView;
 export type { SubjectView };
 
+/** One handover a Jira issue is in, for the issue panel (issueHandovers). */
+export type IssueHandover = {
+  handoverId: string;
+  subjectName: string;
+  reason: Reason;
+  lastDay: string;
+  status: Status;
+  risk: number;
+  band: 'high' | 'medium' | 'low';
+  reasons: string[];
+  newOwner: { accountId: string; name: string } | null;
+  ownerStatus: 'accepted' | 'suggested' | 'none';
+  /** The handover in the Baton app page. */
+  link: string;
+};
+
 /** One row of reassignIssues' results. */
 export type ReassignResult = { ari: string; key: string; accountId: string; ok: boolean; error?: string };
 
@@ -81,6 +97,7 @@ export const makeApi = (invoke: Invoke) => {
     updateSummary: (id: string, summary: HandoverSummary) => call<Handover>('updateSummary', { id, summary }),
     publishHandover: (id: string, spaceKey: string) => call<Handover>('publishHandover', { id, spaceKey }),
     reassignIssues: (id: string, itemAris: string[]) => call<{ results: ReassignResult[] }>('reassignIssues', { id, itemAris }),
+    issueHandovers: (issue: { issueId?: string; issueKey?: string }) => call<IssueHandover[]>('issueHandovers', issue),
   };
 };
 

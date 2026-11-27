@@ -6,7 +6,9 @@ export type Route =
   | { name: 'new' }
   /** `build`: start reading the graph as soon as the screen opens (right after New handover). */
   | { name: 'handover'; id: string; build?: boolean }
-  | { name: 'dev' };
+  | { name: 'dev' }
+  /** The Jira issue panel: chosen from the module context in main.tsx, never from a URL. */
+  | { name: 'issue'; issueId?: string; issueKey?: string };
 
 export const parseRoute = (pathname: string, search = ''): Route => {
   const parts = pathname.split('/').filter(Boolean);
