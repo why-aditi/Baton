@@ -18,6 +18,7 @@ Built on Atlassian Forge for [Codegeist 2026](https://codegeist2026.devpost.com/
 6. **Publish and reassign.** Baton writes the handover narrative, publishes it as a Confluence page with @mentions of the new owners, and bulk-reassigns the chosen Jira issues after a confirmation step.
 7. **Ask it anywhere.** The **Baton** Rovo agent and the **Baton handovers** MCP server answer questions such as *"Who owns PAY-1 now?"* and can start a handover, from Rovo chat or from an external AI client like Claude Desktop.
 8. **See it on the issue.** The **Baton handover** panel on a Jira issue says whether it's in a handover and, if so, who's leaving, the issue's risk and why, and who takes it over, with a link to the handover.
+9. **Start it automatically.** `start-handover` is also a Jira Automation action, so a rule (say, when an offboarding issue is created) can start the handover and share it with the person's manager. It won't start a second one while one is in progress.
 
 ## How it works
 

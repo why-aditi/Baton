@@ -134,7 +134,7 @@ modules:
       name: Start handover
       function: start-handover-fn
       actionVerb: CREATE
-      description: Starts a draft handover for a person and returns a link to finish it in Baton.
+      description: Starts a draft handover for a person and returns a link to finish it in Baton. Returns the existing one if the person already has a handover in progress.
       inputs:
         person:
           title: Person
@@ -151,6 +151,18 @@ modules:
           type: string
           required: true
           description: Their last day, as YYYY-MM-DD.
+        recipient:
+          title: Share with
+          type: string
+          required: false
+          description: Optional. Who else should own the handover, usually their manager, by name or Atlassian account ID.
+
+  # Offers start-handover to Jira Automation, so a rule (for example on an offboarding issue) can start
+  # handovers without anyone opening Baton.
+  automation:actionProvider:
+    - key: baton-automation
+      actions:
+        - start-handover
 
   # Forge LLMs: Claude, hosted on Atlassian. Used for questions, one-liners and the summary.
   llm:
