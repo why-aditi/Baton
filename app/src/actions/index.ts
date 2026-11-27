@@ -219,23 +219,58 @@ export class Actions {
     return { minRisk, items };
   });
 
+  /** One person for a name or account ID, or a reply asking the user to say who they meant. */
+  private async onePerson(query: string): Promise<{ person: { accountId: string; name: string } } | { reply: object }> {
+    const matches = await this.deps.findPeople(query);
+    if (matches.length === 0) return { reply: { result: `Nobody matches "${query}".` } };
+    if (matches.length > 1) {
+      return { reply: { result: `More than one person matches "${query}": ${matches.map((m) => m.name).join(', ')}. Which one?` } };
+    }
+    return { person: matches[0]! };
+  }
+
+  /**
+   * Also offered to Jira Automation (automation:actionProvider in the manifest). Rules can fire more
+   * than once, so an unpublished handover for the same person comes back instead of a second one, and
+   * `recipient` lets a rule running as an automation account share the handover with a real manager.
+   */
   startHandover = guard(async (caller: Caller, input: Input) => {
     const person = str(input.person);
     if (!person) return { error: 'person is required' };
-    const matches = await this.deps.findPeople(person);
-    if (matches.length === 0) return { result: `Nobody matches "${person}".` };
-    if (matches.length > 1) {
-      return { result: `More than one person matches "${person}": ${matches.map((m) => m.name).join(', ')}. Which one?` };
+    const who = await this.onePerson(person);
+    if ('reply' in who) return who.reply;
+    const subject = who.person;
+
+    const recipientQuery = str(input.recipient);
+    let recipient: { accountId: string; name: string } | undefined;
+    if (recipientQuery) {
+      const r = await this.onePerson(recipientQuery);
+      if ('reply' in r) return r.reply;
+      recipient = r.person;
     }
-    const subject = matches[0]!;
+
+    const open = (await this.svc.listEditable(caller)).find(
+      (h) => h.subjectAccountId === subject.accountId && h.status !== 'published',
+    );
+    if (open) {
+      return {
+        result: `${subject.name} already has a handover in progress (${open.status}), so no new one was started.`,
+        personLink: await this.link(subject.name, subject.accountId),
+        link: await this.deps.link(open.id),
+      };
+    }
+
+    // Automation sends dates with a time ("2027-01-10T00:00:00.0+0000"); keep the date.
+    const lastDay = str(input.lastDay).replace(/^(\d{4}-\d{2}-\d{2})T.*$/, '$1');
     const h = await this.svc.create(caller, {
       subjectAccountId: subject.accountId,
       subjectName: subject.name,
       reason: toReason(str(input.reason)),
-      lastDay: str(input.lastDay),
+      lastDay,
+      ...(recipient && { recipientAccountIds: [recipient.accountId] }),
     });
     return {
-      result: `Started a draft handover for ${subject.name}. Open Baton to build the inventory.`,
+      result: `Started a draft handover for ${subject.name}${recipient ? `, shared with ${recipient.name}` : ''}. Open Baton to build the inventory.`,
       personLink: await this.link(subject.name, subject.accountId),
       link: await this.deps.link(h.id),
     };

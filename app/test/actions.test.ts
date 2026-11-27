@@ -232,6 +232,44 @@ describe('start-handover', () => {
     const r = await actions.startHandover(boss, { person: 'Arjun', reason: 'leaving', lastDay: 'Jan 10' });
     expect(r).toMatchObject({ error: expect.stringContaining('lastDay') });
   });
+  test('shares the new handover with a recipient, who can then see it', async () => {
+    const r = await actions.startHandover(boss, { person: 'Arjun', reason: 'leave', lastDay: '2027-01-10', recipient: 'Meera' });
+    expect(r).toMatchObject({ result: 'Started a draft handover for Arjun Rao, shared with Meera Iyer. Open Baton to build the inventory.' });
+    const arjuns = (await svc.list(meera)).filter((h) => h.subjectName === 'Arjun Rao');
+    expect(arjuns).toEqual([expect.objectContaining({ role: 'editor' })]);
+  });
+
+  test('an unknown or ambiguous recipient stops before creating anything', async () => {
+    expect(await actions.startHandover(boss, { person: 'Arjun', reason: 'leave', lastDay: '2027-01-10', recipient: 'Zed' })).toEqual({
+      result: 'Nobody matches "Zed".',
+    });
+    expect(await actions.startHandover(boss, { person: 'Arjun', reason: 'leave', lastDay: '2027-01-10', recipient: 'r' })).toEqual({
+      result: 'More than one person matches "r": Meera Iyer, Arjun Rao. Which one?',
+    });
+    expect((await svc.list(boss)).map((h) => h.subjectName)).not.toContain('Arjun Rao');
+  });
+
+  test('returns the handover already in progress instead of starting a second one', async () => {
+    const r = await actions.startHandover(boss, { person: 'Meera', reason: 'leaving', lastDay: '2027-01-10' });
+    expect(r).toEqual({
+      result: 'Meera Iyer already has a handover in progress (draft), so no new one was started.',
+      personLink: '[Meera Iyer](https://site/jira/people/meera)',
+      link: `https://site/jira/apps/app/env?handover=${handoverId}`,
+    });
+    expect((await svc.list(boss)).filter((h) => h.subjectName === 'Meera Iyer')).toHaveLength(1);
+  });
+
+  test('a published handover doesn\'t block a new one', async () => {
+    await svc.markPublished(boss, { id: handoverId, pageId: '1', url: 'https://x/page' });
+    const r = await actions.startHandover(boss, { person: 'Meera', reason: 'leave', lastDay: '2027-03-01' });
+    expect(r).toMatchObject({ result: expect.stringMatching(/^Started a draft handover for Meera Iyer/) });
+  });
+
+  test('takes a date with a time, as Jira Automation sends dates', async () => {
+    const r = await actions.startHandover(boss, { person: 'Arjun', reason: 'leaving', lastDay: '2027-01-10T00:00:00.0+0000' });
+    expect(r).toHaveProperty('link');
+    expect((await svc.list(boss)).find((h) => h.subjectName === 'Arjun Rao')?.lastDay).toBe('2027-01-10');
+  });
 });
 
 describe('compact', () => {
