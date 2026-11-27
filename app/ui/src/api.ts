@@ -35,6 +35,16 @@ export type HandoverRow = {
 export type HandoverView = { role: 'editor'; handover: Handover } | SubjectView;
 export type { SubjectView };
 
+type ItemRef = { ari: string; kind: Item['kind']; title: string; key?: string; url: string };
+type Band = 'high' | 'medium' | 'low';
+
+/** compareInventory: a published handover against a fresh read of the person's work. */
+export type InventoryDiff = {
+  added: (ItemRef & { risk: number; band: Band; reasons: string[] })[];
+  gone: (ItemRef & { newOwner: string | null })[];
+  stillOpen: (ItemRef & { riskBefore: number; riskNow: number; bandNow: Band; reasons: string[] })[];
+};
+
 /** One handover a Jira issue is in, for the issue panel (issueHandovers). */
 export type IssueHandover = {
   handoverId: string;
@@ -98,6 +108,7 @@ export const makeApi = (invoke: Invoke) => {
     publishHandover: (id: string, spaceKey: string) => call<Handover>('publishHandover', { id, spaceKey }),
     reassignIssues: (id: string, itemAris: string[]) => call<{ results: ReassignResult[] }>('reassignIssues', { id, itemAris }),
     issueHandovers: (issue: { issueId?: string; issueKey?: string }) => call<IssueHandover[]>('issueHandovers', issue),
+    compareInventory: (input: InventoryInput) => call<InventoryDiff>('compareInventory', input),
   };
 };
 

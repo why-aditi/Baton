@@ -5,7 +5,7 @@ import { generateQuestions, generateSummary, summarizeItems } from '../llm/tasks
 import { isWebUrl, pageBody, pageTitle } from '../publish/page';
 import { applyIssueDetails, issueIdOf, type IssueDetails } from '../enrich/jira';
 import { scoreInventory } from '../scoring/inventory';
-import type { Caller, Handover, HandoverSummary, Item, Status } from '../types';
+import type { Caller, Handover, HandoverSummary, Item, ScoredItem, Status } from '../types';
 import { roleOf, subjectView, type Role } from './access';
 import type { Store } from './store';
 
@@ -212,23 +212,64 @@ export class HandoverService {
     if (h.status === 'published') throw new BatonError('conflict', 'This handover is already published');
 
     h.people = { ...h.people, ...i.people };
-    const items = await this.withIssueDetails(i.items);
     const accepted = new Map(h.items.map((x) => [x.ari, x.acceptedOwnerAccountId]));
     const oneLines = new Map(h.items.map((x) => [x.ari, x.oneLine]));
-    h.items = scoreInventory(items, {
-      subjectAri: h.subjectAri,
-      subjectName: h.subjectName,
-      lastDay: h.lastDay,
-      now: this.deps.now(),
-      teams: i.teams,
-      openAssigned: i.openAssigned,
-    }).map((x) => ({
+    h.items = (await this.scoreFresh(h, i)).map((x) => ({
       ...x,
       ...(accepted.get(x.ari) && { acceptedOwnerAccountId: accepted.get(x.ari) }),
       ...(oneLines.get(x.ari) && { oneLine: oneLines.get(x.ari) }),
     }));
     h.inputHash = sha256(h.items.map((x) => [x.ari, x.title, x.status, x.risk, x.reasons]));
     return this.save(h);
+  }
+
+  /** Scores a fresh graph read for this handover, Jira dates included. Stores nothing. */
+  private async scoreFresh(h: Handover, i: z.infer<typeof inventoryInput>) {
+    return scoreInventory(await this.withIssueDetails(i.items), {
+      subjectAri: h.subjectAri,
+      subjectName: h.subjectName,
+      lastDay: h.lastDay,
+      now: this.deps.now(),
+      teams: i.teams,
+      openAssigned: i.openAssigned,
+    });
+  }
+
+  /**
+   * What changed since a handover was published. A published handover's items can't change (saveInventory
+   * refuses), so they are the published state; a fresh read is scored the same way and compared:
+   * - added: open work of the person's that wasn't in the handover
+   * - gone: work that's no longer theirs or no longer open (handed over, done), with its accepted owner
+   * - stillOpen: still theirs, with the risk then and now
+   * Stores nothing.
+   */
+  async compareInventory(caller: Caller, input: unknown) {
+    const i = parse(inventoryInput, input);
+    const { h } = await this.load(caller, i.id);
+    if (h.status !== 'published') {
+      throw new BatonError('conflict', 'Only a published handover can be compared. Rebuild the inventory instead.');
+    }
+    const fresh = await this.scoreFresh(h, i);
+    const people = { ...h.people, ...i.people };
+    const before = new Map(h.items.map((x) => [x.ari, x]));
+    const now = new Map(fresh.map((x) => [x.ari, x]));
+    const ref = (x: ScoredItem) => ({ ari: x.ari, kind: x.kind, title: x.title, key: x.key, url: x.url });
+
+    return {
+      added: fresh
+        .filter((x) => !before.has(x.ari))
+        .map((x) => ({ ...ref(x), risk: x.risk, band: x.band, reasons: x.reasons })),
+      gone: h.items
+        .filter((x) => !now.has(x.ari))
+        .map((x) => ({
+          ...ref(x),
+          newOwner: x.acceptedOwnerAccountId ? (people[x.acceptedOwnerAccountId] ?? x.acceptedOwnerAccountId) : null,
+        })),
+      stillOpen: fresh
+        .filter((x) => before.has(x.ari))
+        .map((x) => ({ ...ref(x), riskBefore: before.get(x.ari)!.risk, riskNow: x.risk, bandNow: x.band, reasons: x.reasons }))
+        .sort((a, b) => b.riskNow - a.riskNow || a.title.localeCompare(b.title)),
+    };
   }
 
   /** Fills Jira dates the graph lacks. Never blocks saving: on failure the graph data is used as is. */

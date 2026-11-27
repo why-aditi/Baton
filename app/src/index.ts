@@ -52,6 +52,7 @@ const RESOLVERS: Record<string, Handler> = {
   reassignIssues: (s, c, p) => s.reassign(c, p),
   deleteHandover: (s, c, p) => s.deleteHandover(c, p),
   // The panel opens the handover in the app page, so each match carries its link.
+  compareInventory: (s, c, p) => s.compareInventory(c, p),
   issueHandovers: async (s, c, p) =>
     Promise.all((await s.issueHandovers(c, p)).map(async (m) => ({ ...m, link: await handoverLink(m.handoverId) }))),
   deleteAllHandovers: (s, c, p) => s.deleteAllHandovers(c, p),

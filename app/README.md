@@ -74,6 +74,7 @@ access), `bad_input`, `conflict`, `llm_unavailable` and `internal`.
 | `updateSummary` | `{ id, summary }` | editor | `Handover` |
 | `markPublished` | `{ id, pageId, url }` | editor | `Handover`, moved to published. `publishHandover` already does this |
 | `publishHandover` | `{ id, spaceKey }` | editor | Creates the Confluence page as the user (needs a summary), then `Handover`, moved to published, with `confluencePageUrl` |
+| `compareInventory` | `{ id, items, teams?, openAssigned?, people? }` (from `buildInventory`) | editor, published handovers only | `{ added, gone, stillOpen }`: new open work, work no longer theirs (with the accepted owner), and work still theirs with the risk then and now. Saves nothing |
 | `issueHandovers` | `{ issueId?, issueKey? }` | anyone (only handovers they can edit) | the handovers containing that issue: person, reason, last day, risk, reasons, new owner, `link`. For the issue panel |
 | `deleteHandover` | `{ id }` | the person who started it, or a Jira admin | `{ deleted: id }`. Removes one handover; a page it published stays |
 | `deleteAllHandovers` | `{ confirm: "DELETE" }` | Jira admins only | `{ deleted }`. Removes every handover on the site, for resetting a demo |
