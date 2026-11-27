@@ -74,8 +74,8 @@ export const WhatChanged = ({ handover: h }: { handover: Handover }) => {
       {d && d.added.length > 0 && (
         <Section title={`New since publishing (${d.added.length})`}>
           {d.added.map((it) => (
-            <li key={it.ari} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-              {link(it)}
+            <li key={it.ari}>
+              {link(it)}{' '}
               <Lozenge appearance={it.band === 'high' ? 'removed' : it.band === 'medium' ? 'moved' : 'default'}>
                 {BAND_LABEL[it.band]}
               </Lozenge>

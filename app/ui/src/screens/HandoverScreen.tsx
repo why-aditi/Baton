@@ -7,7 +7,7 @@ import { KnowledgeCapture } from './KnowledgeCapture';
 
 /** Loads one handover and picks the screen for the caller's role. */
 export const HandoverScreen = ({ id, build = false }: { id: string; build?: boolean }) => {
-  const { api } = usePlatform();
+  const { api, navigate } = usePlatform();
   const [view, setView] = useState<HandoverView | null>(null);
   const [error, setError] = useState<unknown>(null);
 
@@ -18,7 +18,25 @@ export const HandoverScreen = ({ id, build = false }: { id: string; build?: bool
   }, [api, id]);
   useEffect(load, [load]);
 
-  if (error) return <div style={{ padding: 24 }}><ErrorBanner error={error} onRetry={load} /></div>;
+  if (error) {
+    // Without the handover there's no header, so give a way back to the list as well as a retry.
+    return (
+      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <nav aria-label="Breadcrumb">
+          <a
+            href="#/"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate({ name: 'list' });
+            }}
+          >
+            Back to handovers
+          </a>
+        </nav>
+        <ErrorBanner error={error} onRetry={load} />
+      </div>
+    );
+  }
   if (!view) return <Loading label="Loading handover" />;
   return view.role === 'editor' ? <EditorHandover initial={view.handover} autoBuild={build} /> : <KnowledgeCapture initial={view} />;
 };
