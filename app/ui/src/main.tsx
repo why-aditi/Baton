@@ -29,7 +29,6 @@ const start = async () => {
 
   const platform: Platform = {
     api: makeApi((name, payload) => invoke(name, payload)),
-    invokeRaw: (name, payload) => invoke(name, payload),
     // Graph reads go through the graphQuery resolver: team lookups 403 through the browser bridge.
     graph: backendGraphRequest((name, payload) => invoke(name, payload)),
     searchPeople: async (query) => {

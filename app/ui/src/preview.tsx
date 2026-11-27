@@ -128,6 +128,7 @@ const api = {
   publishHandover: async () => published,
   reassignIssues: async () => ({ results: [{ ari: h.items[0]!.ari, key: 'PAY-1', accountId: 'arjun', ok: true }] }),
   issueHandovers: () => onLoad([issueMatch], []),
+  deleteHandover: async () => ({ deleted: h.id }),
   compareInventory: () => onAction(diff, { added: [], gone: [], stillOpen: [] }),
 } as unknown as Api;
 
@@ -135,7 +136,6 @@ const root = createRoot(document.getElementById('root')!);
 const show = (route: Route) => root.render(<App route={route} platform={platform} />);
 const platform: Platform = {
   api,
-  invokeRaw: async () => ({}),
   listSpaces: () =>
     screen === 'review' && state === 'error'
       ? Promise.reject(new Error('offline'))

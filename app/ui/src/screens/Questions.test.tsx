@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import type { Handover } from '../../../src/types';
 import { ApiError, type Api, type SubjectView } from '../api';
@@ -15,7 +15,6 @@ afterEach(() => {
 
 const platformWith = (api: Partial<Api>): Platform => ({
   api: api as Api,
-  invokeRaw: vi.fn(),
   listSpaces: vi.fn().mockResolvedValue([]),
   searchPeople: vi.fn(),
   graph: vi.fn(),
@@ -57,6 +56,37 @@ describe('EditorHandover', () => {
     expect(screen.getByText('2 items · 1 high · 1 without an owner · 27 days left')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'See Meera’s answers' }));
     expect(screen.getByRole('tab', { name: /Questions \(0 of 1 answered\)/ }).getAttribute('aria-selected')).toBe('true');
+  });
+});
+
+describe('Delete handover', () => {
+  test('asks first, deletes, then goes back to the list', async () => {
+    const deleteHandover = vi.fn().mockResolvedValue({ deleted: 'h1' });
+    const p = renderEditor(handover(), { deleteHandover }, 'inventory');
+    fireEvent.click(screen.getByRole('button', { name: 'Delete handover' }));
+    expect(screen.getByText('Delete Meera Iyer’s handover?')).toBeTruthy();
+    expect(deleteHandover).not.toHaveBeenCalled();
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete handover' }));
+    await waitFor(() => expect(p.navigate).toHaveBeenCalledWith({ name: 'list' }));
+    expect(deleteHandover).toHaveBeenCalledWith('h1');
+  });
+
+  test('a refusal is shown and the handover stays open', async () => {
+    const deleteHandover = vi
+      .fn()
+      .mockRejectedValue(new ApiError('bad_input', 'Only the person who started this handover, or a Jira admin, can delete it'));
+    const p = renderEditor(handover(), { deleteHandover }, 'inventory');
+    fireEvent.click(screen.getByRole('button', { name: 'Delete handover' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete handover' }));
+    expect(await screen.findByText('Only the person who started this handover, or a Jira admin, can delete it')).toBeTruthy();
+    expect(p.navigate).not.toHaveBeenCalled();
+    expect(screen.getByRole('tab', { name: /Inventory/ })).toBeTruthy();
+  });
+
+  test('a published handover says its Confluence page stays', () => {
+    renderEditor(handover({ status: 'published', confluencePageUrl: 'https://x/wiki/p/1' }), {}, 'inventory');
+    fireEvent.click(screen.getByRole('button', { name: 'Delete handover' }));
+    expect(screen.getByText(/The Confluence page it published stays\./)).toBeTruthy();
   });
 });
 

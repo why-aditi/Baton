@@ -109,6 +109,7 @@ export const makeApi = (invoke: Invoke) => {
     reassignIssues: (id: string, itemAris: string[]) => call<{ results: ReassignResult[] }>('reassignIssues', { id, itemAris }),
     issueHandovers: (issue: { issueId?: string; issueKey?: string }) => call<IssueHandover[]>('issueHandovers', issue),
     compareInventory: (input: InventoryInput) => call<InventoryDiff>('compareInventory', input),
+    deleteHandover: (id: string) => call<{ deleted: string }>('deleteHandover', { id }),
   };
 };
 

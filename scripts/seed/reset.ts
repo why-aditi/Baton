@@ -1,8 +1,8 @@
 // Puts the demo site back to the seed state so the demo can run again:
 //   1. Jira: every seeded issue back to its story assignee and status (undoes Baton's reassigns).
 //   2. Confluence: deletes the handover pages Baton published in the seed space.
-//   3. Baton's own handovers live in Forge storage, which only the app can reach: run the
-//      deleteAllHandovers resolver (instructions printed at the end).
+//   3. Baton's own handovers live in Forge storage, which only the app can reach: delete them in
+//      Baton with Delete handover (instructions printed at the end).
 import { confluenceApi } from './confluence';
 import { jiraApi, seedJira } from './jira';
 import { isMain, runScript } from './lib/main';
@@ -40,7 +40,7 @@ if (isMain(import.meta.url)) {
     const n = await removePublishedPages(confluenceApi(config, fetch), config.spaceKey, log);
     log(`  ${n} deleted (pages published to other spaces are left alone)`);
 
-    log('\nLast step, in Baton: as a Jira admin, open Jira → Apps → Baton and run the');
-    log('deleteAllHandovers resolver with payload {"confirm":"DELETE"} to remove every handover.');
+    log('\nLast step, in Baton: open Jira → Apps → Baton, open each handover and use');
+    log('Delete handover (as the person who started it, or a Jira admin).');
   });
 }

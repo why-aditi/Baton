@@ -19,7 +19,6 @@ afterEach(cleanup);
 const setup = (api: Partial<Api> = {}, initial = handover(), autoBuild = false, graph = vi.fn()) => {
   const platform: Platform = {
     api: { listHandovers: vi.fn(), getHandover: vi.fn(), saveInventory: vi.fn(), summarizeItems: vi.fn().mockRejectedValue(new Error('llm down')), setOwner: vi.fn(), ...api } as Api,
-    invokeRaw: vi.fn(),
     listSpaces: vi.fn().mockResolvedValue([]),
     searchPeople: vi.fn(),
     graph,

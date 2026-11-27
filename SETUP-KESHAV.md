@@ -72,7 +72,7 @@ The repo has two apps. `app/` is the real Baton and is what you set up. `spike/`
     forge install list
     ```
     `forge install list` should show one row: `Jira (required)` plus `Confluence`. If a deploy stops with "approval requested", rerun it with `--approve MAJOR_VERSION_RULE`; adding hosts or scopes counts as a major version.
-8. Open Jira → Apps → **Baton**. It opens on the handover list. The old resolver test page is now at the `/dev` route (`<site>/jira/apps/<appId>/<envId>/dev`): it calls any resolver by name with a JSON payload.
+8. Open Jira → Apps → **Baton**. It opens on the handover list. (The `/dev` resolver test page was removed on Nov 27; everything it was used for now has a screen, including **Delete handover**.)
 
 Use `forge logs -e keshav -f` in a second terminal while testing.
 
@@ -117,7 +117,7 @@ The scripts live in `scripts/`; `scripts/README.md` has the full steps. They ran
 - [x] **Update the agent's suggested question** (Nov 23, PR #20) "Who owns PAY-142 now?" in `app/manifest.yml` to the hero issue's real key (`PAY-1` on fresh projects).
 - [x] **Re-recorded the graph fixtures** on the seed (Nov 23), with seeded Meera swapped for the fake ID the tests use. `ownedPages` and `pageInboundRefs` are still from Nov 22: they only run as the app.
 - Teams: solved (Nov 23). From the app page, `@forge/bridge`'s `requestTeamworkGraph` gets a 403 on every team (the recorded `userTeams.app-403.json`). From the backend, `api.asUser().requestTeamworkGraph` returns them, which a forum reply suggested and the demo site confirmed. So the UI sends graph reads through the `graphQuery` resolver (section 7), and teams show up.
-- Between demo runs: `npm run reset`, then the `deleteAllHandovers` resolver (`scripts/README.md` section 3).
+- Between demo runs: `npm run reset`, then delete the test handovers in Baton with **Delete handover** on each (`scripts/README.md` section 3).
 
 ## 5. Check it works
 
@@ -133,7 +133,7 @@ The scripts live in `scripts/`; `scripts/README.md` has the full steps. They ran
 - [x] Ask Rovo → Baton (listed once) → "List open handovers" shows the same handover. Meera showed as a bare profile URL instead of her name; fixed Nov 24 (section 8) and rechecked Nov 26 as Priya: she now shows as a "Meera Iyer" profile chip with her avatar
 - [x] Claude Desktop → "List open handovers" (Nov 24, as Aditi) shows Meera's handover as published, plus Aditi's own test handovers (Jennifer Evans, Kevin Campbell, Alana Grant). It lists more than Rovo did because site admins see every handover; Priya isn't an admin. Cleared Nov 26, as Aditi: on the `/dev` page, `listHandovers` with `{}` for the `id`s, then `deleteHandover` with `{"id":"<id>"}` for each of the three. `listHandovers` now shows only Meera's handover. Only the person who started a handover, or a Jira admin, can delete it (as Priya, `/dev` lists only Meera's). Kevin's and Alana's old published pages in `EO` are still there
 
-**On Keshav's own site** (done, reported Nov 26), all from Jira → Apps → **Baton** → `/dev` (the resolver test page) unless it says otherwise:
+**On Keshav's own site** (done, reported Nov 26), all from Jira → Apps → **Baton** → `/dev` (the resolver test page, since removed) unless it says otherwise:
 
 - [x] The Baton page loads
 - [x] `listHandovers` with payload `{}` returns `{ "ok": true, "data": [] }`
@@ -263,7 +263,7 @@ So you know what's coming and what blocks you. Items marked **(affects you)** ch
 
 - [ ] **Add the goal and project graph scopes** to the manifest, with exact names from the Scopes page.
 - [ ] **Check the storage size limit** against a full handover.
-- [ ] **Remove the dev-only page before submission:** the `/dev` route, `app/ui/src/screens/DevPage.tsx`. (The `devGraphQuery` resolver is gone: `graphQuery` replaced it and only runs Baton's own queries.)
+- [x] **Removed the dev-only page** (Nov 27): the `/dev` route and `app/ui/src/screens/DevPage.tsx`. Deleting a handover, the one thing still done there, is now a **Delete handover** button on the handover page. (The `devGraphQuery` resolver is gone: `graphQuery` replaced it and only runs Baton's own queries.)
 - [x] **Category: Apps for Software Teams** (decided Nov 22). The spec recommended Business Teams, but the demo story (Northwind Pay engineers, PRs, Jira) is a software team's. Frame the video and Devpost text for dev teams: unreviewed PRs, the knowledge only one engineer has. **(affects you)**
 - [ ] **Marketplace bonus: decide on Dec 7**, once the MVP is demo-able. If there's slack then, submit a paid listing for review (a review ticket is enough for the prize; see section 6).
 - [ ] **Check her employment contract** for side-project clauses.
