@@ -11,6 +11,10 @@ export const exampleRows = [
   { score: 60, title: 'Payment retry service runbook', why: 'only Meera · 4 inbound links', to: 'Dana' },
 ];
 
+/** What one real run on the seeded demo site produced (SETUP-KESHAV.md section 5, Nov 23). Not timed, so no minutes. */
+export const demoRun =
+  'One read found 22 open items for Meera across Jira, Bitbucket, Confluence and Goals, including 3 PRs and a runbook nobody else had touched. Baton drafted 8 questions tied to those items, and the published page carried 9 @mentions.';
+
 /** The knowledge-risk signals and their points (app/src/scoring/risk.ts). */
 export const rules = [
   { signal: 'Nobody else has worked on it', points: 40 },
@@ -28,7 +32,7 @@ export const tools = [
   ['get-handover', '{ person }'],
   ['find-owner', '{ item: "PAY-1" }'],
   ['list-at-risk-items', '{ person?, minRisk: 60 }'],
-  ['start-handover', '{ person, reason, lastDay }'],
+  ['start-handover', '{ person, reason, lastDay, recipient? }'],
 ] as const;
 
 export const steps = [
@@ -42,13 +46,13 @@ export const steps = [
   },
   {
     title: 'Publish and reassign',
-    body: 'Publish the handover to Confluence with new owners @mentioned, then reassign the Jira issues after a dialog that lists every change.',
+    body: 'Publish the handover to Confluence with new owners @mentioned, then reassign the Jira issues after a dialog that lists every change. Later, check what changed since publishing.',
   },
 ];
 
 export const facts = [
   { title: 'Teamwork Graph', body: 'Reads Jira, Bitbucket, Confluence and Goals in one pass, with the signed-in user’s permissions.' },
-  { title: 'Forge storage', body: 'Handovers stay on your Atlassian site. Nothing is kept on outside servers.' },
+  { title: 'Runs on Atlassian', body: 'Storage, graph reads and the language model (Forge LLMs) all run on Atlassian. Baton has no servers and calls no outside APIs.' },
   { title: 'Pseudonymized prompts', body: 'People become P1, P2 before any text reaches the language model, and come back after.' },
   { title: 'Works without the LLM', body: 'If the model is down, the scored inventory, owners and reassignments still work.' },
 ];

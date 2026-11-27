@@ -20,6 +20,8 @@ Built on Atlassian Forge for [Codegeist 2026](https://codegeist2026.devpost.com/
 8. **See it on the issue.** The **Baton handover** panel on a Jira issue says whether it's in a handover and, if so, who's leaving, the issue's risk and why, and who takes it over, with a link to the handover.
 9. **Start it automatically.** `start-handover` is also a Jira Automation action, so a rule (say, when an offboarding issue is created) can start the handover and share it with the person's manager. It won't start a second one while one is in progress.
 
+**On the demo data** (Northwind Pay, run on the seeded site): one read found 22 open items for Meera across Jira, Bitbucket, Confluence and Goals, including 3 PRs and a runbook nobody else had touched. Baton drafted 8 questions tied to those items, and the published page carried 9 @mentions. Rebuilding that by hand means searching four products for one person's work and guessing who else knows it.
+
 ## How it works
 
 ```mermaid
@@ -73,6 +75,8 @@ flowchart LR
 | Who else worked on each item | `confluencePageContributors`, `jiraWorkItemComments` |
 | Candidate owners and their teams | `atlassianUserInTeams`, `atlassianTeamMembers` |
 | Goals and projects | `atlassianUserGoalsAndProjects` |
+
+Baton also writes back: the published handover is a Confluence page, which Teamwork Graph indexes like any other page. Rovo search finds it, and its links to the issues, PRs and pages it covers become graph links, the same kind Baton reads to count how widely a page is referenced.
 
 Things we learned the hard way are in [app/test/fixtures/README.md](app/test/fixtures/README.md), alongside real responses recorded from a demo site.
 
