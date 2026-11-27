@@ -8,7 +8,9 @@ export type Route =
   | { name: 'handover'; id: string; build?: boolean }
   | { name: 'dev' }
   /** The Jira issue panel: chosen from the module context in main.tsx, never from a URL. */
-  | { name: 'issue'; issueId?: string; issueKey?: string };
+  | { name: 'issue'; issueId?: string; issueKey?: string }
+  /** Jira Automation's settings form for the start-handover action, also chosen from the module context. */
+  | { name: 'automation-config'; extension: unknown; showDebug: boolean };
 
 export const parseRoute = (pathname: string, search = ''): Route => {
   const parts = pathname.split('/').filter(Boolean);
