@@ -54,7 +54,7 @@ describe('routes', () => {
     ['', { name: 'list' }],
     ['/handover/abc-123', { name: 'handover', id: 'abc-123' }],
     ['/handover/abc-123/', { name: 'handover', id: 'abc-123' }],
-    ['/dev', { name: 'dev' }],
+    ['/dev', { name: 'list' }],
     ['/new', { name: 'new' }],
     ['/something/else', { name: 'list' }],
   ])('%s', (path, route) => {

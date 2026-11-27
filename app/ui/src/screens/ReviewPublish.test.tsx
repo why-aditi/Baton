@@ -26,7 +26,6 @@ const readyHandover = (over: Partial<Handover> = {}) => {
 const setup = (h: Handover, api: Partial<Api> = {}) => {
   const platform: Platform = {
     api: api as Api,
-    invokeRaw: vi.fn(),
     listSpaces: vi.fn().mockResolvedValue([{ key: 'NWP', name: 'Northwind Pay' }]),
     searchPeople: vi.fn(),
     graph: vi.fn(),

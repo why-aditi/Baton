@@ -76,8 +76,8 @@ access), `bad_input`, `conflict`, `llm_unavailable` and `internal`.
 | `publishHandover` | `{ id, spaceKey }` | editor | Creates the Confluence page as the user (needs a summary), then `Handover`, moved to published, with `confluencePageUrl` |
 | `compareInventory` | `{ id, items, teams?, openAssigned?, people? }` (from `buildInventory`) | editor, published handovers only | `{ added, gone, stillOpen }`: new open work, work no longer theirs (with the accepted owner), and work still theirs with the risk then and now. Saves nothing |
 | `issueHandovers` | `{ issueId?, issueKey? }` | anyone (only handovers they can edit) | the handovers containing that issue: person, reason, last day, risk, reasons, new owner, `link`. For the issue panel |
-| `deleteHandover` | `{ id }` | the person who started it, or a Jira admin | `{ deleted: id }`. Removes one handover; a page it published stays |
-| `deleteAllHandovers` | `{ confirm: "DELETE" }` | Jira admins only | `{ deleted }`. Removes every handover on the site, for resetting a demo |
+| `deleteHandover` | `{ id }` | the person who started it, or a Jira admin | `{ deleted: id }`. Removes one handover; a page it published stays. The **Delete handover** button calls it |
+| `deleteAllHandovers` | `{ confirm: "DELETE" }` | Jira admins only | `{ deleted }`. Removes every handover on the site, for resetting a demo. No screen calls it since the `/dev` page went; delete handovers one by one instead |
 | `reassignIssues` | `{ id, itemAris }` | editor | `{ results: { ari, key, accountId, ok, error? }[] }`. Jira issues with an accepted owner only. Show the confirmation dialog first |
 | `graphQuery` | `{ operation, variables }` | anyone signed in | `{ data, errors? }`: one of Baton's graph queries (`operation` is a key of `Q` in `src/graph/queries.ts`), run on the backend as the user. Team lookups 403 through the browser bridge but work here. Use `backendGraphRequest(invoke)` from `src/graph/proxy.ts` as `buildInventory`'s `request` rather than calling it directly |
 

@@ -6,8 +6,6 @@ import type { Route } from './route';
 
 export type Platform = {
   api: Api;
-  /** Any resolver by name, unwrapped. Only the dev page uses it. */
-  invokeRaw: (name: string, payload: Record<string, unknown>) => Promise<unknown>;
   /** Teamwork Graph, as the signed-in user (through the graphQuery resolver). */
   graph: GraphRequest;
   /** Active Atlassian accounts matching a name, from Jira's user search, as the signed-in user. */

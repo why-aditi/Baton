@@ -49,7 +49,7 @@ Give the graph time to catch up after seeding (5 minutes for new activity, somet
 npm run reset
 ```
 
-This puts every seeded Jira issue back to its story assignee and status (undoing Baton's reassignments) and deletes the handover pages Baton published in the seed space. Baton's handovers themselves live in Forge storage, which only the app can reach. Delete them as a Jira admin from the Baton page: run the `deleteAllHandovers` resolver with `{"confirm":"DELETE"}`.
+This puts every seeded Jira issue back to its story assignee and status (undoing Baton's reassignments) and deletes the handover pages Baton published in the seed space. Baton's handovers themselves live in Forge storage, which only the app can reach. Delete them in Baton: open each handover from Jira → Apps → **Baton** and use **Delete handover** (the person who started it, or a Jira admin).
 
 ## Things the seed can't fake
 

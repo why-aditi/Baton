@@ -1,5 +1,4 @@
 import { token } from '@atlaskit/tokens';
-import { DevPage } from './screens/DevPage';
 import { HandoverList } from './screens/HandoverList';
 import { HandoverScreen } from './screens/HandoverScreen';
 import { IssuePanel } from './screens/IssuePanel';
@@ -27,8 +26,6 @@ export const App = ({ platform, route }: { platform: Platform; route: Route }) =
         <HandoverScreen key={route.id} id={route.id} build={!!route.build} />
       ) : route.name === 'new' ? (
         <NewHandover />
-      ) : route.name === 'dev' ? (
-        <DevPage />
       ) : (
         <HandoverList />
       )}

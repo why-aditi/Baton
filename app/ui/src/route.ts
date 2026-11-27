@@ -6,7 +6,6 @@ export type Route =
   | { name: 'new' }
   /** `build`: start reading the graph as soon as the screen opens (right after New handover). */
   | { name: 'handover'; id: string; build?: boolean }
-  | { name: 'dev' }
   /** The Jira issue panel: chosen from the module context in main.tsx, never from a URL. */
   | { name: 'issue'; issueId?: string; issueKey?: string }
   /** Jira Automation's settings form for the start-handover action, also chosen from the module context. */
@@ -19,7 +18,6 @@ export const parseRoute = (pathname: string, search = ''): Route => {
     return { name: 'handover', id: decodeURIComponent(parts[1]), ...(build && { build }) };
   }
   if (parts[0] === 'new') return { name: 'new' };
-  if (parts[0] === 'dev') return { name: 'dev' };
   return { name: 'list' };
 };
 
@@ -29,8 +27,6 @@ export const pathFor = (route: Route): string => {
       return `/handover/${encodeURIComponent(route.id)}${route.build ? '?build=1' : ''}`;
     case 'new':
       return '/new';
-    case 'dev':
-      return '/dev';
     default:
       return '/';
   }

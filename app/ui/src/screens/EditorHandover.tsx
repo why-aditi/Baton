@@ -2,9 +2,12 @@
 // and Questions tabs. The handover lives here so both tabs show the same, latest copy.
 import Button from '@atlaskit/button/new';
 import Lozenge from '@atlaskit/lozenge';
+import SectionMessage from '@atlaskit/section-message';
 import { token } from '@atlaskit/tokens';
 import { useState } from 'react';
 import type { Handover } from '../../../src/types';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { errorText } from '../components/States';
 import { usePlatform } from '../platform';
 import { answered } from '../questions';
 import { firstName, shortDate, statsFor } from '../view';
@@ -25,11 +28,28 @@ const subtle = token('color.text.subtle', '#44546F');
 const border = `1px solid ${token('color.border', '#091E4224')}`;
 
 export const EditorHandover = ({ initial, autoBuild = false, initialTab = 'inventory' }: { initial: Handover; autoBuild?: boolean; initialTab?: Tab }) => {
-  const { now, navigate } = usePlatform();
+  const { api, now, navigate } = usePlatform();
   const [h, setH] = useState(initial);
   const [tab, setTab] = useState<Tab>(initialTab);
   const stats = statsFor(h, now());
   const name = firstName(h.subjectName);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<unknown>(null);
+
+  // The backend allows the person who started the handover, or a Jira admin; anyone else gets its message.
+  const remove = async () => {
+    setConfirmDelete(false);
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await api.deleteHandover(h.id);
+      navigate({ name: 'list' });
+    } catch (e) {
+      setDeleteError(e);
+      setDeleting(false);
+    }
+  };
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'inventory', label: `Inventory (${h.items.length})` },
@@ -64,6 +84,10 @@ export const EditorHandover = ({ initial, autoBuild = false, initialTab = 'inven
               {stats.items} items · {stats.high} high · {stats.withoutOwner} without an owner · {stats.daysLeft} days left
             </span>
           </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+          <Button appearance="subtle" isDisabled={deleting} onClick={() => setConfirmDelete(true)}>
+            {deleting ? 'Deleting…' : 'Delete handover'}
+          </Button>
           {tab === 'inventory' && h.items.length > 0 && h.status !== 'published' && (
             <Button appearance="primary" onClick={() => setTab('questions')}>
               {h.questions.length ? `See ${name}’s answers` : `Ask ${name}`}
@@ -74,7 +98,26 @@ export const EditorHandover = ({ initial, autoBuild = false, initialTab = 'inven
               Review and publish
             </Button>
           )}
+          </div>
         </div>
+        {deleteError ? (
+          <SectionMessage appearance="error" title="The handover wasn’t deleted">
+            <p>{errorText(deleteError)}</p>
+          </SectionMessage>
+        ) : null}
+        <ConfirmDialog
+          open={confirmDelete}
+          title={`Delete ${h.subjectName}’s handover?`}
+          confirm="Delete handover"
+          appearance="danger"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={() => void remove()}
+        >
+          <p>
+            This removes the handover, its inventory, owners and {name}’s answers from Baton for everyone, and can’t be undone.
+            {h.confluencePageUrl ? ' The Confluence page it published stays.' : ''}
+          </p>
+        </ConfirmDialog>
         <div role="tablist" aria-label="Handover sections" style={{ display: 'flex', gap: 4 }}>
           {tabs.map((t) => {
             const on = t.id === tab;
