@@ -134,11 +134,11 @@ modules:
       name: Start handover
       function: start-handover-fn
       actionVerb: CREATE
-      # Jira Automation's settings form for this action (app/ui: AutomationConfig, chosen in main.tsx).
+      # Jira Automation's settings form for this action: UI Kit (src/frontend/automationConfig.tsx). The Custom UI
+      # form never answered Automation's iFrameResizer handshake, so the panel spun forever.
       config:
-        resource: main
-      resolver:
-        function: resolver
+        resource: automation-config
+        render: native
       description: Starts a draft handover for a person and returns a link to finish it in Baton. Returns the existing one if the person already has a handover in progress.
       inputs:
         person:
@@ -189,6 +189,9 @@ resources:
   # The Custom UI build. Run `npm run build` in ui/ before `forge deploy`.
   - key: main
     path: ui/build
+  # UI Kit settings form for the start-handover step in Jira Automation.
+  - key: automation-config
+    path: src/frontend/automationConfig.tsx
 
 permissions:
   scopes:
