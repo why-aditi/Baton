@@ -200,7 +200,8 @@ permissions:
     - read:graph:issue:jira
     - read:graph:page:confluence
     - read:graph:pull-request:external
-    # TODO: goal and project graph scopes; confirm exact names on the Scopes page.
+    - read:graph:goal:atlassian
+    - read:graph:project:atlassian
     - read:jira-work
     - write:jira-work
     - read:jira-user
