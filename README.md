@@ -131,7 +131,7 @@ The full setup (your own Forge environment and demo site, Rovo, MCP, the LLM key
 | Marketing page | https://why-aditi.github.io/Baton/ (GitHub Pages, published by `.github/workflows/site.yml` on every push to `main` that touches `site/`) |
 | Privacy policy | https://why-aditi.github.io/Baton/privacy/ |
 | The app, production | Forge **production** environment, shared through an installation link ("Sharing with anyone", developer console → Baton → Distribution). Deploy with `cd app/ui && npm run build && cd .. && forge deploy -e production`. Now 3.3.0 (Nov 28) |
-| The app, development | Forge **development** environment, installed on the demo site `one-atlas-ubvd.atlassian.net`. Now 5.6.0 (Nov 28) |
+| The app, development | Forge **development** environment, installed on the demo site `one-atlas-ubvd.atlassian.net`. Now 6.2.0 (Nov 28) |
 
 ## Status (Nov 28, 2026)
 
@@ -141,7 +141,7 @@ The full setup (your own Forge environment and demo site, Rovo, MCP, the LLM key
 | Forge LLMs and Runs on Atlassian | Live: the app has no external egress, and dev and production are both eligible for Runs on Atlassian (`forge eligibility`). Meera's summary regenerated on Forge LLMs |
 | Issue panel | Live: the **Baton handover** panel on PAY-1 shows who's leaving, the risk and reasons, and the suggested owner |
 | What changed since publishing | Live: catches items that left the departing person after publishing |
-| Jira Automation action | Listed in the rule builder and connects. Its settings panel doesn't load because Automation still serves app version 5.1.0 for this action (the config iframe is `…/5.1.0/undefined/…`). The settings form is now UI Kit (#49). [Asked on the developer forum](https://community.developer.atlassian.com/t/forge-action-in-jira-automation-config-panel-spins-forever-iframe-stuck-on-an-old-app-version-5-1-0-undefined/104302) |
+| Jira Automation action | Live on dev: a rule's **Start handover** step loads its settings form and creates the handover (checked Nov 28 with a manual trigger on PAY-1). Automation only refreshes an action's definition on a major app version |
 | Teamwork Graph inventory (issues, PRs, pages, links, teams, goals) | Built, tested against recorded responses, checked live on the demo site |
 | Publish to Confluence, reassign Jira issues | Built and tested live |
 | Custom UI | Built; the whole flow run live on seed data (new handover → inventory → questions → answers → summary → publish → reassign) |

@@ -41,7 +41,15 @@ export type ServiceDeps = {
 export type ReassignResult = { ari: string; key: string; accountId: string; ok: boolean; error?: string };
 
 const MAX_ANSWER = 5000;
-const MAX_ITEMS = 500;
+export const MAX_ITEMS = 500;
+/**
+ * A handover is one Forge custom-entity value, capped at 240 KiB (RAW):
+ * https://developer.atlassian.com/platform/forge/limits-kvs-ce/. Stay a little under it.
+ * ponytail: one value per handover caps it at roughly 140 heavy items (about 1.5 KB each, see
+ * test/storageSize.test.ts). If real handovers get that big, store items as their own entities.
+ */
+export const MAX_STORED_BYTES = 230 * 1024;
+export const storedBytes = (h: Handover) => Buffer.byteLength(JSON.stringify(h), 'utf8');
 
 // ---- input schemas ----
 
@@ -138,6 +146,9 @@ export class HandoverService {
 
   private async save(h: Handover) {
     h.updatedAt = this.deps.now();
+    if (storedBytes(h) > MAX_STORED_BYTES) {
+      throw new BatonError('bad_input', 'This handover is too big to save. Remove some low-risk items or shorten long answers, then try again.');
+    }
     await this.deps.store.put(h);
     return h;
   }
