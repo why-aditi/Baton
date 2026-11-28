@@ -130,7 +130,7 @@ The full setup (your own Forge environment and demo site, Rovo, MCP, the LLM key
 | --- | --- |
 | Marketing page | https://why-aditi.github.io/Baton/ (GitHub Pages, published by `.github/workflows/site.yml` on every push to `main` that touches `site/`) |
 | Privacy policy | https://why-aditi.github.io/Baton/privacy/ |
-| The app, production | Forge **production** environment, shared through an installation link ("Sharing with anyone", developer console → Baton → Distribution). Deploy with `cd app/ui && npm run build && cd .. && forge deploy -e production`. Now 3.3.0 (Nov 28) |
+| The app, production | Forge **production** environment, shared through an installation link ("Sharing with anyone", developer console → Baton → Distribution). Deploy with `cd app/ui && npm run build && cd .. && forge deploy -e production`. Now 4.0.0 (Nov 28, with the goal and project scopes; a scope change needs `--approve MAJOR_VERSION_RULE`) |
 | The app, development | Forge **development** environment, installed on the demo site `one-atlas-ubvd.atlassian.net`. Now 6.2.0 (Nov 28) |
 
 ## Status (Nov 28, 2026)
